@@ -22,9 +22,9 @@ let _state = {
   rsvp:         load('egnach_rsvp', []),
   chatMessages: load('egnach_chat_messages', {}),
   availability: load('egnach_availability', AVAILABILITY),
-  listings: LISTINGS,
-  events: EVENTS,
-  chatThreads: CHAT_THREADS,
+  listings:     [...LISTINGS, ...load('egnach_user_listings', [])],
+  events:       [...EVENTS,   ...load('egnach_user_events',   [])],
+  chatThreads:  CHAT_THREADS,
 };
 
 function setState(updater) {
@@ -93,8 +93,27 @@ export function useStore() {
         return { ...s, availability };
       });
     },
+    addListing(listing) {
+      setState(s => {
+        const userListings = s.listings
+          .filter(l => !LISTINGS.find(sl => sl.id === l.id))
+          .concat(listing);
+        save('egnach_user_listings', userListings);
+        return { ...s, listings: [...LISTINGS, ...userListings] };
+      });
+    },
+    addEvent(event) {
+      setState(s => {
+        const userEvents = s.events
+          .filter(e => !EVENTS.find(se => se.id === e.id))
+          .concat(event);
+        save('egnach_user_events', userEvents);
+        return { ...s, events: [...EVENTS, ...userEvents] };
+      });
+    },
     reset() {
-      ['egnach_onboarded','egnach_user','egnach_lang','egnach_favorites','egnach_rsvp','egnach_chat_messages','egnach_availability']
+      ['egnach_onboarded','egnach_user','egnach_lang','egnach_favorites','egnach_rsvp',
+       'egnach_chat_messages','egnach_availability','egnach_user_listings','egnach_user_events']
         .forEach(k => localStorage.removeItem(k));
       window.location.reload();
     },

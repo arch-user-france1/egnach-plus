@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { Screen, Body, HScroll } from '../components/index.js';
 import IconButton from '../components/IconButton.jsx';
 import Card from '../components/Card.jsx';
@@ -13,6 +14,12 @@ import { useStore } from '../hooks/useStore.js';
 
 const CATS = ['Alle', 'Leihen', 'Dienste', 'Tausch', 'Jobs'];
 const CAT_ICONS = { Leihen: 'briefcase', Dienste: 'paws', Tausch: 'reload', Jobs: 'car' };
+
+const stagger = { visible: { transition: { staggerChildren: 0.06 } } };
+const cardItem = {
+  hidden:  { opacity: 0, y: 14 },
+  visible: { opacity: 1, y: 0, transition: { type: 'tween', duration: 0.26 } },
+};
 
 export default function MarketplaceScreen() {
   const navigate = useNavigate();
@@ -56,9 +63,14 @@ export default function MarketplaceScreen() {
           </span>
         </div>
 
-        <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+        <motion.div
+          key={activeCat}
+          variants={stagger} initial="hidden" animate="visible"
+          style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: 10 }}
+        >
           {filtered.map((it) => (
-            <Card key={it.id} padding={10} onClick={() => navigate(`/marktplatz/${it.id}`)} style={{ cursor: 'pointer' }}>
+            <motion.div key={it.id} variants={cardItem}>
+            <Card padding={10} onClick={() => navigate(`/marktplatz/${it.id}`)} style={{ cursor: 'pointer' }}>
               <div style={{ display: 'flex', gap: 12 }}>
                 <Photo width={84} height={84} tone={it.tone} radius={10} hint="foto" />
                 <div style={{ flex: 1, minWidth: 0, display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -81,15 +93,26 @@ export default function MarketplaceScreen() {
                 </div>
               </div>
             </Card>
+            </motion.div>
           ))}
           <div style={{ height: 80 }} />
-        </div>
+        </motion.div>
       </Body>
 
       <div style={{ position: 'absolute', right: 18, bottom: 92, zIndex: 5 }}>
-        <button onClick={() => navigate('/inserat-erstellen')} aria-label="Inserat erstellen" style={{ width: 56, height: 56, borderRadius: 18, background: 'var(--accent)', color: '#fff', border: 'none', boxShadow: '0 6px 16px rgba(217,119,87,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+        <motion.button
+          onClick={() => navigate('/inserat-erstellen', {
+            state: { defaultType: activeCat !== 'Alle' ? activeCat : null },
+          })}
+          aria-label="Inserat erstellen"
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: 'spring', stiffness: 380, damping: 20, delay: 0.18 }}
+          whileTap={{ scale: 0.90 }}
+          style={{ width: 56, height: 56, borderRadius: 18, background: 'var(--accent)', color: '#fff', border: 'none', boxShadow: '0 6px 16px rgba(0,147,221,0.40)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+        >
           <Icon name="plus" size={26} color="#fff" stroke={2.4} />
-        </button>
+        </motion.button>
       </div>
 
       <TabBar active={1} onNavigate={(p) => navigate(p)} />

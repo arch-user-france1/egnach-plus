@@ -19,6 +19,7 @@ import EventDetailScreen   from './screens/EventDetailScreen.jsx';
 import ChatScreen          from './screens/ChatScreen.jsx';
 import ProfileScreen       from './screens/ProfileScreen.jsx';
 import AvailabilityScreen  from './screens/AvailabilityScreen.jsx';
+import CreateEventScreen   from './screens/CreateEventScreen.jsx';
 
 const pageVariants = {
   initial: { opacity: 0, x: 40 },
@@ -55,6 +56,7 @@ function AnimatedRoutes() {
           <Route path="/marktplatz"    element={<MarketplaceScreen />} />
           <Route path="/marktplatz/:id" element={<ListingDetailScreen />} />
           <Route path="/inserat-erstellen" element={<CreateListingScreen />} />
+          <Route path="/anlass-erstellen"  element={<CreateEventScreen />} />
           <Route path="/anlaesse"      element={<EventsScreen />} />
           <Route path="/anlaesse/:id"  element={<EventDetailScreen />} />
           <Route path="/chat"          element={<ChatScreen />} />

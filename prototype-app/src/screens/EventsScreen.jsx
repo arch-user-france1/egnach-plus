@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { motion } from 'framer-motion';
 import { Screen, Body, HScroll } from '../components/index.js';
 import IconButton from '../components/IconButton.jsx';
 import Card from '../components/Card.jsx';
@@ -16,6 +17,28 @@ const DAY_LABELS = {
   12: 'Donnerstag, 12. Juni',
   14: 'Samstag, 14. Juni',
 };
+
+const MONTH_NAMES = ['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+
+const stagger = { visible: { transition: { staggerChildren: 0.07 } } };
+const cardItem = {
+  hidden:  { opacity: 0, y: 14 },
+  visible: { opacity: 1, y: 0, transition: { type: 'tween', duration: 0.26 } },
+};
+
+function getDayLabel(day, events) {
+  if (DAY_LABELS[day]) return DAY_LABELS[day];
+  const ev = events.find(e => e.day === parseInt(day, 10));
+  if (ev && ev.date) {
+    const parts = ev.date.split('.');
+    if (parts.length >= 2) {
+      const month = parseInt(parts[1], 10);
+      return `${parts[0]}. ${MONTH_NAMES[month - 1] || ''}`;
+    }
+    return ev.date;
+  }
+  return `Tag ${day}`;
+}
 
 export default function EventsScreen() {
   const navigate = useNavigate();
@@ -37,7 +60,7 @@ export default function EventsScreen() {
       <div style={{ padding: '10px 16px 8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
         <div>
           <h1 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 700, letterSpacing: -0.4, color: 'var(--ink)' }}>Anlässe</h1>
-          <div style={{ fontFamily: 'var(--font)', fontSize: 11, color: 'var(--ink-3)', marginTop: 2 }}>{state.events.length} Anlässe · diese Woche</div>
+          <div style={{ fontFamily: 'var(--font)', fontSize: 11, color: 'var(--ink-3)', marginTop: 2 }}>{filtered.length} Anlässe · diese Woche</div>
         </div>
         <IconButton name="search" label="Suchen" />
       </div>
@@ -73,13 +96,18 @@ export default function EventsScreen() {
           <div key={day}>
             <div style={{ padding: '18px 16px 8px', display: 'flex', alignItems: 'center', gap: 8 }}>
               <span style={{ fontFamily: 'var(--font)', fontSize: 12, fontWeight: 700, color: 'var(--ink-2)', letterSpacing: 0.5, textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
-                {DAY_LABELS[day] || `Tag ${day}`}
+                {getDayLabel(day, state.events)}
               </span>
               <div style={{ flex: 1, height: 1, background: 'var(--line)' }} />
             </div>
-            <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: 10 }}>
+            <motion.div
+              key={activeCat + day}
+              variants={stagger} initial="hidden" animate="visible"
+              style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: 10 }}
+            >
               {events.map(e => (
-                <Card key={e.id} padding={0} onClick={() => navigate(`/anlaesse/${e.id}`)} style={{ overflow: 'hidden', cursor: 'pointer' }}>
+                <motion.div key={e.id} variants={cardItem}>
+                <Card padding={0} onClick={() => navigate(`/anlaesse/${e.id}`)} style={{ overflow: 'hidden', cursor: 'pointer' }}>
                   <div style={{ display: 'flex' }}>
                     <div style={{ width: 70, padding: '14px 8px', textAlign: 'center', background: 'var(--surface-2)', borderRight: '1px solid var(--line)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
                       <div style={{ fontFamily: 'var(--font)', fontSize: 10, fontWeight: 700, color: 'var(--accent)', letterSpacing: 1 }}>{e.month}</div>
@@ -98,8 +126,9 @@ export default function EventsScreen() {
                     </div>
                   </div>
                 </Card>
+                </motion.div>
               ))}
-            </div>
+            </motion.div>
           </div>
         ))}
 
@@ -107,9 +136,17 @@ export default function EventsScreen() {
       </Body>
 
       <div style={{ position: 'absolute', right: 18, bottom: 92, zIndex: 5 }}>
-        <button aria-label="Anlass erstellen" style={{ width: 56, height: 56, borderRadius: 18, background: 'var(--accent)', color: '#fff', border: 'none', boxShadow: '0 6px 16px rgba(217,119,87,0.45)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}>
+        <motion.button
+          onClick={() => navigate('/anlass-erstellen')}
+          aria-label="Anlass erstellen"
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: 'spring', stiffness: 380, damping: 20, delay: 0.18 }}
+          whileTap={{ scale: 0.90 }}
+          style={{ width: 56, height: 56, borderRadius: 18, background: 'var(--accent)', color: '#fff', border: 'none', boxShadow: '0 6px 16px rgba(0,147,221,0.40)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }}
+        >
           <Icon name="plus" size={26} color="#fff" stroke={2.4} />
-        </button>
+        </motion.button>
       </div>
 
       <TabBar active={2} onNavigate={(p) => navigate(p)} />
