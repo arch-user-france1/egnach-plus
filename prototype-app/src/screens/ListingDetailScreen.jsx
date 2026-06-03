@@ -1,0 +1,124 @@
+import { useNavigate, useParams } from 'react-router-dom';
+import { Screen, Body } from '../components/index.js';
+import Button from '../components/Button.jsx';
+import Badge from '../components/Badge.jsx';
+import Card from '../components/Card.jsx';
+import Avatar from '../components/Avatar.jsx';
+import Dots from '../components/Dots.jsx';
+import Photo from '../components/Photo.jsx';
+import Icon from '../components/Icon.jsx';
+import { useStore } from '../hooks/useStore.js';
+
+export default function ListingDetailScreen() {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const { state, actions } = useStore();
+  const listing = state.listings.find(l => l.id === id) || state.listings[0];
+  const isFav = state.favorites.includes(listing.id);
+
+  return (
+    <Screen background="var(--surface)" style={{ overflowY: 'auto' }}>
+      <div style={{ position: 'relative', height: 280, flexShrink: 0 }}>
+        <Photo width="100%" height={280} radius={0} tone={listing.tone} hint="produktfoto" />
+        <div style={{ position: 'absolute', top: 8, left: 12, right: 12, display: 'flex', justifyContent: 'space-between' }}>
+          <button onClick={() => navigate(-1)} style={{ width: 40, height: 40, borderRadius: 20, background: 'rgba(255,255,255,0.92)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', backdropFilter: 'blur(8px)' }} aria-label="Zurück">
+            <Icon name="back" size={20} />
+          </button>
+          <div style={{ display: 'flex', gap: 8 }}>
+            <button style={{ width: 40, height: 40, borderRadius: 20, background: 'rgba(255,255,255,0.92)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }} aria-label="Teilen">
+              <Icon name="share" size={18} />
+            </button>
+            <button onClick={() => actions.toggleFavorite(listing.id)} style={{ width: 40, height: 40, borderRadius: 20, background: 'rgba(255,255,255,0.92)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: isFav ? 'var(--danger)' : 'var(--ink)' }} aria-label="Merken" aria-pressed={isFav}>
+              <Icon name="heart" size={18} color={isFav ? 'var(--danger)' : 'currentColor'} />
+            </button>
+          </div>
+        </div>
+        <div style={{ position: 'absolute', bottom: 12, left: 0, right: 0 }}>
+          <Dots count={4} active={0} accent="#fff" />
+        </div>
+      </div>
+
+      <div style={{ padding: '18px 18px 12px' }}>
+        <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
+          <Badge tone="primary" size="sm">{listing.cat.toUpperCase()}</Badge>
+          <Badge tone="neutral" size="sm">{listing.neighborhood}</Badge>
+        </div>
+        <h1 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 700, letterSpacing: -0.3, color: 'var(--ink)', lineHeight: 1.2 }}>{listing.title}</h1>
+        <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 8 }}>
+          <span style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 700, color: 'var(--primary)' }}>{listing.price.split(' ')[0]} {listing.price.split(' ')[1]}</span>
+          <span style={{ fontFamily: 'var(--font)', fontSize: 13, color: 'var(--ink-2)' }}>{listing.price.slice(listing.price.indexOf('/'))}{listing.priceWeek ? ` · ${listing.priceWeek}` : ''}</span>
+        </div>
+      </div>
+
+      <div style={{ padding: '8px 18px 14px' }}>
+        <Card padding={14}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <Avatar size={48} initials={listing.avatar} verified={listing.verified} />
+            <div style={{ flex: 1 }}>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                <span style={{ fontFamily: 'var(--font)', fontSize: 14, fontWeight: 700, color: 'var(--ink)' }}>{listing.ownerName}</span>
+                {listing.verified && <Badge tone="success" size="sm">VERIFIZIERT</Badge>}
+              </div>
+              <div style={{ fontFamily: 'var(--font)', fontSize: 11, color: 'var(--ink-3)', marginTop: 2 }}>⭐ {listing.rating} · {listing.reviews} Bewertungen · seit Mai 2024</div>
+            </div>
+            <button style={{ border: '1px solid var(--line-2)', background: 'transparent', borderRadius: 999, padding: '6px 12px', fontFamily: 'var(--font)', fontSize: 12, fontWeight: 600, color: 'var(--ink)', cursor: 'pointer', minHeight: 36 }}>Profil</button>
+          </div>
+        </Card>
+      </div>
+
+      <div style={{ padding: '0 18px 16px' }}>
+        <h3 style={{ margin: '4px 0 8px', fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 700, color: 'var(--ink)' }}>Beschreibung</h3>
+        <p style={{ margin: 0, fontFamily: 'var(--font)', fontSize: 13, lineHeight: 1.55, color: 'var(--ink-2)' }}>{listing.description}</p>
+      </div>
+
+      <div style={{ padding: '0 18px 16px' }}>
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+          {[
+            { label: 'Verfügbar', value: listing.available },
+            { label: 'Übergabe', value: listing.handover },
+            { label: 'Kaution', value: listing.deposit },
+            { label: 'Sprachen', value: listing.languages },
+          ].map((f, i) => (
+            <div key={i} style={{ padding: 12, borderRadius: 'var(--radius-sm)', background: 'var(--surface-2)' }}>
+              <div style={{ fontFamily: 'var(--font)', fontSize: 10, color: 'var(--ink-3)', letterSpacing: 0.8, fontWeight: 700 }}>{f.label.toUpperCase()}</div>
+              <div style={{ fontFamily: 'var(--font)', fontSize: 13, fontWeight: 600, color: 'var(--ink)', marginTop: 4 }}>{f.value}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div style={{ padding: '0 18px 14px' }}>
+        <h3 style={{ margin: '4px 0 10px', fontFamily: 'var(--font-display)', fontSize: 16, fontWeight: 700, color: 'var(--ink)' }}>Bewertungen</h3>
+        <Card padding={14}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{ fontFamily: 'var(--font-display)', fontSize: 36, fontWeight: 700, color: 'var(--ink)', lineHeight: 1 }}>{listing.rating}</div>
+              <div style={{ fontFamily: 'var(--font)', fontSize: 10, color: 'var(--ink-3)', marginTop: 4, letterSpacing: 0.5 }}>{listing.reviews} BEWERTUNGEN</div>
+            </div>
+            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: 4 }}>
+              {[5,4,3,2,1].map(n => (
+                <div key={n} style={{ display: 'flex', alignItems: 'center', gap: 6, fontFamily: 'var(--font)', fontSize: 11, color: 'var(--ink-3)' }}>
+                  <span style={{ width: 8 }}>{n}</span>
+                  <div style={{ flex: 1, height: 4, borderRadius: 2, background: 'var(--surface-2)', overflow: 'hidden' }}>
+                    <div style={{ width: n === 5 ? '88%' : n === 4 ? '60%' : n === 3 ? '8%' : '0', height: '100%', background: 'var(--accent)' }} />
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </Card>
+      </div>
+
+      <div style={{ height: 100 }} />
+
+      <div style={{ position: 'sticky', bottom: 0, padding: '12px 16px 22px', background: 'var(--card)', borderTop: '1px solid var(--line)', display: 'flex', gap: 10, alignItems: 'center' }}>
+        <button onClick={() => navigate(`/chat?listingId=${listing.id}`)} style={{ width: 48, height: 48, borderRadius: 'var(--radius-sm)', border: '1.5px solid var(--line-2)', background: 'var(--card)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }} aria-label="Nachricht senden">
+          <Icon name="chat" size={20} />
+        </button>
+        <div style={{ flex: 1 }}>
+          <Button full size="lg" onClick={() => navigate(`/chat?listingId=${listing.id}`)}>Anfrage senden</Button>
+        </div>
+      </div>
+    </Screen>
+  );
+}

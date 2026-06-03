@@ -1,0 +1,5 @@
+*, *::before, *::after { box-sizing: border-box; }
+body { margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
+
+.hide-scrollbar { scrollbar-width: none; }
+.hide-scrollbar::-webkit-scrollbar { display: none; }
