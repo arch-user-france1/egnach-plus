@@ -30,7 +30,7 @@ function Bubble({ own, text, translatedFrom, translatedTo, translation, time, tr
               <Icon name="language" size={11} stroke={2} color="var(--accent)" /> Übersetzt aus {translatedFrom}
             </div>
           )}
-          <div>{showTrans && translatedFrom ? translation : text}</div>
+          <div>{translatedFrom ? translation : text}</div>
           {showTrans && translatedFrom && (
             <div style={{ marginTop: 8, paddingTop: 8, borderTop: '1px solid var(--line)', fontFamily: 'var(--font)', fontSize: 11, opacity: 0.65, fontStyle: 'italic' }}>{text}</div>
           )}
@@ -60,7 +60,7 @@ export default function ChatScreen() {
   const localMessages = state.chatMessages['luan-krasniqi'] || [];
   const allMessages = [...thread.messages, ...localMessages];
   const listing = listingId ? state.listings.find(l => l.id === listingId) : null;
-  const [translateOn, setTranslateOn] = useState(true);
+  const [translateOn, setTranslateOn] = useState(false);
   const [input, setInput] = useState('');
   const bottomRef = useRef(null);
 
@@ -101,13 +101,17 @@ export default function ChatScreen() {
       )}
 
       {/* Translation banner */}
-      <div style={{ margin: '10px 12px 0', padding: '10px 12px', background: 'var(--accent-tint)', borderRadius: 'var(--radius-sm)', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
-        <div style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--accent)', color: '#fff', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-          <Icon name="language" size={18} stroke={2} color="#fff" />
+      <div style={{ margin: '10px 12px 0', padding: '10px 12px', background: translateOn ? 'var(--accent-tint)' : 'var(--surface-2)', borderRadius: 'var(--radius-sm)', display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+        <div style={{ width: 32, height: 32, borderRadius: 8, background: translateOn ? 'var(--accent)' : 'var(--line)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+          <Icon name="language" size={18} stroke={2} color={translateOn ? '#fff' : 'var(--ink-3)'} />
         </div>
         <div style={{ flex: 1 }}>
-          <div style={{ fontFamily: 'var(--font)', fontSize: 12, fontWeight: 700, color: '#5e2410' }}>Übersetzung aktiv · SQ → DE</div>
-          <div style={{ fontFamily: 'var(--font)', fontSize: 11, color: '#7a3318', marginTop: 1 }}>Eingehende Nachrichten werden auf Deutsch übersetzt</div>
+          <div style={{ fontFamily: 'var(--font)', fontSize: 12, fontWeight: 700, color: translateOn ? '#5e2410' : 'var(--ink-2)' }}>
+            {translateOn ? 'Übersetzung aktiv · SQ → DE' : 'Übersetzung · SQ → DE'}
+          </div>
+          <div style={{ fontFamily: 'var(--font)', fontSize: 11, color: translateOn ? '#7a3318' : 'var(--ink-3)', marginTop: 1 }}>
+            {translateOn ? 'Eingehende Nachrichten werden auf Deutsch übersetzt' : 'Deaktiviert'}
+          </div>
         </div>
         <Switch on={translateOn} size="sm" onChange={setTranslateOn} />
       </div>

@@ -94,7 +94,7 @@ export default function ProfileScreen() {
         <Card padding={0} style={{ margin: '0 16px' }}>
           <Row icon="bell" label="Benachrichtigungen" toggleOn={notifs} onToggle={setNotifs} />
           <Row icon="globe" label="Sprache & Region" value="Deutsch · Schweiz" onClick={() => { }} />
-          <Row icon="language" label="Auto-Übersetzung" value="Aktiv für EN, SQ, IT" toggleOn={autoTranslate} onToggle={setAutoTranslate} />
+          <Row icon="language" label="Auto-Übersetzung" value="EN, SQ, IT" toggleOn={autoTranslate} onToggle={setAutoTranslate} />
           <Row icon="pin" label="Mein Quartier" value={state.user.neighborhood} onClick={() => { }} last />
         </Card>
 
@@ -107,7 +107,7 @@ export default function ProfileScreen() {
 
         <div style={{ padding: '20px 16px 6px', fontFamily: 'var(--font)', fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', letterSpacing: 1 }}>KONTO &amp; SICHERHEIT</div>
         <Card padding={0} style={{ margin: '0 16px' }}>
-          <Row icon="shield" label="Verifizierung" value="Verifiziert · Mai 2025" onClick={() => navigate('/verify')} />
+          <Row icon="shield" label="Verifizierung" value="Verifiziert" onClick={() => navigate('/verify')} />
           <Row icon="lock" label="Passkey verwalten" onClick={() => { }} />
           <Row icon="calendar" label="Verfügbarkeit" onClick={() => navigate('/verfuegbarkeit')} />
           <Row icon="info" label="Hilfe & Support" onClick={() => { }} last />
