@@ -71,6 +71,25 @@ export default function ListingDetailScreen() {
         <p style={{ margin: 0, fontFamily: 'var(--font)', fontSize: 13, lineHeight: 1.55, color: 'var(--ink-2)' }}>{listing.description}</p>
       </div>
 
+      {listing.pos && (
+        <div style={{ padding: '0 18px 16px', display: 'flex', alignItems: 'center', gap: 12 }}>
+          <div style={{ width: 38, height: 38, borderRadius: 10, background: 'var(--primary-tint)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <Icon name="pin" size={18} stroke={2} color="var(--primary)" />
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div style={{ fontFamily: 'var(--font)', fontSize: 14, fontWeight: 600, color: 'var(--ink)' }}>{listing.neighborhood}</div>
+            <div style={{ fontFamily: 'var(--font)', fontSize: 12, color: 'var(--ink-3)', marginTop: 2 }}>{listing.distance} entfernt</div>
+          </div>
+          <button
+            onClick={() => navigate('/karte', { state: { pin: listing.id } })}
+            aria-label="Auf der Karte anzeigen"
+            style={{ width: 44, height: 44, borderRadius: 10, background: 'var(--primary-tint)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}
+          >
+            <Icon name="map" size={20} stroke={1.8} color="var(--primary)" />
+          </button>
+        </div>
+      )}
+
       <div style={{ padding: '0 18px 16px' }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
           {[

@@ -8,11 +8,13 @@ import Field from '../components/Field.jsx';
 import Checkbox from '../components/Checkbox.jsx';
 import Badge from '../components/Badge.jsx';
 import Icon from '../components/Icon.jsx';
+import { useStore } from '../hooks/useStore.js';
 
 const NEIGHBORHOODS = ['Egnach Dorf', 'Neuhof', 'Seefeld', 'Buchen', 'Steinebrunn'];
 
 export default function RegisterScreen() {
   const navigate = useNavigate();
+  const { actions } = useStore();
   const [form, setForm] = useState({
     vorname: '', nachname: '', email: '', telefon: '', geburtsdatum: '', quartier: '', passwort: '', passwort2: '',
   });
@@ -31,7 +33,15 @@ export default function RegisterScreen() {
   function handleSubmit() {
     setSubmitted(true);
     const hasErrors = !form.vorname || !form.nachname || !form.email || form.passwort !== form.passwort2;
-    if (!hasErrors && accepted) navigate('/verify');
+    if (!hasErrors && accepted) {
+      actions.setUser({
+        name: `${form.vorname} ${form.nachname}`,
+        initials: `${form.vorname[0]}${form.nachname[0]}`.toUpperCase(),
+        neighborhood: form.quartier || 'Egnach Dorf',
+        verified: false,
+      });
+      navigate('/verify');
+    }
   }
 
   return (

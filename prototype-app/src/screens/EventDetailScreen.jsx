@@ -44,7 +44,8 @@ export default function EventDetailScreen() {
       <div style={{ padding: '14px 18px 8px', display: 'flex', flexDirection: 'column', gap: 14 }}>
         {[
           { icon: 'calendar', main: `${event.date} · ${event.time}`, sub: 'Bei jedem Wetter', action: '+ Kalender' },
-          { icon: 'pin',      main: event.location, sub: event.address, action: 'Karte' },
+          { icon: 'pin',      main: event.location, sub: event.address,
+            action: { icon: 'map', label: 'Auf der Karte anzeigen', onAction: () => navigate('/karte', { state: { pin: event.id } }) } },
           { icon: 'euro',     main: event.free ? 'Eintritt frei' : 'Kostenpflichtig', sub: 'Verpflegung vor Ort' },
           { icon: 'language', main: event.languages, sub: `Programm in ${event.languages.split(' · ').length} Sprachen` },
         ].map((row, i) => (
@@ -57,7 +58,11 @@ export default function EventDetailScreen() {
               <div style={{ fontFamily: 'var(--font)', fontSize: 12, color: 'var(--ink-3)', marginTop: 2 }}>{row.sub}</div>
             </div>
             {row.action && (
-              <button style={{ background: 'none', border: 'none', fontFamily: 'var(--font)', fontSize: 12, fontWeight: 600, color: 'var(--primary)', flexShrink: 0, cursor: 'pointer', padding: 0, minHeight: 44, display: 'flex', alignItems: 'center' }}>{row.action}</button>
+              typeof row.action === 'string'
+                ? <button style={{ background: 'none', border: 'none', fontFamily: 'var(--font)', fontSize: 12, fontWeight: 600, color: 'var(--primary)', flexShrink: 0, cursor: 'pointer', padding: 0, minHeight: 44, display: 'flex', alignItems: 'center' }}>{row.action}</button>
+                : <button onClick={row.action.onAction} aria-label={row.action.label} style={{ width: 44, height: 44, borderRadius: 10, background: 'var(--primary-tint)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0, color: 'var(--primary)' }}>
+                    <Icon name={row.action.icon} size={20} stroke={1.8} color="var(--primary)" />
+                  </button>
             )}
           </div>
         ))}

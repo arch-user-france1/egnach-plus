@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Screen, HScroll } from '../components/index.js';
 import Chip from '../components/Chip.jsx';
 import Badge from '../components/Badge.jsx';
@@ -7,18 +7,16 @@ import Photo from '../components/Photo.jsx';
 import TabBar from '../components/TabBar.jsx';
 import Icon from '../components/Icon.jsx';
 import Button from '../components/Button.jsx';
+import { useStore } from '../hooks/useStore.js';
 
 const EGNACH = [47.5474, 9.3838];
 const PEEK_H = 192;
 const FULL_H = 520;
 
-const MAP_PINS = [
+const EVENT_PINS = [
   { id: 'ev1', kind: 'event', pos: [47.5475, 9.3865], title: 'Hafenfest am Bodensee', sub: 'Sa, 14. Juni · 14:00', meta: '600 m', tone: 'lake', desc: 'Das traditionelle Hafenfest mit Live-Musik, Foodständen der Dorfvereine, Kinderprogramm und Bootsfahrten ab Hafen. Ab 21 Uhr grosses Seefeuerwerk.' },
   { id: 'ev3', kind: 'event', pos: [47.5455, 9.3795], title: 'Sprachcafé DE/EN',     sub: 'Do, 19:00 · Bibliothek',   meta: '1.1 km', tone: 'moss', desc: 'Offenes Gesprächsformat für alle, die Deutsch oder Englisch üben möchten. Kaffee und Kuchen inklusive. Für alle Sprachniveaus offen.' },
   { id: 'ev2', kind: 'event', pos: [47.5510, 9.3920], title: 'Vereinsapero TVE',     sub: 'Fr, 18:30 · Turnhalle',    meta: '1.6 km', tone: 'sand', desc: 'Jährlicher Volkslauf rund ums Schulhaus mit Kategorien für Kinder, Jugendliche und Erwachsene. Anmeldung vor Ort möglich.' },
-  { id: 'l4',  kind: 'job',   pos: [47.5495, 9.3820], title: 'Gartenarbeit am Sa.', sub: 'CHF 35 / Std.',             meta: '0.5 km', tone: 'moss', desc: 'Hilfe beim Unkraut jäten, Rasenmähen und Heckenschneiden. Werkzeug vorhanden, flexibel am Wochenende.' },
-  { id: 'l2',  kind: 'job',   pos: [47.5440, 9.3870], title: 'Hund hüten 3 Tage',  sub: 'CHF 25 / Tag',              meta: '1.4 km', tone: 'sand', desc: 'Freundlicher Labrador, stubenrein. Braucht zweimal tägliche Spaziergänge, Futter ist vorhanden.' },
-  { id: 'l3',  kind: 'job',   pos: [47.5480, 9.3760], title: 'Umzugshilfe gesucht', sub: 'CHF 30 / Std.',            meta: '2.0 km', tone: 'lake', desc: 'Umzug von 3-Zimmer-Wohnung, ca. 4 Stunden. Möbelwagen wird gestellt, Verpflegung inklusive.' },
 ];
 
 function makePin(kind, isActive) {
@@ -26,7 +24,7 @@ function makePin(kind, isActive) {
   const size = isActive ? 38 : 30;
   return window.L.divIcon({
     className: '',
-    html: `<div style="width:${size}px;height:${size}px;border-radius:50% 50% 50% 0;background:${kind === 'event' ? '#009944' : '#0093DD'};border:2.5px solid #fff;box-shadow:0 4px 10px rgba(15,30,55,0.28);transform:rotate(-45deg);display:flex;align-items:center;justify-content:center;"><div style="transform:rotate(45deg);color:#fff;font-size:12px;">${kind === 'event' ? '📅' : '💼'}</div></div>`,
+    html: `<div style="width:${size}px;height:${size}px;border-radius:50% 50% 50% 0;background:${kind === 'event' ? '#009944' : '#0093DD'};border:2.5px solid #fff;box-shadow:0 4px 10px rgba(15,30,55,0.28);transform:rotate(-45deg);display:flex;align-items:center;justify-content:center;"><div style="transform:rotate(45deg);color:#fff;font-size:12px;">${kind === 'event' ? '📅' : '🏷️'}</div></div>`,
     iconSize: [size, size],
     iconAnchor: [size / 2, size],
   });
@@ -34,17 +32,27 @@ function makePin(kind, isActive) {
 
 export default function MapScreen() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const { state: storeState } = useStore();
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const markersRef = useRef({});
   const cardRefs = useRef({});
-  const [activePin, setActivePin] = useState('ev1');
+
+  const listingPins = storeState.listings
+    .filter(l => l.pos)
+    .map(l => ({ id: l.id, kind: 'listing', pos: l.pos, title: l.title, sub: l.price, meta: l.distance, tone: l.tone, desc: l.description }));
+
+  const MAP_PINS = [...EVENT_PINS, ...listingPins];
+
+  const initialPin = location.state?.pin;
+  const [activePin, setActivePin] = useState(initialPin ?? 'ev1');
   const [filter, setFilter] = useState('all');
 
-  // Drawer drag state
-  const [drawerProgress, setDrawerProgress] = useState(0);
+  // Drawer drag state — expand immediately if navigated from a detail screen
+  const [drawerProgress, setDrawerProgress] = useState(initialPin ? 1 : 0);
   const [animating, setAnimating] = useState(false);
-  const progressRef = useRef(0);
+  const progressRef = useRef(initialPin ? 1 : 0);
   const dragStartY = useRef(null);
   const dragStartP = useRef(0);
 
@@ -91,7 +99,7 @@ export default function MapScreen() {
   const visible = MAP_PINS.filter(p =>
     filter === 'all' ||
     (filter === 'events' && p.kind === 'event') ||
-    (filter === 'jobs' && p.kind === 'job')
+    (filter === 'jobs' && p.kind === 'listing')
   );
   const active = visible.find(p => p.id === activePin) ?? visible[0];
   const detailPath = active
@@ -152,7 +160,7 @@ export default function MapScreen() {
     const map = mapRef.current;
     if (!map) return;
     Object.entries(markersRef.current).forEach(([id, { marker, kind }]) => {
-      const show = filter === 'all' || (filter === 'events' && kind === 'event') || (filter === 'jobs' && kind === 'job');
+      const show = filter === 'all' || (filter === 'events' && kind === 'event') || (filter === 'jobs' && kind === 'listing');
       if (show) { if (!map.hasLayer(marker)) marker.addTo(map); }
       else       { if (map.hasLayer(marker))  map.removeLayer(marker); }
     });
@@ -175,7 +183,7 @@ export default function MapScreen() {
           <HScroll gap={6} padding="0">
             <Chip active={filter === 'all'} onClick={() => setFilter('all')}>Alle</Chip>
             <Chip active={filter === 'events'} onClick={() => setFilter('events')} leading={<span style={{ width: 8, height: 8, borderRadius: 4, background: 'var(--primary)', display: 'inline-block' }} />}>Anlässe</Chip>
-            <Chip active={filter === 'jobs'} onClick={() => setFilter('jobs')} leading={<span style={{ width: 8, height: 8, borderRadius: 2, background: 'var(--accent)', display: 'inline-block' }} />}>Jobs</Chip>
+            <Chip active={filter === 'jobs'} onClick={() => setFilter('jobs')} leading={<span style={{ width: 8, height: 8, borderRadius: 2, background: 'var(--accent)', display: 'inline-block' }} />}>Marktplatz</Chip>
             <Chip>Heute</Chip>
             <Chip>2 km</Chip>
           </HScroll>
@@ -192,7 +200,7 @@ export default function MapScreen() {
 
         {/* Legend */}
         <div style={{ position: 'absolute', left: 12, top: 110, zIndex: 400, background: 'var(--card)', border: '1px solid var(--line)', borderRadius: 10, padding: '8px 10px', display: 'flex', flexDirection: 'column', gap: 5, boxShadow: '0 2px 6px rgba(15,30,55,0.06)' }}>
-          {[['var(--primary)', 4, 5, 'Anlässe'], ['var(--accent)', 2, 2, 'Jobs']].map(([bg, r, _, label]) => (
+          {[['var(--primary)', 4, 5, 'Anlässe'], ['var(--accent)', 2, 2, 'Marktplatz']].map(([bg, r, _, label]) => (
             <div key={label} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
               <span style={{ width: 10, height: 10, borderRadius: r, background: bg, display: 'inline-block' }} />
               <span style={{ fontFamily: 'var(--font)', fontSize: 10, color: 'var(--ink-2)', fontWeight: 600 }}>{label}</span>
@@ -239,8 +247,8 @@ export default function MapScreen() {
               {/* Detail header */}
               <div style={{ position: 'absolute', inset: 0, opacity: detailOpacity, pointerEvents: detailOpacity < 0.05 ? 'none' : 'auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                  <Badge tone={active?.kind === 'event' ? 'primary' : 'accent'} size="sm">
-                    {active?.kind === 'event' ? 'Anlass' : 'Job'}
+                  <Badge tone={active?.kind === 'event' ? 'primary' : 'neutral'} size="sm">
+                    {active?.kind === 'event' ? 'Anlass' : 'Marktplatz'}
                   </Badge>
                   <span style={{ fontFamily: 'var(--font)', fontSize: 13, color: 'var(--ink-3)' }}>{active?.meta} entfernt</span>
                 </div>
@@ -268,13 +276,15 @@ export default function MapScreen() {
                     <button
                       key={p.id}
                       ref={el => { if (el) cardRefs.current[p.id] = el; }}
-                      onClick={() => { setActivePin(p.id); mapRef.current?.flyTo(p.pos, 16); }}
+                      onClick={() => {
+                        if (p.id === activePin) { snapTo(1); } else { setActivePin(p.id); mapRef.current?.flyTo(p.pos, 16); }
+                      }}
                       style={{ width: 220, flexShrink: 0, border: `1.5px solid ${on ? 'var(--primary)' : 'var(--line)'}`, borderRadius: 'var(--radius)', background: on ? 'var(--primary-tint)' : 'var(--card)', padding: 10, cursor: 'pointer', boxShadow: on ? '0 4px 14px rgba(37,99,168,0.18)' : 'none', textAlign: 'left' }}
                     >
                       <div style={{ display: 'flex', gap: 10 }}>
-                        <Photo width={54} height={54} tone={p.tone} radius={10} hint={p.kind === 'event' ? 'anlass' : 'job'} />
+                        <Photo width={54} height={54} tone={p.tone} radius={10} hint={p.kind === 'event' ? 'anlass' : 'markt'} />
                         <div style={{ flex: 1, minWidth: 0 }}>
-                          <Badge tone={p.kind === 'event' ? 'primary' : 'accent'} size="sm">{p.kind === 'event' ? 'Anlass' : 'Job'}</Badge>
+                          <Badge tone={p.kind === 'event' ? 'primary' : 'neutral'} size="sm">{p.kind === 'event' ? 'Anlass' : 'Marktplatz'}</Badge>
                           <div style={{ fontFamily: 'var(--font)', fontSize: 13, fontWeight: 700, color: 'var(--ink)', marginTop: 4, overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{p.title}</div>
                           <div style={{ fontFamily: 'var(--font)', fontSize: 11, color: 'var(--ink-2)', marginTop: 2 }}>{p.sub}</div>
                           <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 6 }}>
@@ -293,7 +303,7 @@ export default function MapScreen() {
             {active && (
               <div style={{ position: 'absolute', inset: 0, opacity: detailOpacity, pointerEvents: detailOpacity < 0.05 ? 'none' : 'auto', overflowY: 'auto', padding: '0 16px 24px' }}>
                 <div style={{ borderRadius: 14, overflow: 'hidden', marginBottom: 16, height: 150, flexShrink: 0 }}>
-                  <Photo width="100%" height={150} tone={active.tone} radius={0} hint={active.kind === 'event' ? 'anlass' : 'job'} />
+                  <Photo width="100%" height={150} tone={active.tone} radius={0} hint={active.kind === 'event' ? 'anlass' : 'markt'} />
                 </div>
 
                 <div style={{ fontFamily: 'var(--font-display)', fontSize: 21, fontWeight: 700, color: 'var(--ink)', lineHeight: 1.2, marginBottom: 6 }}>
@@ -301,7 +311,7 @@ export default function MapScreen() {
                 </div>
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexWrap: 'wrap', marginBottom: 14 }}>
-                  <Icon name={active.kind === 'event' ? 'calendar' : 'euro'} size={13} color="var(--ink-3)" />
+                  <Icon name={active.kind === 'event' ? 'calendar' : 'store'} size={13} color="var(--ink-3)" />
                   <span style={{ fontFamily: 'var(--font)', fontSize: 13, color: 'var(--ink-2)' }}>{active.sub}</span>
                   <span style={{ width: 3, height: 3, borderRadius: '50%', background: 'var(--ink-3)', flexShrink: 0, display: 'inline-block' }} />
                   <Icon name="pin" size={11} color="var(--ink-3)" />
