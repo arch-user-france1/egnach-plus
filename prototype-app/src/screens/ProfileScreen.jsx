@@ -15,9 +15,9 @@ import { useStore } from '../hooks/useStore.js';
 function Row({ icon, label, value, toggleOn, onToggle, last, onClick }) {
   return (
     <button onClick={onClick} style={{
+      border: 'none',
       width: '100%', padding: '14px 16px', display: 'flex', alignItems: 'center', gap: 12,
-      borderBottom: last ? 'none' : '1px solid var(--line)',
-      background: 'transparent', border: last ? 'none' : undefined,
+      background: 'transparent',
       borderBottom: last ? 'none' : '1px solid var(--line)',
       cursor: onClick ? 'pointer' : 'default',
       textAlign: 'left',
@@ -93,25 +93,25 @@ export default function ProfileScreen() {
 
         <div style={{ padding: '12px 16px 6px', fontFamily: 'var(--font)', fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', letterSpacing: 1 }}>EINSTELLUNGEN</div>
         <Card padding={0} style={{ margin: '0 16px' }}>
-          <Row icon="bell"     label="Benachrichtigungen" toggleOn={notifs}         onToggle={setNotifs} />
-          <Row icon="globe"    label="Sprache & Region"   value="Deutsch · Schweiz" onClick={() => {}} />
-          <Row icon="language" label="Auto-Übersetzung"   value="Aktiv für EN, SQ, IT" toggleOn={autoTranslate} onToggle={setAutoTranslate} />
-          <Row icon="pin"      label="Mein Quartier"      value={state.user.neighborhood} onClick={() => {}} last />
+          <Row icon="bell" label="Benachrichtigungen" toggleOn={notifs} onToggle={setNotifs} />
+          <Row icon="globe" label="Sprache & Region" value="Deutsch · Schweiz" onClick={() => { }} />
+          <Row icon="language" label="Auto-Übersetzung" value="Aktiv für EN, SQ, IT" toggleOn={autoTranslate} onToggle={setAutoTranslate} />
+          <Row icon="pin" label="Mein Quartier" value={state.user.neighborhood} onClick={() => { }} last />
         </Card>
 
         <div style={{ padding: '20px 16px 6px', fontFamily: 'var(--font)', fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', letterSpacing: 1 }}>BARRIEREFREIHEIT</div>
         <Card padding={0} style={{ margin: '0 16px' }}>
-          <Row icon="info"    label="Grosser Text"    toggleOn={bigText}        onToggle={setBigText} />
-          <Row icon="image"   label="Hoher Kontrast"  toggleOn={highContrast}   onToggle={setHighContrast} />
-          <Row icon="mic"     label="Sprachausgabe"   toggleOn={voice}          onToggle={setVoice} last />
+          <Row icon="info" label="Grosser Text" toggleOn={bigText} onToggle={setBigText} />
+          <Row icon="image" label="Hoher Kontrast" toggleOn={highContrast} onToggle={setHighContrast} />
+          <Row icon="mic" label="Sprachausgabe" toggleOn={voice} onToggle={setVoice} last />
         </Card>
 
         <div style={{ padding: '20px 16px 6px', fontFamily: 'var(--font)', fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', letterSpacing: 1 }}>KONTO &amp; SICHERHEIT</div>
         <Card padding={0} style={{ margin: '0 16px' }}>
-          <Row icon="shield"     label="Verifizierung"    value="Verifiziert · Mai 2025" onClick={() => navigate('/verify')} />
-          <Row icon="lock"       label="Passkey verwalten" onClick={() => {}} />
-          <Row icon="calendar"   label="Verfügbarkeit"    onClick={() => navigate('/verfuegbarkeit')} />
-          <Row icon="info"       label="Hilfe & Support"  onClick={() => {}} last />
+          <Row icon="shield" label="Verifizierung" value="Verifiziert · Mai 2025" onClick={() => navigate('/verify')} />
+          <Row icon="lock" label="Passkey verwalten" onClick={() => { }} />
+          <Row icon="calendar" label="Verfügbarkeit" onClick={() => navigate('/verfuegbarkeit')} />
+          <Row icon="info" label="Hilfe & Support" onClick={() => { }} last />
         </Card>
 
         <div style={{ padding: '24px 16px 16px' }}>
