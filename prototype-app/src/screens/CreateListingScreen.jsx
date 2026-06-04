@@ -6,6 +6,7 @@ import TopBar from '../components/TopBar.jsx';
 import IconButton from '../components/IconButton.jsx';
 import Button from '../components/Button.jsx';
 import Field from '../components/Field.jsx';
+import DatePicker from '../components/DatePicker.jsx';
 import HelpBanner from '../components/HelpBanner.jsx';
 import Photo from '../components/Photo.jsx';
 import Icon from '../components/Icon.jsx';
@@ -229,9 +230,8 @@ export default function CreateListingScreen() {
                   <Field label="Preis" required value={form.price} onChange={set('price')}
                     error={errors.price} hint={errors.price || 'CHF / Einheit'}
                     trailing={<span style={{ fontFamily: 'var(--font)', fontSize: 13, color: 'var(--ink-3)', fontWeight: 600 }}>CHF</span>} />
-                  <Field label="Verfügbar ab" required value={form.date} onChange={set('date')}
-                    error={errors.date} hint={errors.date || 'TT.MM.JJJJ'} placeholder="11.06.2026"
-                    trailing={<Icon name="calendar" size={14} color="var(--ink-3)" />} />
+                  <DatePicker label="Verfügbar ab" required value={form.date} onChange={set('date')}
+                    error={errors.date} hint={errors.date || 'TT.MM.JJJJ'} placeholder="11.06.2026" />
                 </div>
                 <div>
                   <div style={{ fontFamily: 'var(--font)', fontSize: 12, fontWeight: 600, color: 'var(--ink)', marginBottom: 6 }}>Fotos</div>

@@ -6,6 +6,7 @@ import TopBar from '../components/TopBar.jsx';
 import IconButton from '../components/IconButton.jsx';
 import Button from '../components/Button.jsx';
 import Field from '../components/Field.jsx';
+import DatePicker from '../components/DatePicker.jsx';
 import HelpBanner from '../components/HelpBanner.jsx';
 import Icon from '../components/Icon.jsx';
 import { useStore } from '../hooks/useStore.js';
@@ -189,9 +190,8 @@ export default function CreateEventScreen() {
                   placeholder="z.B. Sommerfest im Dorfpark" />
 
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                  <Field label="Datum" required value={form.date} onChange={set('date')}
-                    error={errors.date} hint={errors.date || 'TT.MM.JJJJ'} placeholder="14.06.2026"
-                    trailing={<Icon name="calendar" size={14} color="var(--ink-3)" />} />
+                  <DatePicker label="Datum" required value={form.date} onChange={set('date')}
+                    error={errors.date} hint={errors.date || 'TT.MM.JJJJ'} placeholder="14.06.2026" />
                   <Field label="Uhrzeit" required value={form.time} onChange={set('time')}
                     error={errors.time} hint={errors.time || 'HH:MM'} placeholder="18:00"
                     trailing={<Icon name="info" size={14} color="var(--ink-3)" />} />

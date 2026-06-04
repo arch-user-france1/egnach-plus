@@ -15,3 +15,4 @@ export { default as Card }        from './Card.jsx';
 export { default as Photo }       from './Photo.jsx';
 export { default as Dots }        from './Dots.jsx';
 export { default as HelpBanner }  from './HelpBanner.jsx';
+export { default as DatePicker }  from './DatePicker.jsx';
