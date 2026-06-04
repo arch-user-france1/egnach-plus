@@ -1,7 +1,7 @@
 export function Screen({ children, background = 'var(--surface)', style }) {
   return (
     <div style={{
-      width: '100%', height: '100vh', background, color: 'var(--ink)',
+      width: '100%', height: '100%', background, color: 'var(--ink)',
       display: 'flex', flexDirection: 'column',
       overflow: 'hidden', fontFamily: 'var(--font)',
       position: 'relative',

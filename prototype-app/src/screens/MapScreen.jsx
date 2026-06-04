@@ -4,7 +4,6 @@ import { Screen, HScroll } from '../components/index.js';
 import Chip from '../components/Chip.jsx';
 import Badge from '../components/Badge.jsx';
 import Photo from '../components/Photo.jsx';
-import TabBar from '../components/TabBar.jsx';
 import Icon from '../components/Icon.jsx';
 import Button from '../components/Button.jsx';
 import { useStore } from '../hooks/useStore.js';
@@ -335,7 +334,6 @@ export default function MapScreen() {
         </div>
       </div>
 
-      <TabBar active={0} onNavigate={(p) => navigate(p)} />
     </Screen>
   );
 }

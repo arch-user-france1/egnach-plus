@@ -5,7 +5,6 @@ import { Screen, Body, HScroll } from '../components/index.js';
 import IconButton from '../components/IconButton.jsx';
 import Card from '../components/Card.jsx';
 import Chip from '../components/Chip.jsx';
-import TabBar from '../components/TabBar.jsx';
 import Icon from '../components/Icon.jsx';
 import Badge from '../components/Badge.jsx';
 import { useStore } from '../hooks/useStore.js';
@@ -135,7 +134,7 @@ export default function EventsScreen() {
         <div style={{ height: 80 }} />
       </Body>
 
-      <div style={{ position: 'absolute', right: 18, bottom: 92, zIndex: 5 }}>
+      <div style={{ position: 'absolute', right: 18, bottom: 20, zIndex: 5 }}>
         <motion.button
           onClick={() => navigate('/anlass-erstellen')}
           aria-label="Anlass erstellen"
@@ -149,7 +148,6 @@ export default function EventsScreen() {
         </motion.button>
       </div>
 
-      <TabBar active={2} onNavigate={(p) => navigate(p)} />
     </Screen>
   );
 }

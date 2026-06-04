@@ -8,7 +8,6 @@ import Badge from '../components/Badge.jsx';
 import Chip from '../components/Chip.jsx';
 import Photo from '../components/Photo.jsx';
 import Avatar from '../components/Avatar.jsx';
-import TabBar from '../components/TabBar.jsx';
 import Icon from '../components/Icon.jsx';
 import { useStore } from '../hooks/useStore.js';
 
@@ -99,7 +98,7 @@ export default function MarketplaceScreen() {
         </motion.div>
       </Body>
 
-      <div style={{ position: 'absolute', right: 18, bottom: 92, zIndex: 5 }}>
+      <div style={{ position: 'absolute', right: 18, bottom: 20, zIndex: 5 }}>
         <motion.button
           onClick={() => navigate('/inserat-erstellen', {
             state: { defaultType: activeCat !== 'Alle' ? activeCat : null },
@@ -115,7 +114,6 @@ export default function MarketplaceScreen() {
         </motion.button>
       </div>
 
-      <TabBar active={1} onNavigate={(p) => navigate(p)} />
     </Screen>
   );
 }

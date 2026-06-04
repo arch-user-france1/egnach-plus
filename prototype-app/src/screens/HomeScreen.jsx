@@ -7,7 +7,6 @@ import Card from '../components/Card.jsx';
 import Badge from '../components/Badge.jsx';
 import Chip from '../components/Chip.jsx';
 import Photo from '../components/Photo.jsx';
-import TabBar from '../components/TabBar.jsx';
 import Icon from '../components/Icon.jsx';
 import { useStore } from '../hooks/useStore.js';
 
@@ -126,7 +125,6 @@ export default function HomeScreen() {
         <div style={{ height: 24 }} />
       </Body>
 
-      <TabBar active={0} onNavigate={(p) => navigate(p)} />
     </Screen>
   );
 }

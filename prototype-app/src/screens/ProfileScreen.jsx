@@ -7,7 +7,6 @@ import Card from '../components/Card.jsx';
 import Chip from '../components/Chip.jsx';
 import Switch from '../components/Switch.jsx';
 import Button from '../components/Button.jsx';
-import TabBar from '../components/TabBar.jsx';
 import Icon from '../components/Icon.jsx';
 import { useState } from 'react';
 import { useStore } from '../hooks/useStore.js';
@@ -122,7 +121,6 @@ export default function ProfileScreen() {
         </div>
       </Body>
 
-      <TabBar active={4} onNavigate={(p) => navigate(p)} />
     </Screen>
   );
 }

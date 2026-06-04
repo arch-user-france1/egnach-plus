@@ -1,8 +1,9 @@
 import { useEffect } from 'react';
-import { HashRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { buildCssVars } from './theme/theme.js';
 import { useStore } from './hooks/useStore.js';
+import TabBar from './components/TabBar.jsx';
 
 import SplashScreen        from './screens/SplashScreen.jsx';
 import OnboardingScreen    from './screens/OnboardingScreen.jsx';
@@ -21,51 +22,70 @@ import ProfileScreen       from './screens/ProfileScreen.jsx';
 import AvailabilityScreen  from './screens/AvailabilityScreen.jsx';
 import CreateEventScreen   from './screens/CreateEventScreen.jsx';
 
-const pageVariants = {
-  initial: { opacity: 0, x: 40 },
-  in:      { opacity: 1, x: 0 },
-  out:     { opacity: 0, x: -40 },
+const TAB_ROUTES = {
+  '/home':       0,
+  '/karte':      0,
+  '/map':        0,
+  '/marktplatz': 1,
+  '/anlaesse':   2,
+  '/chat':       3,
+  '/profil':     4,
 };
-const pageTransition = { type: 'tween', ease: 'easeInOut', duration: 0.22 };
+
+const pageVariants = {
+  initial: { opacity: 0, scale: 0.96 },
+  in:      { opacity: 1, scale: 1 },
+  out:     { opacity: 0, scale: 0.96 },
+};
+const pageTransition = { type: 'tween', ease: 'easeInOut', duration: 0.2 };
 
 function AnimatedRoutes() {
   const location = useLocation();
+  const navigate = useNavigate();
   const { state } = useStore();
 
+  const activeTab = TAB_ROUTES[location.pathname];
+  const showTabBar = activeTab !== undefined;
+
   return (
-    <AnimatePresence mode="wait" initial={false}>
-      <motion.div
-        key={location.pathname}
-        variants={pageVariants}
-        initial="initial"
-        animate="in"
-        exit="out"
-        transition={pageTransition}
-        style={{ position: 'absolute', inset: 0 }}
-      >
-        <Routes location={location}>
-          <Route path="/"              element={<Navigate to={state.onboarded ? '/home' : '/splash'} replace />} />
-          <Route path="/splash"        element={<SplashScreen />} />
-          <Route path="/onboarding"    element={<OnboardingScreen />} />
-          <Route path="/login"         element={<LoginScreen />} />
-          <Route path="/register"      element={<RegisterScreen />} />
-          <Route path="/verify"        element={<VerifyScreen />} />
-          <Route path="/home"          element={<HomeScreen />} />
-          <Route path="/karte"         element={<MapScreen />} />
-          <Route path="/map"           element={<MapScreen />} />
-          <Route path="/marktplatz"    element={<MarketplaceScreen />} />
-          <Route path="/marktplatz/:id" element={<ListingDetailScreen />} />
-          <Route path="/inserat-erstellen" element={<CreateListingScreen />} />
-          <Route path="/anlass-erstellen"  element={<CreateEventScreen />} />
-          <Route path="/anlaesse"      element={<EventsScreen />} />
-          <Route path="/anlaesse/:id"  element={<EventDetailScreen />} />
-          <Route path="/chat"          element={<ChatScreen />} />
-          <Route path="/profil"        element={<ProfileScreen />} />
-          <Route path="/verfuegbarkeit" element={<AvailabilityScreen />} />
-          <Route path="*"              element={<Navigate to="/" replace />} />
-        </Routes>
-      </motion.div>
-    </AnimatePresence>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+      <div style={{ position: 'relative', flex: 1, overflow: 'hidden' }}>
+        <AnimatePresence mode="wait" initial={false}>
+          <motion.div
+            key={location.pathname}
+            variants={pageVariants}
+            initial="initial"
+            animate="in"
+            exit="out"
+            transition={pageTransition}
+            style={{ position: 'absolute', inset: 0 }}
+          >
+            <Routes location={location}>
+              <Route path="/"              element={<Navigate to={state.onboarded ? '/home' : '/splash'} replace />} />
+              <Route path="/splash"        element={<SplashScreen />} />
+              <Route path="/onboarding"    element={<OnboardingScreen />} />
+              <Route path="/login"         element={<LoginScreen />} />
+              <Route path="/register"      element={<RegisterScreen />} />
+              <Route path="/verify"        element={<VerifyScreen />} />
+              <Route path="/home"          element={<HomeScreen />} />
+              <Route path="/karte"         element={<MapScreen />} />
+              <Route path="/map"           element={<MapScreen />} />
+              <Route path="/marktplatz"    element={<MarketplaceScreen />} />
+              <Route path="/marktplatz/:id" element={<ListingDetailScreen />} />
+              <Route path="/inserat-erstellen" element={<CreateListingScreen />} />
+              <Route path="/anlass-erstellen"  element={<CreateEventScreen />} />
+              <Route path="/anlaesse"      element={<EventsScreen />} />
+              <Route path="/anlaesse/:id"  element={<EventDetailScreen />} />
+              <Route path="/chat"          element={<ChatScreen />} />
+              <Route path="/profil"        element={<ProfileScreen />} />
+              <Route path="/verfuegbarkeit" element={<AvailabilityScreen />} />
+              <Route path="*"              element={<Navigate to="/" replace />} />
+            </Routes>
+          </motion.div>
+        </AnimatePresence>
+      </div>
+      {showTabBar && <TabBar active={activeTab} onNavigate={(p) => navigate(p)} />}
+    </div>
   );
 }
 
@@ -83,7 +103,7 @@ export default function App() {
   return (
     <HashRouter>
       <ThemeProvider>
-        <div className="phone-shell" style={{ position: 'relative' }}>
+        <div className="phone-shell" style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
           <AnimatedRoutes />
         </div>
       </ThemeProvider>

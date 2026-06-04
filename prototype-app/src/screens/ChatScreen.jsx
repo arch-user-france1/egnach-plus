@@ -9,7 +9,6 @@ import Card from '../components/Card.jsx';
 import Badge from '../components/Badge.jsx';
 import Photo from '../components/Photo.jsx';
 import Icon from '../components/Icon.jsx';
-import TabBar from '../components/TabBar.jsx';
 import { useStore } from '../hooks/useStore.js';
 
 function Bubble({ own, text, translatedFrom, translatedTo, translation, time, translateOn }) {
