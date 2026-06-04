@@ -47,6 +47,7 @@ export default function SplashScreen() {
               key={l.code}
               onClick={() => setLang(l.code)}
               aria-pressed={lang === l.code}
+              disabled={l.code !== lang}
               style={{
                 padding: '12px 14px', borderRadius: 'var(--radius-sm)',
                 border: `1.5px solid ${lang === l.code ? 'var(--primary)' : 'var(--line)'}`,
