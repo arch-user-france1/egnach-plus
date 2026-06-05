@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Screen, Body } from '../components/index.js';
+import { Screen, Body, HelpSheet, Toast } from '../components/index.js';
 import Button from '../components/Button.jsx';
 import Badge from '../components/Badge.jsx';
 import Card from '../components/Card.jsx';
@@ -10,12 +11,27 @@ import Photo from '../components/Photo.jsx';
 import Icon from '../components/Icon.jsx';
 import { useStore } from '../hooks/useStore.js';
 
+const HELP_ITEMS = [
+  { icon: 'check',    title: 'Teilnehmen',          text: 'Tippe auf «Teilnehmen», um deine Anmeldung zu bestätigen. Du kannst dich jederzeit abmelden.' },
+  { icon: 'pin',      title: 'Standort & Karte',    text: 'Tippe auf das Karten-Icon, um den Veranstaltungsort auf der Karte anzuzeigen.' },
+  { icon: 'share',    title: 'Teilen',               text: 'Teile den Anlass mit anderen Personen per Link.' },
+  { icon: 'calendar', title: 'Kalender',             text: 'Tippe auf «+ Kalender», um den Anlass zu deinem Kalender hinzuzufügen.' },
+];
+
 export default function EventDetailScreen() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { state, actions } = useStore();
   const event = state.events.find(e => e.id === id) || state.events[0];
   const isGoing = state.rsvp.includes(event.id);
+  const [help, setHelp] = useState(false);
+  const [toast, setToast] = useState(false);
+
+  function handleRsvp() {
+    const wasGoing = isGoing;
+    actions.toggleRsvp(event.id);
+    if (!wasGoing) setToast(true);
+  }
 
   return (
     <Screen background="var(--surface)" style={{ overflowY: 'auto' }}>
@@ -32,6 +48,9 @@ export default function EventDetailScreen() {
             </button>
             <button style={{ width: 40, height: 40, borderRadius: 20, background: 'rgba(255,255,255,0.92)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: isGoing ? 'var(--danger)' : 'var(--ink)' }} aria-label="Merken">
               <Icon name="heart" size={18} color={isGoing ? 'var(--danger)' : 'currentColor'} />
+            </button>
+            <button onClick={() => setHelp(true)} style={{ width: 40, height: 40, borderRadius: 20, background: 'rgba(255,255,255,0.92)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontFamily: 'var(--font)', fontSize: 16, fontWeight: 700, color: 'var(--ink-2)' }} aria-label="Hilfe">
+              ?
             </button>
           </div>
         </div>
@@ -119,12 +138,15 @@ export default function EventDetailScreen() {
             full size="lg"
             variant={isGoing ? 'outline' : 'primary'}
             leading={<Icon name={isGoing ? 'check' : 'check'} size={18} color={isGoing ? 'var(--ink)' : '#fff'} stroke={2.2} />}
-            onClick={() => actions.toggleRsvp(event.id)}
+            onClick={handleRsvp}
           >
             {isGoing ? 'Abmelden' : 'Teilnehmen'}
           </Button>
         </div>
       </div>
+
+      <HelpSheet open={help} onClose={() => setHelp(false)} title="Anlass" intro="Alles, was du über diesen Anlass wissen musst." items={HELP_ITEMS} />
+      <Toast open={toast} onClose={() => setToast(false)} tone="success" title="Du bist dabei!" msg={`Anmeldung für «${event.title}» bestätigt.`} />
     </Screen>
   );
 }

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Screen, Body } from '../components/index.js';
+import { Screen, Body, HelpSheet, Toast } from '../components/index.js';
 import TopBar from '../components/TopBar.jsx';
 import IconButton from '../components/IconButton.jsx';
 import Button from '../components/Button.jsx';
@@ -20,6 +20,13 @@ const TYPES = [
 ];
 
 const TYPE_TONES = { Leihen: 'sand', Dienste: 'lake', Tausch: 'moss', Jobs: 'rose' };
+
+const HELP_ITEMS = [
+  { icon: 'edit',      title: 'Titel & Fotos',           text: 'Ein klarer Titel und gute Fotos erhöhen deine Antwortrate deutlich.' },
+  { icon: 'briefcase', title: 'Kategorie wählen',         text: 'Wähle die Kategorie, die am besten zu deinem Angebot passt.' },
+  { icon: 'coin',      title: 'Preis setzen',             text: 'Gib an, was du pro Einheit verlangst (z.B. CHF 5 / Tag).' },
+  { icon: 'check',     title: 'Überprüfen & Publizieren', text: 'Prüfe dein Inserat nochmal vor der Publikation. Es ist danach für alle Nachbarn sichtbar.' },
+];
 const MONTHS = ['JAN','FEB','MRZ','APR','MAI','JUN','JUL','AUG','SEP','OKT','NOV','DEZ'];
 
 function parseDateDE(str) {
@@ -53,6 +60,8 @@ export default function CreateListingScreen() {
   const [type, setType] = useState(defaultType);
   const [form, setForm] = useState({ title: '', description: '', price: '', date: '' });
   const [errors, setErrors] = useState({});
+  const [help, setHelp] = useState(false);
+  const [draftToast, setDraftToast] = useState(false);
 
   const set = (k) => (e) => {
     setForm(f => ({ ...f, [k]: e.target.value }));
@@ -142,6 +151,7 @@ export default function CreateListingScreen() {
         leading={<IconButton name="close" onClick={() => navigate(-1)} label="Schliessen" />}
         title="Neues Inserat"
         trailing={<span style={{ fontFamily: 'var(--font)', fontSize: 13, fontWeight: 600, color: 'var(--ink-2)' }}>Entwurf</span>}
+        onHelp={() => setHelp(true)}
       />
 
       <Body padding="14px 18px 20px">
@@ -274,7 +284,7 @@ export default function CreateListingScreen() {
 
       <div style={{ padding: '12px 16px 22px', borderTop: '1px solid var(--line)', background: 'var(--card)', display: 'flex', gap: 10, flexShrink: 0 }}>
         <div style={{ flex: 1 }}>
-          <Button full size="lg" variant="outline" onClick={() => step === 0 ? navigate(-1) : go(-1)}>
+          <Button full size="lg" variant="outline" onClick={() => { if (step === 0) setDraftToast(true); else go(-1); }}>
             {step === 0 ? 'Entwurf speichern' : 'Zurück'}
           </Button>
         </div>
@@ -284,6 +294,8 @@ export default function CreateListingScreen() {
           </Button>
         </div>
       </div>
+      <HelpSheet open={help} onClose={() => setHelp(false)} title="Inserat erstellen" intro="So erstellst du ein Inserat auf dem Marktplatz." items={HELP_ITEMS} />
+      <Toast open={draftToast} onClose={() => setDraftToast(false)} tone="info" title="Entwurf gespeichert" msg="Du kannst deinen Entwurf jederzeit weiter bearbeiten." />
     </Screen>
   );
 }

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Screen, Body } from '../components/index.js';
+import { Screen, Body, HelpSheet } from '../components/index.js';
 import TopBar from '../components/TopBar.jsx';
 import IconButton from '../components/IconButton.jsx';
 import Button from '../components/Button.jsx';
@@ -12,6 +12,13 @@ import { useStore } from '../hooks/useStore.js';
 
 const NEIGHBORHOODS = ['Egnach Dorf', 'Neuhof', 'Seefeld', 'Buchen', 'Steinebrunn'];
 
+const HELP_ITEMS = [
+  { icon: 'info',     title: 'Pflichtfelder',         text: 'Alle mit * markierten Felder müssen ausgefüllt sein.' },
+  { icon: 'pin',      title: 'Quartier wählen',        text: 'Wähle das Quartier, in dem du wohnst. Das hilft Nachbarn, dich zu finden.' },
+  { icon: 'lock',     title: 'Sicheres Passwort',      text: 'Mindestens 8 Zeichen, eine Zahl und ein Sonderzeichen.' },
+  { icon: 'shield',   title: 'Datenschutz',            text: 'Deine Daten werden ausschliesslich lokal gespeichert und nicht weitergegeben.' },
+];
+
 export default function RegisterScreen() {
   const navigate = useNavigate();
   const { actions } = useStore();
@@ -20,6 +27,7 @@ export default function RegisterScreen() {
   });
   const [accepted, setAccepted] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [help, setHelp] = useState(false);
 
   const set = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }));
 
@@ -46,7 +54,7 @@ export default function RegisterScreen() {
 
   return (
     <Screen background="var(--surface)">
-      <TopBar leading={<IconButton name="back" onClick={() => navigate(-1)} label="Zurück" />} title="Konto erstellen" />
+      <TopBar leading={<IconButton name="back" onClick={() => navigate(-1)} label="Zurück" />} title="Konto erstellen" onHelp={() => setHelp(true)} />
       <Body padding="16px 22px 24px">
         <div style={{ marginBottom: 14 }}>
           <Badge tone="primary" size="sm">SCHRITT 2 VON 4</Badge>
@@ -104,6 +112,7 @@ export default function RegisterScreen() {
           Schon dabei? <button onClick={() => navigate('/login')} style={{ background: 'none', border: 'none', color: 'var(--primary)', fontWeight: 700, cursor: 'pointer', padding: 0 }}>Anmelden</button>
         </div>
       </div>
+      <HelpSheet open={help} onClose={() => setHelp(false)} title="Konto erstellen" intro="So erstellst du dein Konto bei Egnach Plus." items={HELP_ITEMS} />
     </Screen>
   );
 }

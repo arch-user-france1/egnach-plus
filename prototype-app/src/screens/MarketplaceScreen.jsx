@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Screen, Body, HScroll } from '../components/index.js';
+import { Screen, Body, HScroll, HelpButton, HelpSheet } from '../components/index.js';
 import IconButton from '../components/IconButton.jsx';
 import Card from '../components/Card.jsx';
 import Badge from '../components/Badge.jsx';
@@ -14,6 +14,13 @@ import { useStore } from '../hooks/useStore.js';
 const CATS = ['Alle', 'Leihen', 'Dienste', 'Tausch', 'Jobs'];
 const CAT_ICONS = { Leihen: 'briefcase', Dienste: 'paws', Tausch: 'reload', Jobs: 'car' };
 
+const HELP_ITEMS = [
+  { icon: 'search',    title: 'Suchen & filtern',      text: 'Tippe in die Suchleiste oder wähle eine Kategorie, um Inserate zu filtern.' },
+  { icon: 'briefcase', title: 'Kategorien',             text: 'Leihen, Dienste, Tausch, Jobs — wähle die passende Kategorie.' },
+  { icon: 'shield',    title: 'Verifizierte Nachbarn',  text: 'Inserate mit blauem Häkchen stammen von verifizierten Einwohnern.' },
+  { icon: 'plus',      title: 'Eigenes Inserat',        text: 'Tippe auf + unten rechts, um ein neues Inserat zu erstellen.' },
+];
+
 const stagger = { visible: { transition: { staggerChildren: 0.06 } } };
 const cardItem = {
   hidden:  { opacity: 0, y: 14 },
@@ -24,6 +31,7 @@ export default function MarketplaceScreen() {
   const navigate = useNavigate();
   const { state, actions } = useStore();
   const [activeCat, setActiveCat] = useState('Alle');
+  const [help, setHelp] = useState(false);
 
   const filtered = activeCat === 'Alle' ? state.listings : state.listings.filter(l => l.cat === activeCat);
 
@@ -34,7 +42,10 @@ export default function MarketplaceScreen() {
           <h1 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 700, letterSpacing: -0.4, color: 'var(--ink)' }}>Marktplatz</h1>
           <div style={{ fontFamily: 'var(--font)', fontSize: 11, color: 'var(--ink-3)', marginTop: 2 }}>{state.listings.length} aktive Inserate</div>
         </div>
-        <IconButton name="options" label="Optionen" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <IconButton name="options" label="Optionen" />
+          <HelpButton onClick={() => setHelp(true)} />
+        </div>
       </div>
 
       <Body>
@@ -114,6 +125,7 @@ export default function MarketplaceScreen() {
         </motion.button>
       </div>
 
+      <HelpSheet open={help} onClose={() => setHelp(false)} title="Marktplatz" intro="Leihe, tausche und biete Dienste mit Nachbarn in Egnach." items={HELP_ITEMS} />
     </Screen>
   );
 }

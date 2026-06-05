@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Screen, Body } from '../components/index.js';
+import { Screen, Body, HelpSheet, Toast, ConfirmDialog } from '../components/index.js';
 import TopBar from '../components/TopBar.jsx';
 import IconButton from '../components/IconButton.jsx';
 import Button from '../components/Button.jsx';
@@ -23,6 +23,13 @@ function buildCalendar() {
 
 const STATES = { 3:'partial',4:'partial',7:'booked',10:'booked',12:'selected',13:'selected',14:'selected',18:'partial',21:'booked',25:'partial' };
 
+const HELP_ITEMS = [
+  { icon: 'calendar', title: 'Zeitfenster setzen',   text: 'Tippe einen Tag an und füge ein Zeitfenster hinzu, um deine Verfügbarkeit anzuzeigen.' },
+  { icon: 'reload',   title: 'Wiederholen',           text: 'Aktiviere «Wöchentlich wiederholen», damit das Zeitfenster jeden Samstag gilt.' },
+  { icon: 'log',      title: 'Gebucht vs. Frei',      text: 'Gebuchte Zeitfenster werden in blau angezeigt und können nicht bearbeitet werden.' },
+  { icon: 'bell',     title: 'Anfragen erhalten',     text: 'Du erhältst eine Benachrichtigung, wenn jemand dein freies Zeitfenster anfragt.' },
+];
+
 export default function AvailabilityScreen() {
   const navigate = useNavigate();
   const { state, actions } = useStore();
@@ -31,6 +38,9 @@ export default function AvailabilityScreen() {
   const [newFrom, setNewFrom] = useState('19:00');
   const [newTo, setNewTo]     = useState('20:30');
   const [recurring, setRecurring] = useState(true);
+  const [help, setHelp] = useState(false);
+  const [toast, setToast] = useState(false);
+  const [discardConfirm, setDiscardConfirm] = useState(false);
   const days = buildCalendar();
 
   const dateKey = `2026-06-${String(selectedDay).padStart(2,'0')}`;
@@ -41,11 +51,12 @@ export default function AvailabilityScreen() {
     if (newSlotOpen) updated = [...updated, { from: newFrom, to: newTo, label: recurring ? 'Wiederholt wöchentlich' : 'Einmalig', recurring, booked: false }];
     actions.saveAvailability(dateKey, updated);
     setNewSlotOpen(false);
+    setToast(true);
   }
 
   return (
     <Screen background="var(--surface)">
-      <TopBar leading={<IconButton name="back" onClick={() => navigate(-1)} label="Zurück" />} title="Verfügbarkeit" trailing={<IconButton name="info" label="Info" />} />
+      <TopBar leading={<IconButton name="back" onClick={() => navigate(-1)} label="Zurück" />} title="Verfügbarkeit" onHelp={() => setHelp(true)} />
       <Body padding="0 0 8px">
         <div style={{ padding: '14px 18px 4px' }}>
           <h2 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700, letterSpacing: -0.3, color: 'var(--ink)' }}>Wann bist du verfügbar?</h2>
@@ -170,9 +181,22 @@ export default function AvailabilityScreen() {
       </Body>
 
       <div style={{ padding: '10px 16px 12px', background: 'var(--card)', borderTop: '1px solid var(--line)', display: 'flex', gap: 10, flexShrink: 0 }}>
-        <div style={{ flex: 1 }}><Button full size="lg" variant="outline" onClick={() => navigate(-1)}>Verwerfen</Button></div>
+        <div style={{ flex: 1 }}><Button full size="lg" variant="outline" onClick={() => setDiscardConfirm(true)}>Verwerfen</Button></div>
         <div style={{ flex: 1 }}><Button full size="lg" onClick={handleSave}>Speichern</Button></div>
       </div>
+
+      <HelpSheet open={help} onClose={() => setHelp(false)} title="Verfügbarkeit" intro="So verwaltest du deine verfügbaren Zeitfenster." items={HELP_ITEMS} />
+      <Toast open={toast} onClose={() => setToast(false)} tone="success" title="Verfügbarkeit gespeichert" msg="Deine Zeitfenster wurden aktualisiert." />
+      <ConfirmDialog
+        open={discardConfirm}
+        onCancel={() => setDiscardConfirm(false)}
+        onConfirm={() => navigate(-1)}
+        tone="danger" icon="warning"
+        title="Änderungen verwerfen?"
+        body="Nicht gespeicherte Änderungen gehen verloren."
+        cancelLabel="Weiterarbeiten"
+        confirmLabel="Verwerfen"
+      />
     </Screen>
   );
 }

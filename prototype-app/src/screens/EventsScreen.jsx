@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Screen, Body, HScroll } from '../components/index.js';
+import { Screen, Body, HScroll, HelpButton, HelpSheet } from '../components/index.js';
 import IconButton from '../components/IconButton.jsx';
 import Card from '../components/Card.jsx';
 import Chip from '../components/Chip.jsx';
@@ -10,6 +10,13 @@ import Badge from '../components/Badge.jsx';
 import { useStore } from '../hooks/useStore.js';
 
 const CATS = ['Alle', 'Gemeinde', 'Sport', 'Familie', 'Senioren', 'Sprache', 'Kultur'];
+
+const HELP_ITEMS = [
+  { icon: 'calendar', title: 'Anlässe filtern',     text: 'Wähle eine Kategorie oder nutze die Listenansicht, um Anlässe zu finden.' },
+  { icon: 'check',    title: 'Teilnehmen',           text: 'Öffne einen Anlass und tippe auf «Teilnehmen», um dich anzumelden.' },
+  { icon: 'pin',      title: 'Standort',             text: 'Jeder Anlass zeigt den Veranstaltungsort an — tippe für die Karte.' },
+  { icon: 'plus',     title: 'Anlass erstellen',     text: 'Tippe auf + unten rechts, um einen eigenen Anlass zu erstellen.' },
+];
 
 const DAY_LABELS = {
   11: 'Heute · Mittwoch, 11. Juni',
@@ -44,6 +51,7 @@ export default function EventsScreen() {
   const { state } = useStore();
   const [activeCat, setActiveCat] = useState('Alle');
   const [view, setView] = useState('list');
+  const [help, setHelp] = useState(false);
 
   const filtered = activeCat === 'Alle' ? state.events : state.events.filter(e => e.cats.includes(activeCat));
 
@@ -61,7 +69,10 @@ export default function EventsScreen() {
           <h1 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 700, letterSpacing: -0.4, color: 'var(--ink)' }}>Anlässe</h1>
           <div style={{ fontFamily: 'var(--font)', fontSize: 11, color: 'var(--ink-3)', marginTop: 2 }}>{filtered.length} Anlässe · diese Woche</div>
         </div>
-        <IconButton name="search" label="Suchen" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <IconButton name="search" label="Suchen" />
+          <HelpButton onClick={() => setHelp(true)} />
+        </div>
       </div>
 
       <Body>
@@ -148,6 +159,7 @@ export default function EventsScreen() {
         </motion.button>
       </div>
 
+      <HelpSheet open={help} onClose={() => setHelp(false)} title="Anlässe" intro="Entdecke und nimm an Anlässen in Egnach teil." items={HELP_ITEMS} />
     </Screen>
   );
 }

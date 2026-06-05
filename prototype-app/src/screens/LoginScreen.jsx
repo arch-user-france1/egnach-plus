@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Screen, Body } from '../components/index.js';
+import { Screen, Body, HelpSheet } from '../components/index.js';
 import TopBar from '../components/TopBar.jsx';
 import IconButton from '../components/IconButton.jsx';
 import Button from '../components/Button.jsx';
@@ -10,6 +10,13 @@ import HelpBanner from '../components/HelpBanner.jsx';
 import Icon from '../components/Icon.jsx';
 import { useStore } from '../hooks/useStore.js';
 
+const HELP_ITEMS = [
+  { icon: 'fingerprint', title: 'Passkey-Anmeldung',  text: 'Nutze Face ID, Touch ID oder deinen Geräte-PIN — sicher und ohne Passwort.' },
+  { icon: 'lock',        title: 'E-Mail & Passwort',   text: 'Alternativ kannst du dich auch mit deiner E-Mail-Adresse anmelden.' },
+  { icon: 'shield',      title: 'Konto vergessen?',    text: 'Wende dich ans Gemeindehaus: 071 474 11 11 (Mo–Fr, 08:00–11:30).' },
+  { icon: 'info',        title: 'Noch kein Konto?',    text: 'Erstelle ein Konto — kostenlos und ausschliesslich für Einwohner von Egnach.' },
+];
+
 export default function LoginScreen() {
   const navigate = useNavigate();
   const { actions } = useStore();
@@ -17,6 +24,7 @@ export default function LoginScreen() {
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(true);
   const [showPw, setShowPw] = useState(false);
+  const [help, setHelp] = useState(false);
 
   function handleLogin() {
     actions.completeOnboarding('de');
@@ -25,7 +33,7 @@ export default function LoginScreen() {
 
   return (
     <Screen background="var(--surface)">
-      <TopBar leading={<IconButton name="back" onClick={() => navigate(-1)} label="Zurück" />} title="Anmelden" />
+      <TopBar leading={<IconButton name="back" onClick={() => navigate(-1)} label="Zurück" />} title="Anmelden" onHelp={() => setHelp(true)} />
 
       <Body padding="20px 22px">
         <h2 style={{ margin: '4px 0 6px', fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 700, letterSpacing: -0.3, color: 'var(--ink)' }}>Willkommen zurück.</h2>
@@ -98,6 +106,7 @@ export default function LoginScreen() {
         <span style={{ fontFamily: 'var(--font)', fontSize: 13, color: 'var(--ink-2)' }}>Noch kein Konto? </span>
         <button onClick={() => navigate('/register')} style={{ background: 'none', border: 'none', fontFamily: 'var(--font)', fontSize: 13, fontWeight: 700, color: 'var(--primary)', cursor: 'pointer', padding: 0 }}>Konto erstellen</button>
       </div>
+      <HelpSheet open={help} onClose={() => setHelp(false)} title="Anmelden" intro="So meldest du dich bei Egnach Plus an." items={HELP_ITEMS} />
     </Screen>
   );
 }

@@ -1,6 +1,25 @@
 import { useState, useCallback } from 'react';
 import { LISTINGS, EVENTS, CHAT_THREADS, AVAILABILITY } from '../data/seed.js';
 
+const SAMPLE_OWN_LISTINGS = [
+  {
+    id: 'ul_sample_1', own: true,
+    title: 'Kindervelo 20"', cat: 'Leihen', neighborhood: 'Egnach Dorf',
+    price: 'CHF 5 / Tag', rating: 0, reviews: 0, avatar: 'AM', ownerName: 'Anna Müller',
+    tone: 'sand', verified: true, available: 'Ab sofort',
+    handover: 'Persönlich', deposit: '—', languages: 'DE',
+    description: 'Kindervelo 20 Zoll, guter Zustand, mit Stützrädern.', distance: '0 m',
+  },
+  {
+    id: 'ul_sample_2', own: true,
+    title: 'Nähmaschine Singer', cat: 'Leihen', neighborhood: 'Egnach Dorf',
+    price: 'CHF 8 / Tag', rating: 0, reviews: 0, avatar: 'AM', ownerName: 'Anna Müller',
+    tone: 'lake', verified: true, available: 'Wochenenden',
+    handover: 'Persönlich', deposit: '—', languages: 'DE',
+    description: 'Singer Nähmaschine, Grundfunktionen, Anleitung dabei.', distance: '0 m',
+  },
+];
+
 function load(key, fallback) {
   try {
     const v = localStorage.getItem(key);
@@ -22,7 +41,7 @@ let _state = {
   rsvp:         load('egnach_rsvp', []),
   chatMessages: load('egnach_chat_messages', {}),
   availability: load('egnach_availability', AVAILABILITY),
-  listings:     [...LISTINGS, ...load('egnach_user_listings', [])],
+  listings:     [...LISTINGS, ...load('egnach_user_listings', SAMPLE_OWN_LISTINGS)],
   events:       [...EVENTS,   ...load('egnach_user_events',   [])],
   chatThreads:  CHAT_THREADS,
 };
@@ -97,7 +116,25 @@ export function useStore() {
       setState(s => {
         const userListings = s.listings
           .filter(l => !LISTINGS.find(sl => sl.id === l.id))
-          .concat(listing);
+          .concat({ ...listing, own: true });
+        save('egnach_user_listings', userListings);
+        return { ...s, listings: [...LISTINGS, ...userListings] };
+      });
+    },
+    updateListing(id, updates) {
+      setState(s => {
+        const userListings = s.listings
+          .filter(l => !LISTINGS.find(sl => sl.id === l.id))
+          .map(l => l.id === id ? { ...l, ...updates } : l);
+        save('egnach_user_listings', userListings);
+        return { ...s, listings: [...LISTINGS, ...userListings] };
+      });
+    },
+    removeListing(id) {
+      setState(s => {
+        const userListings = s.listings
+          .filter(l => !LISTINGS.find(sl => sl.id === l.id))
+          .filter(l => l.id !== id);
         save('egnach_user_listings', userListings);
         return { ...s, listings: [...LISTINGS, ...userListings] };
       });

@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { Screen } from '../components/index.js';
+import { Screen, HelpButton, HelpSheet, Toast } from '../components/index.js';
 import TopBar from '../components/TopBar.jsx';
 import IconButton from '../components/IconButton.jsx';
 import Avatar from '../components/Avatar.jsx';
@@ -51,6 +51,13 @@ function Bubble({ own, text, translatedFrom, translatedTo, translation, time, tr
   );
 }
 
+const HELP_ITEMS = [
+  { icon: 'language', title: 'Auto-Übersetzung',   text: 'Aktiviere die Übersetzung, um eingehende Nachrichten auf Deutsch zu lesen.' },
+  { icon: 'chat',     title: 'Anfrage stellen',    text: 'Schreibe direkt über diesen Chat, um ein Inserat anzufragen.' },
+  { icon: 'send',     title: 'Nachricht senden',   text: 'Tippe deine Nachricht und sende sie mit dem Pfeil-Button.' },
+  { icon: 'image',    title: 'Bilder & Dateien',   text: 'Du kannst Bilder über das Bild-Icon anhängen.' },
+];
+
 export default function ChatScreen() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -63,6 +70,8 @@ export default function ChatScreen() {
   const [translateOn, setTranslateOn] = useState(false);
   const [input, setInput] = useState('');
   const bottomRef = useRef(null);
+  const [help, setHelp] = useState(false);
+  const [toast, setToast] = useState(false);
 
   useEffect(() => { bottomRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [allMessages.length]);
 
@@ -70,6 +79,7 @@ export default function ChatScreen() {
     if (!input.trim()) return;
     actions.sendMessage('luan-krasniqi', input, 'Faleminderit!', 'SQ');
     setInput('');
+    setToast(true);
   }
 
   return (
@@ -86,6 +96,7 @@ export default function ChatScreen() {
         </div>
         <IconButton name="bell" label="Stummschalten" />
         <IconButton name="options" label="Mehr Optionen" />
+        <HelpButton onClick={() => setHelp(true)} />
       </div>
 
       {/* Listing reference card */}
@@ -154,6 +165,8 @@ export default function ChatScreen() {
           <Icon name="send" size={18} color="#fff" stroke={2} />
         </button>
       </div>
+      <HelpSheet open={help} onClose={() => setHelp(false)} title="Chat" intro="So kommunizierst du mit Nachbarn in Egnach Plus." items={HELP_ITEMS} />
+      <Toast open={toast} onClose={() => setToast(false)} tone="success" title="Nachricht gesendet" msg="Deine Nachricht wurde zugestellt." />
     </Screen>
   );
 }

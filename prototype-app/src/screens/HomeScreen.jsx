@@ -1,6 +1,7 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Screen, Body, HScroll, SectionHeader } from '../components/index.js';
+import { Screen, Body, HScroll, SectionHeader, HelpButton, HelpSheet } from '../components/index.js';
 import Avatar from '../components/Avatar.jsx';
 import IconButton from '../components/IconButton.jsx';
 import Card from '../components/Card.jsx';
@@ -18,11 +19,17 @@ const item = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.3 } },
 };
 
-const TAB_PATHS = ['/home', '/marktplatz', '/anlaesse', '/chat', '/profil'];
+const HELP_ITEMS = [
+  { icon: 'calendar',  title: 'Anlässe entdecken',   text: 'Sieh, was in deinem Quartier passiert — Veranstaltungen, Treffen und mehr.' },
+  { icon: 'briefcase', title: 'Marktplatz',           text: 'Leihe, tausche oder biete Dienste direkt mit Nachbarn in Egnach.' },
+  { icon: 'chat',      title: 'Chat & Anfragen',      text: 'Schreibe Nachbarn direkt an — mit automatischer Übersetzung.' },
+  { icon: 'pin',       title: 'Dein Quartier',        text: 'Inhalte werden nach deinem Quartier gefiltert, damit du das Wichtigste siehst.' },
+];
 
 export default function HomeScreen() {
   const navigate = useNavigate();
   const { state } = useStore();
+  const [help, setHelp] = useState(false);
 
   const events = state.events.slice(0, 3);
   const listings = state.listings.slice(0, 2);
@@ -41,6 +48,7 @@ export default function HomeScreen() {
         </div>
         <IconButton name="bell" badge="3" label="Benachrichtigungen" />
         <IconButton name="qr" label="QR-Scanner" onClick={() => navigate('/map')} />
+        <HelpButton onClick={() => setHelp(true)} />
       </div>
 
       <Body>
@@ -125,6 +133,7 @@ export default function HomeScreen() {
         <div style={{ height: 24 }} />
       </Body>
 
+      <HelpSheet open={help} onClose={() => setHelp(false)} title="Egnach Plus" intro="Hier findest du alles, was in deinem Quartier passiert." items={HELP_ITEMS} />
     </Screen>
   );
 }

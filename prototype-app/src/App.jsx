@@ -21,6 +21,8 @@ import ChatScreen          from './screens/ChatScreen.jsx';
 import ProfileScreen       from './screens/ProfileScreen.jsx';
 import AvailabilityScreen  from './screens/AvailabilityScreen.jsx';
 import CreateEventScreen   from './screens/CreateEventScreen.jsx';
+import EditListingScreen   from './screens/EditListingScreen.jsx';
+import SettingsScreen      from './screens/SettingsScreen.jsx';
 
 const TAB_ROUTES = {
   '/home':       0,
@@ -73,12 +75,14 @@ function AnimatedRoutes() {
               <Route path="/marktplatz"    element={<MarketplaceScreen />} />
               <Route path="/marktplatz/:id" element={<ListingDetailScreen />} />
               <Route path="/inserat-erstellen" element={<CreateListingScreen />} />
+              <Route path="/inserat-bearbeiten/:id" element={<EditListingScreen />} />
               <Route path="/anlass-erstellen"  element={<CreateEventScreen />} />
               <Route path="/anlaesse"      element={<EventsScreen />} />
               <Route path="/anlaesse/:id"  element={<EventDetailScreen />} />
               <Route path="/chat"          element={<ChatScreen />} />
               <Route path="/profil"        element={<ProfileScreen />} />
               <Route path="/verfuegbarkeit" element={<AvailabilityScreen />} />
+              <Route path="/einstellungen" element={<SettingsScreen />} />
               <Route path="*"              element={<Navigate to="/" replace />} />
             </Routes>
           </motion.div>

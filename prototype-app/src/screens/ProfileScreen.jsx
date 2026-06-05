@@ -1,5 +1,5 @@
 import { useNavigate } from 'react-router-dom';
-import { Screen, Body } from '../components/index.js';
+import { Screen, Body, HelpButton, HelpSheet, Toast, ConfirmDialog } from '../components/index.js';
 import IconButton from '../components/IconButton.jsx';
 import Avatar from '../components/Avatar.jsx';
 import Badge from '../components/Badge.jsx';
@@ -35,6 +35,13 @@ function Row({ icon, label, value, toggleOn, onToggle, last, onClick }) {
   );
 }
 
+const HELP_ITEMS = [
+  { icon: 'edit',    title: 'Profil bearbeiten',  text: 'Tippe auf «Bearbeiten», um deinen Namen, dein Foto und deine Kompetenzen anzupassen.' },
+  { icon: 'briefcase', title: 'Meine Inserate',   text: 'Unter «Meine Ausschreibungen» verwaltest du deine eigenen Inserate.' },
+  { icon: 'info',    title: 'Einstellungen',      text: 'Passe Sprache, Benachrichtigungen und Barrierefreiheit an.' },
+  { icon: 'shield',  title: 'Verifizierung',      text: 'Verifizierte Nutzer erhalten mehr Vertrauen und Anfragen.' },
+];
+
 export default function ProfileScreen() {
   const navigate = useNavigate();
   const { state, actions } = useStore();
@@ -43,12 +50,17 @@ export default function ProfileScreen() {
   const [bigText, setBigText] = useState(false);
   const [highContrast, setHighContrast] = useState(false);
   const [voice, setVoice] = useState(false);
+  const [help, setHelp] = useState(false);
+  const [logoutConfirm, setLogoutConfirm] = useState(false);
 
   return (
     <Screen background="var(--surface)">
       <div style={{ padding: '10px 16px 8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
         <h1 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 700, letterSpacing: -0.4, color: 'var(--ink)' }}>Profil</h1>
-        <IconButton name="options" label="Einstellungen" />
+        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+          <IconButton name="options" label="Einstellungen" />
+          <HelpButton onClick={() => setHelp(true)} />
+        </div>
       </div>
 
       <Body>
@@ -90,7 +102,54 @@ export default function ProfileScreen() {
           </div>
         </div>
 
-        <div style={{ padding: '12px 16px 6px', fontFamily: 'var(--font)', fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', letterSpacing: 1 }}>EINSTELLUNGEN</div>
+        {/* Meine Ausschreibungen */}
+        {(() => {
+          const ownListings = state.listings.filter(l => l.own);
+          return (
+            <>
+              <div style={{ padding: '16px 16px 8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ fontFamily: 'var(--font)', fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', letterSpacing: 1 }}>MEINE AUSSCHREIBUNGEN</span>
+                <button
+                  onClick={() => navigate('/inserat-erstellen')}
+                  style={{ background: 'none', border: 'none', fontFamily: 'var(--font)', fontSize: 12, fontWeight: 600, color: 'var(--primary)', cursor: 'pointer', padding: 0, minHeight: 44, display: 'flex', alignItems: 'center' }}
+                >
+                  + Neu
+                </button>
+              </div>
+              {ownListings.length === 0 ? (
+                <div style={{ margin: '0 16px', padding: '18px 16px', borderRadius: 'var(--radius)', background: 'var(--card)', border: '1px solid var(--line)', textAlign: 'center', fontFamily: 'var(--font)', fontSize: 13, color: 'var(--ink-3)' }}>
+                  Noch keine Ausschreibungen
+                </div>
+              ) : (
+                <div style={{ margin: '0 16px', borderRadius: 'var(--radius)', border: '1px solid var(--line)', overflow: 'hidden', background: 'var(--card)' }}>
+                  {ownListings.map((l, i) => (
+                    <button
+                      key={l.id}
+                      onClick={() => navigate(`/inserat-bearbeiten/${l.id}`)}
+                      style={{
+                        width: '100%', display: 'flex', alignItems: 'center', gap: 12,
+                        padding: '12px 14px', background: 'transparent', border: 'none',
+                        borderBottom: i < ownListings.length - 1 ? '1px solid var(--line)' : 'none',
+                        cursor: 'pointer', textAlign: 'left',
+                      }}
+                    >
+                      <div style={{ width: 36, height: 36, borderRadius: 10, background: 'var(--surface-2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <Icon name="store" size={18} stroke={1.6} color="var(--ink-2)" />
+                      </div>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <div style={{ fontFamily: 'var(--font)', fontSize: 14, fontWeight: 600, color: 'var(--ink)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{l.title}</div>
+                        <div style={{ fontFamily: 'var(--font)', fontSize: 11, color: 'var(--ink-3)', marginTop: 2 }}>{l.cat} · {l.price}</div>
+                      </div>
+                      <Icon name="chevron" size={14} color="var(--ink-3)" stroke={2} />
+                    </button>
+                  ))}
+                </div>
+              )}
+            </>
+          );
+        })()}
+
+        <div style={{ padding: '16px 16px 6px', fontFamily: 'var(--font)', fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', letterSpacing: 1 }}>EINSTELLUNGEN</div>
         <Card padding={0} style={{ margin: '0 16px' }}>
           <Row icon="bell" label="Benachrichtigungen" toggleOn={notifs} onToggle={setNotifs} />
           <Row icon="globe" label="Sprache & Region" value="Deutsch · Schweiz" onClick={() => { }} />
@@ -110,17 +169,29 @@ export default function ProfileScreen() {
           <Row icon="shield" label="Verifizierung" value="Verifiziert" onClick={() => navigate('/verify')} />
           <Row icon="lock" label="Passkey verwalten" onClick={() => { }} />
           <Row icon="calendar" label="Verfügbarkeit" onClick={() => navigate('/verfuegbarkeit')} />
+          <Row icon="info" label="Einstellungen" onClick={() => navigate('/einstellungen')} />
           <Row icon="info" label="Hilfe & Support" onClick={() => { }} last />
         </Card>
 
         <div style={{ padding: '24px 16px 16px' }}>
-          <Button full size="md" variant="danger" onClick={actions.reset}>Abmelden</Button>
+          <Button full size="md" variant="danger" onClick={() => setLogoutConfirm(true)}>Abmelden</Button>
         </div>
         <div style={{ textAlign: 'center', padding: '0 16px 16px', fontFamily: 'var(--font)', fontSize: 10, color: 'var(--ink-3)' }}>
           Egnach Plus · v1.0.0 · Gemeinde Egnach
         </div>
       </Body>
 
+      <HelpSheet open={help} onClose={() => setHelp(false)} title="Profil" intro="Verwalte dein Profil und deine Einstellungen." items={HELP_ITEMS} />
+      <ConfirmDialog
+        open={logoutConfirm}
+        onCancel={() => setLogoutConfirm(false)}
+        onConfirm={actions.reset}
+        tone="danger" icon="logout"
+        title="Wirklich abmelden?"
+        body="Du wirst aus Egnach Plus abgemeldet. Deine lokalen Daten bleiben gespeichert."
+        cancelLabel="Abbrechen"
+        confirmLabel="Abmelden"
+      />
     </Screen>
   );
 }

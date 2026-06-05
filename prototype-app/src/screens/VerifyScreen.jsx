@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Screen, Body } from '../components/index.js';
+import { Screen, Body, HelpSheet } from '../components/index.js';
 import TopBar from '../components/TopBar.jsx';
 import IconButton from '../components/IconButton.jsx';
 import Button from '../components/Button.jsx';
@@ -91,10 +91,18 @@ const CHECKS = [
   { label: 'Foto-Selfie' },
 ];
 
+const HELP_ITEMS = [
+  { icon: 'camera',  title: 'Ausweis fotografieren', text: 'Halte deinen Ausweis gut beleuchtet in den Rahmen — Vorderseite zuerst.' },
+  { icon: 'shield',  title: 'Datenschutz',           text: 'Das Foto wird nur zur einmaligen Verifikation verwendet und danach gelöscht.' },
+  { icon: 'check',   title: 'Blauer Haken',          text: 'Nach erfolgreicher Prüfung erhältst du das blaue «Verifiziert»-Häkchen.' },
+  { icon: 'calendar',title: 'Später erledigen',       text: 'Du kannst die Verifikation auch zu einem späteren Zeitpunkt abschliessen.' },
+];
+
 export default function VerifyScreen() {
   const navigate = useNavigate();
   const { actions } = useStore();
   const [scanning, setScanning] = useState(false);
+  const [help, setHelp] = useState(false);
 
   function handleScan() { setScanning(true); }
 
@@ -105,7 +113,7 @@ export default function VerifyScreen() {
 
   return (
     <Screen>
-      <TopBar leading={<IconButton name="back" onClick={() => navigate(-1)} label="Zurück" />} title="Verifikation" />
+      <TopBar leading={<IconButton name="back" onClick={() => navigate(-1)} label="Zurück" />} title="Verifikation" onHelp={() => setHelp(true)} />
       <Body padding="14px 20px 16px">
         <Stepper active={2} />
         <p style={{ margin: '0 0 14px', fontFamily: 'var(--font)', fontSize: 12, color: 'var(--ink-3)' }}>Schritt 2 · Ausweis fotografieren</p>
@@ -161,6 +169,7 @@ export default function VerifyScreen() {
         </Button>
         <Button full size="md" variant="ghost" onClick={handleFinish}>Später erledigen</Button>
       </div>
+      <HelpSheet open={help} onClose={() => setHelp(false)} title="Verifikation" intro="So bestätigst du, dass du in Egnach wohnst." items={HELP_ITEMS} />
     </Screen>
   );
 }

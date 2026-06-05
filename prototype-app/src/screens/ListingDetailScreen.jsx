@@ -1,5 +1,6 @@
+import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Screen, Body } from '../components/index.js';
+import { Screen, Body, HelpSheet, Toast } from '../components/index.js';
 import Button from '../components/Button.jsx';
 import Badge from '../components/Badge.jsx';
 import Card from '../components/Card.jsx';
@@ -9,12 +10,21 @@ import Photo from '../components/Photo.jsx';
 import Icon from '../components/Icon.jsx';
 import { useStore } from '../hooks/useStore.js';
 
+const HELP_ITEMS = [
+  { icon: 'chat',      title: 'Anfrage senden',        text: 'Schreibe dem Anbieter direkt über den Chat an.' },
+  { icon: 'heart',     title: 'Merken',                 text: 'Speichere Inserate mit dem Herz-Icon, um sie später zu finden.' },
+  { icon: 'share',     title: 'Teilen',                 text: 'Teile das Inserat mit anderen Personen.' },
+  { icon: 'shield',    title: 'Verifizierte Anbieter',  text: 'Anbieter mit blauem Häkchen wurden durch die Gemeinde Egnach verifiziert.' },
+];
+
 export default function ListingDetailScreen() {
   const { id } = useParams();
   const navigate = useNavigate();
   const { state, actions } = useStore();
   const listing = state.listings.find(l => l.id === id) || state.listings[0];
   const isFav = state.favorites.includes(listing.id);
+  const [help, setHelp] = useState(false);
+  const [toast, setToast] = useState(false);
 
   return (
     <Screen background="var(--surface)" style={{ overflowY: 'auto' }}>
@@ -30,6 +40,9 @@ export default function ListingDetailScreen() {
             </button>
             <button onClick={() => actions.toggleFavorite(listing.id)} style={{ width: 40, height: 40, borderRadius: 20, background: 'rgba(255,255,255,0.92)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: isFav ? 'var(--danger)' : 'var(--ink)' }} aria-label="Merken" aria-pressed={isFav}>
               <Icon name="heart" size={18} color={isFav ? 'var(--danger)' : 'currentColor'} />
+            </button>
+            <button onClick={() => setHelp(true)} style={{ width: 40, height: 40, borderRadius: 20, background: 'rgba(255,255,255,0.92)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontFamily: 'var(--font)', fontSize: 16, fontWeight: 700, color: 'var(--ink-2)' }} aria-label="Hilfe">
+              ?
             </button>
           </div>
         </div>
@@ -135,9 +148,12 @@ export default function ListingDetailScreen() {
           <Icon name="chat" size={20} />
         </button>
         <div style={{ flex: 1 }}>
-          <Button full size="lg" onClick={() => navigate(`/chat?listingId=${listing.id}`)}>Anfrage senden</Button>
+          <Button full size="lg" onClick={() => { navigate(`/chat?listingId=${listing.id}`); setToast(true); }}>Anfrage senden</Button>
         </div>
       </div>
+
+      <HelpSheet open={help} onClose={() => setHelp(false)} title="Inserat" intro="So nutzt du dieses Inserat." items={HELP_ITEMS} />
+      <Toast open={toast} onClose={() => setToast(false)} tone="success" title="Anfrage gesendet" msg="Der Anbieter wird sich bei dir melden." />
     </Screen>
   );
 }
