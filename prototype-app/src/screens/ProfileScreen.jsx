@@ -88,26 +88,12 @@ export default function ProfileScreen() {
           </div>
         </div>
 
-        {/* Kompetenzen */}
-        <div style={{ padding: '4px 16px 12px' }}>
-          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 8 }}>
-            <span style={{ fontFamily: 'var(--font)', fontSize: 12, fontWeight: 700, color: 'var(--ink-3)', letterSpacing: 0.8 }}>KOMPETENZEN</span>
-            <button style={{ background: 'none', border: 'none', fontFamily: 'var(--font)', fontSize: 12, fontWeight: 600, color: 'var(--primary)', cursor: 'pointer', padding: 0, minHeight: 44, display: 'flex', alignItems: 'center' }}>+ Hinzufügen</button>
-          </div>
-          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-            <Chip tone="primary">Gartenarbeit</Chip>
-            <Chip tone="primary">Übersetzen DE/EN</Chip>
-            <Chip tone="primary">Kinderhüten</Chip>
-            <Chip tone="soft">+ 2 weitere</Chip>
-          </div>
-        </div>
-
         {/* Meine Ausschreibungen */}
         {(() => {
           const ownListings = state.listings.filter(l => l.own);
           return (
             <>
-              <div style={{ padding: '16px 16px 8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+              <div style={{ padding: '4px 16px 8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <span style={{ fontFamily: 'var(--font)', fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', letterSpacing: 1 }}>MEINE AUSSCHREIBUNGEN</span>
                 <button
                   onClick={() => navigate('/inserat-erstellen')}
@@ -117,8 +103,15 @@ export default function ProfileScreen() {
                 </button>
               </div>
               {ownListings.length === 0 ? (
-                <div style={{ margin: '0 16px', padding: '18px 16px', borderRadius: 'var(--radius)', background: 'var(--card)', border: '1px solid var(--line)', textAlign: 'center', fontFamily: 'var(--font)', fontSize: 13, color: 'var(--ink-3)' }}>
-                  Noch keine Ausschreibungen
+                <div style={{ margin: '0 16px', padding: '20px 16px', borderRadius: 'var(--radius)', background: 'var(--card)', border: '1px dashed var(--line-2)', textAlign: 'center' }}>
+                  <Icon name="briefcase" size={24} color="var(--ink-3)" stroke={1.6} />
+                  <div style={{ fontFamily: 'var(--font)', fontSize: 13, color: 'var(--ink-3)', marginTop: 8 }}>Noch keine Inserate</div>
+                  <button
+                    onClick={() => navigate('/inserat-erstellen')}
+                    style={{ background: 'none', border: 'none', fontFamily: 'var(--font)', fontSize: 12, fontWeight: 600, color: 'var(--primary)', cursor: 'pointer', marginTop: 6, padding: 0 }}
+                  >
+                    Erstes Inserat erstellen →
+                  </button>
                 </div>
               ) : (
                 <div style={{ margin: '0 16px', borderRadius: 'var(--radius)', border: '1px solid var(--line)', overflow: 'hidden', background: 'var(--card)' }}>
@@ -148,6 +141,20 @@ export default function ProfileScreen() {
             </>
           );
         })()}
+
+        {/* Kompetenzen */}
+        <div style={{ padding: '16px 16px 12px' }}>
+          <div style={{ display: 'flex', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: 8 }}>
+            <span style={{ fontFamily: 'var(--font)', fontSize: 12, fontWeight: 700, color: 'var(--ink-3)', letterSpacing: 0.8 }}>KOMPETENZEN</span>
+            <button style={{ background: 'none', border: 'none', fontFamily: 'var(--font)', fontSize: 12, fontWeight: 600, color: 'var(--primary)', cursor: 'pointer', padding: 0, minHeight: 44, display: 'flex', alignItems: 'center' }}>+ Hinzufügen</button>
+          </div>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            <Chip tone="primary">Gartenarbeit</Chip>
+            <Chip tone="primary">Übersetzen DE/EN</Chip>
+            <Chip tone="primary">Kinderhüten</Chip>
+            <Chip tone="soft">+ 2 weitere</Chip>
+          </div>
+        </div>
 
         <div style={{ padding: '16px 16px 6px', fontFamily: 'var(--font)', fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', letterSpacing: 1 }}>EINSTELLUNGEN</div>
         <Card padding={0} style={{ margin: '0 16px' }}>

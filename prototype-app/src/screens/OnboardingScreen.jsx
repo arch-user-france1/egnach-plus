@@ -5,6 +5,7 @@ import { Screen } from '../components/index.js';
 import Button from '../components/Button.jsx';
 import Dots from '../components/Dots.jsx';
 import Icon from '../components/Icon.jsx';
+import { useStore } from '../hooks/useStore.js';
 
 const STEPS = [
   {
@@ -95,13 +96,19 @@ const OVERVIEW_ITEMS = [
 export default function OnboardingScreen() {
   const [step, setStep] = useState(0);
   const navigate = useNavigate();
+  const { actions } = useStore();
   const isOverview = step === 3;
   const isLast = step === STEPS.length - 1;
+
+  function skip() {
+    actions.completeOnboarding('de');
+    navigate('/home');
+  }
 
   return (
     <Screen background="var(--surface)">
       <div style={{ padding: '12px 20px 0', display: 'flex', justifyContent: 'flex-end' }}>
-        <button onClick={() => navigate('/home')} style={{ background: 'none', border: 'none', fontFamily: 'var(--font)', fontSize: 13, fontWeight: 600, color: 'var(--ink-2)', cursor: 'pointer', padding: '4px 0', minHeight: 44, display: 'flex', alignItems: 'center' }}>Überspringen</button>
+        <button onClick={skip} style={{ background: 'none', border: 'none', fontFamily: 'var(--font)', fontSize: 13, fontWeight: 600, color: 'var(--ink-2)', cursor: 'pointer', padding: '4px 0', minHeight: 44, display: 'flex', alignItems: 'center' }}>Überspringen</button>
       </div>
 
       <div style={{ flex: 1, padding: '14px 28px 0', display: 'flex', flexDirection: 'column', gap: 24, overflow: 'hidden' }}>
