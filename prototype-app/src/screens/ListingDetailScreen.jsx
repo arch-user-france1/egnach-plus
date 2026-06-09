@@ -14,7 +14,7 @@ const HELP_ITEMS = [
   { icon: 'chat',      title: 'Anfrage senden',        text: 'Schreibe dem Anbieter direkt über den Chat an.' },
   { icon: 'heart',     title: 'Merken',                 text: 'Speichere Inserate mit dem Herz-Icon, um sie später zu finden.' },
   { icon: 'share',     title: 'Teilen',                 text: 'Teile das Inserat mit anderen Personen.' },
-  { icon: 'shield',    title: 'Verifizierte Anbieter',  text: 'Anbieter mit blauem Häkchen wurden durch die Gemeinde Egnach verifiziert.' },
+  { icon: 'shield',    title: 'Verifizierte Anbieter',  text: 'Anbieter mit grünem Häkchen wurden durch die Gemeinde Egnach verifiziert.' },
 ];
 
 export default function ListingDetailScreen() {
@@ -25,6 +25,11 @@ export default function ListingDetailScreen() {
   const isFav = state.favorites.includes(listing.id);
   const [help, setHelp] = useState(false);
   const [toast, setToast] = useState(false);
+
+  // Open the existing conversation for this listing, or a new one with its owner.
+  const existingThread = state.chatThreads.find(t => t.listingId === listing.id);
+  const chatThreadId = existingThread ? existingThread.id : `listing-${listing.id}`;
+  const openChat = () => navigate(`/chat/${chatThreadId}?listingId=${listing.id}`);
 
   return (
     <Screen background="var(--surface)" style={{ overflowY: 'auto' }}>
@@ -144,11 +149,11 @@ export default function ListingDetailScreen() {
       <div style={{ height: 100 }} />
 
       <div style={{ position: 'sticky', bottom: 0, padding: '12px 16px 22px', background: 'var(--card)', borderTop: '1px solid var(--line)', display: 'flex', gap: 10, alignItems: 'center' }}>
-        <button onClick={() => navigate(`/chat?listingId=${listing.id}`)} style={{ width: 48, height: 48, borderRadius: 'var(--radius-sm)', border: '1.5px solid var(--line-2)', background: 'var(--card)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }} aria-label="Nachricht senden">
+        <button onClick={openChat} style={{ width: 48, height: 48, borderRadius: 'var(--radius-sm)', border: '1.5px solid var(--line-2)', background: 'var(--card)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }} aria-label="Nachricht senden">
           <Icon name="chat" size={20} />
         </button>
         <div style={{ flex: 1 }}>
-          <Button full size="lg" onClick={() => { navigate(`/chat?listingId=${listing.id}`); setToast(true); }}>Anfrage senden</Button>
+          <Button full size="lg" onClick={() => { openChat(); setToast(true); }}>Anfrage senden</Button>
         </div>
       </div>
 

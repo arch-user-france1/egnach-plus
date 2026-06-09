@@ -23,11 +23,57 @@ export const CHAT_THREADS = [
     online: true,
     lang: 'SQ',
     listingId: 'l1',
+    time: '09:45',
+    unread: 1,
     messages: [
       { id: 'm1', own: false, text: "Përshëndetje! A është bohrhammer-i ende i lirë për fundjavën?", translation: "Grüezi! Ist der Bohrhammer am Wochenende noch frei?", translatedFrom: 'SQ', time: '09:32' },
       { id: 'm2', own: true,  text: "Hoi Luan, ja — Samstag und Sonntag passt. Komm um 9 vorbei.", translation: "Tungjatjeta Luan, po — e shtuna dhe e diela më shkojnë. Eja rreth orës 9.", translatedTo: 'SQ', time: '09:42' },
       { id: 'm3', own: false, text: "Faleminderit! A duhet të sjell diçka? Kaucionin?", translation: "Danke! Soll ich etwas mitbringen? Die Kaution?", translatedFrom: 'SQ', time: '09:44' },
       { id: 'm4', own: true,  text: "Nur einen Ausweis und CHF 50 Kaution in bar.", translation: "Vetëm një dokument identifikimi dhe 50 CHF kaucion në para të gatshme.", translatedTo: 'SQ', time: '09:45' },
+    ]
+  },
+  {
+    id: 'celine-roth',
+    name: 'Céline Roth',
+    initials: 'CR',
+    verified: true,
+    online: false,
+    lang: 'FR',
+    listingId: 'l2',
+    time: 'Gestern',
+    unread: 0,
+    messages: [
+      { id: 'm1', own: false, text: "Bonjour ! Oui, je donne aussi des cours le mercredi après-midi.", translation: "Grüezi! Ja, ich gebe auch am Mittwochnachmittag Nachhilfe.", translatedFrom: 'FR', time: 'Gestern' },
+      { id: 'm2', own: true,  text: "Super, dann melde ich meine Tochter gerne an. Danke!", translation: "Super, j'inscris donc volontiers ma fille. Merci !", translatedTo: 'FR', time: 'Gestern' },
+    ]
+  },
+  {
+    id: 'peter-suter',
+    name: 'Peter Suter',
+    initials: 'PS',
+    verified: false,
+    online: false,
+    lang: 'DE',
+    listingId: 'l3',
+    time: 'Mo',
+    unread: 0,
+    messages: [
+      { id: 'm1', own: true,  text: "Hoi Peter, ist der Anhänger am Freitag noch frei?", time: 'Mo' },
+      { id: 'm2', own: false, text: "Hoi! Ja, Freitag ab Mittag kannst du ihn abholen.", time: 'Mo' },
+    ]
+  },
+  {
+    id: 'otto-keller',
+    name: 'Otto Keller',
+    initials: 'OK',
+    verified: true,
+    online: true,
+    lang: 'DE',
+    listingId: 'l5',
+    time: 'Mo',
+    unread: 2,
+    messages: [
+      { id: 'm1', own: false, text: "Grüezi! Ich hätte noch Apfelmost — was hättest du zum Tauschen?", time: 'Mo' },
     ]
   }
 ];

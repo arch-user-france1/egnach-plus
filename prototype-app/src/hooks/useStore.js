@@ -92,12 +92,13 @@ export function useStore() {
         return { ...s, rsvp };
       });
     },
-    sendMessage(threadId, text, translation, translatedTo) {
+    sendMessage(threadId, text, translation, translatedTo, listing) {
       setState(s => {
         const existing = s.chatMessages[threadId] || [];
         const msgs = [...existing, {
           id: 'm' + Date.now(),
           own: true, text, translation, translatedTo,
+          listing: listing || undefined,
           time: new Date().toLocaleTimeString('de-CH', { hour: '2-digit', minute: '2-digit' }),
         }];
         const chatMessages = { ...s.chatMessages, [threadId]: msgs };

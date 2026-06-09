@@ -94,7 +94,7 @@ const CHECKS = [
 const HELP_ITEMS = [
   { icon: 'camera',  title: 'Ausweis fotografieren', text: 'Halte deinen Ausweis gut beleuchtet in den Rahmen — Vorderseite zuerst.' },
   { icon: 'shield',  title: 'Datenschutz',           text: 'Das Foto wird nur zur einmaligen Verifikation verwendet und danach gelöscht.' },
-  { icon: 'check',   title: 'Blauer Haken',          text: 'Nach erfolgreicher Prüfung erhältst du das blaue «Verifiziert»-Häkchen.' },
+  { icon: 'check',   title: 'Grüner Haken',          text: 'Nach erfolgreicher Prüfung erhältst du das grüne «Verifiziert»-Häkchen.' },
   { icon: 'calendar',title: 'Später erledigen',       text: 'Du kannst die Verifikation auch zu einem späteren Zeitpunkt abschliessen.' },
 ];
 
@@ -158,7 +158,7 @@ export default function VerifyScreen() {
 
         <div style={{ marginTop: 18 }}>
           <HelpBanner tone="info" title="Sicher & lokal">
-            Die Verifizierung erfolgt einmalig und wird verschlüsselt gespeichert. Du erhältst danach das blaue Häkchen «Verifiziert».
+            Die Verifizierung erfolgt einmalig und wird verschlüsselt gespeichert. Du erhältst danach das grüne Häkchen «Verifiziert».
           </HelpBanner>
         </div>
       </Body>

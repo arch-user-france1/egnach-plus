@@ -17,7 +17,7 @@ const CAT_ICONS = { Leihen: 'briefcase', Dienste: 'paws', Tausch: 'reload', Jobs
 const HELP_ITEMS = [
   { icon: 'search',    title: 'Suchen & filtern',      text: 'Tippe in die Suchleiste oder wähle eine Kategorie, um Inserate zu filtern.' },
   { icon: 'briefcase', title: 'Kategorien',             text: 'Leihen, Dienste, Tausch, Jobs — wähle die passende Kategorie.' },
-  { icon: 'shield',    title: 'Verifizierte Nachbarn',  text: 'Inserate mit blauem Häkchen stammen von verifizierten Einwohnern.' },
+  { icon: 'shield',    title: 'Verifizierte Nachbarn',  text: 'Inserate mit grünem Häkchen stammen von verifizierten Einwohnern.' },
   { icon: 'plus',      title: 'Eigenes Inserat',        text: 'Tippe auf + unten rechts, um ein neues Inserat zu erstellen.' },
 ];
 

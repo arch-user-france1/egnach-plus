@@ -17,6 +17,7 @@ import ListingDetailScreen from './screens/ListingDetailScreen.jsx';
 import CreateListingScreen from './screens/CreateListingScreen.jsx';
 import EventsScreen        from './screens/EventsScreen.jsx';
 import EventDetailScreen   from './screens/EventDetailScreen.jsx';
+import ChatListScreen      from './screens/ChatListScreen.jsx';
 import ChatScreen          from './screens/ChatScreen.jsx';
 import ProfileScreen       from './screens/ProfileScreen.jsx';
 import AvailabilityScreen  from './screens/AvailabilityScreen.jsx';
@@ -79,7 +80,8 @@ function AnimatedRoutes() {
               <Route path="/anlass-erstellen"  element={<CreateEventScreen />} />
               <Route path="/anlaesse"      element={<EventsScreen />} />
               <Route path="/anlaesse/:id"  element={<EventDetailScreen />} />
-              <Route path="/chat"          element={<ChatScreen />} />
+              <Route path="/chat"          element={<ChatListScreen />} />
+              <Route path="/chat/:threadId" element={<ChatScreen />} />
               <Route path="/profil"        element={<ProfileScreen />} />
               <Route path="/verfuegbarkeit" element={<AvailabilityScreen />} />
               <Route path="/einstellungen" element={<SettingsScreen />} />
