@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Screen, Body, HelpSheet, Toast } from '../components/index.js';
 import TopBar from '../components/TopBar.jsx';
 import IconButton from '../components/IconButton.jsx';
+import { useStore } from '../hooks/useStore.js';
 
 /* ─── Local sub-components ──────────────────────────────────────── */
 function FlipSwitch({ on, onChange }) {
@@ -90,9 +91,13 @@ const LOCATION_OPTIONS = ['Genau', 'Ungefähr', 'Aus'];
 /* ─── Screen ────────────────────────────────────────────────────── */
 export default function SettingsScreen() {
   const navigate = useNavigate();
+  const { state, actions } = useStore();
 
   const [einfach, setEinfach] = useState(false);
-  const [fontIdx, setFontIdx] = useState(1);
+  const fontIdx = FONT_SIZES.reduce(
+    (best, f, i) => Math.abs(f.scale - state.textScale) < Math.abs(FONT_SIZES[best].scale - state.textScale) ? i : best,
+    0,
+  );
 
   const [notifMaster, setNotifMaster] = useState(true);
   const [notifChat, setNotifChat] = useState(true);
@@ -151,7 +156,7 @@ export default function SettingsScreen() {
                 return (
                   <button
                     key={i}
-                    onClick={() => setFontIdx(i)}
+                    onClick={() => actions.setTextScale(f.scale)}
                     style={{
                       flex: 1, height: 44, borderRadius: 'var(--radius-sm)',
                       border: `${active ? 1.5 : 1}px solid ${active ? 'var(--primary)' : 'var(--line)'}`,
@@ -166,9 +171,10 @@ export default function SettingsScreen() {
                 );
               })}
             </div>
+            {/* Die App skaliert live mit – fixe 15px zeigen hier die tatsächlich angewendete Grösse */}
             <div style={{ padding: '12px 14px', borderRadius: 'var(--radius-sm)', background: 'var(--surface-2)', textAlign: 'center' }}>
-              <span style={{ fontFamily: 'var(--font-display)', fontSize: 15 * FONT_SIZES[fontIdx].scale, fontWeight: 600, color: 'var(--ink)' }}>
-                Grüezi Anna!
+              <span style={{ fontFamily: 'var(--font-display)', fontSize: 15, fontWeight: 600, color: 'var(--ink)' }}>
+                Grüezi {state.user.name.split(' ')[0]}!
               </span>
             </div>
           </div>

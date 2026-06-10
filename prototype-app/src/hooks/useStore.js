@@ -37,6 +37,7 @@ let _state = {
   onboarded:    load('egnach_onboarded', false),
   user:         load('egnach_user', { name: 'Anna Müller', initials: 'AM', neighborhood: 'Egnach Dorf', verified: true }),
   lang:         load('egnach_lang', 'de'),
+  textScale:    load('egnach_text_scale', 1),
   favorites:    load('egnach_favorites', []),
   rsvp:         load('egnach_rsvp', []),
   chatMessages: load('egnach_chat_messages', {}),
@@ -73,6 +74,10 @@ export function useStore() {
     setUser(user) {
       save('egnach_user', user);
       setState(s => ({ ...s, user }));
+    },
+    setTextScale(textScale) {
+      save('egnach_text_scale', textScale);
+      setState(s => ({ ...s, textScale }));
     },
     toggleFavorite(listingId) {
       setState(s => {
@@ -150,7 +155,7 @@ export function useStore() {
       });
     },
     reset() {
-      ['egnach_onboarded','egnach_user','egnach_lang','egnach_favorites','egnach_rsvp',
+      ['egnach_onboarded','egnach_user','egnach_lang','egnach_text_scale','egnach_favorites','egnach_rsvp',
        'egnach_chat_messages','egnach_availability','egnach_user_listings','egnach_user_events']
         .forEach(k => localStorage.removeItem(k));
       window.location.reload();

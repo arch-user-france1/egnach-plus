@@ -45,6 +45,7 @@ const PATHS = {
   warning:    'M12 4 3 20h18L12 4Zm0 6v5m0 2v.01',
   reload:     'M4 12a8 8 0 0 1 14-5l2-2m0 7V5M20 12a8 8 0 0 1-14 5l-2 2m0-7v7',
   paws:       'M6 9a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm12 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4ZM9 13a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm6 0a2 2 0 1 0 0-4 2 2 0 0 0 0 4Zm-3 7c-3 0-5-2-5-4 0-1.5 2-3 5-3s5 1.5 5 3-2 4-5 4Z',
+  textSize:   'M4 19 9 5l5 14M6 14.5h6M16 19l2.5-6 2.5 6M17 17h3',
 };
 
 export default function Icon({ name, size = 20, stroke = 1.6, color = 'currentColor' }) {

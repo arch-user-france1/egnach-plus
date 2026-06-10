@@ -47,7 +47,7 @@ export default function ProfileScreen() {
   const { state, actions } = useStore();
   const [notifs, setNotifs] = useState(true);
   const [autoTranslate, setAutoTranslate] = useState(true);
-  const [bigText, setBigText] = useState(false);
+  const bigText = state.textScale > 1;
   const [highContrast, setHighContrast] = useState(false);
   const [voice, setVoice] = useState(false);
   const [help, setHelp] = useState(false);
@@ -166,7 +166,13 @@ export default function ProfileScreen() {
 
         <div style={{ padding: '20px 16px 6px', fontFamily: 'var(--font)', fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', letterSpacing: 1 }}>BARRIEREFREIHEIT</div>
         <Card padding={0} style={{ margin: '0 16px' }}>
-          <Row icon="info" label="Grosser Text" toggleOn={bigText} onToggle={setBigText} />
+          <Row
+            icon="textSize"
+            label="Grosser Text"
+            value="Vergrössert die Schrift in der ganzen App"
+            toggleOn={bigText}
+            onToggle={(on) => actions.setTextScale(on ? 1.15 : 1)}
+          />
           <Row icon="image" label="Hoher Kontrast" toggleOn={highContrast} onToggle={setHighContrast} />
           <Row icon="mic" label="Sprachausgabe" toggleOn={voice} onToggle={setVoice} last />
         </Card>
