@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { buildCssVars } from './theme/theme.js';
 import { useStore } from './hooks/useStore.js';
 import TabBar from './components/TabBar.jsx';
+import CookieBanner from './components/CookieBanner.jsx';
 
 import SplashScreen        from './screens/SplashScreen.jsx';
 import OnboardingScreen    from './screens/OnboardingScreen.jsx';
@@ -109,8 +110,9 @@ export default function App() {
   return (
     <HashRouter>
       <ThemeProvider>
-        <div className="phone-shell" style={{ display: 'flex', flexDirection: 'column', height: '100vh' }}>
+        <div className="phone-shell" style={{ display: 'flex', flexDirection: 'column', height: '100vh', position: 'relative' }}>
           <AnimatedRoutes />
+          <CookieBanner />
         </div>
       </ThemeProvider>
     </HashRouter>
