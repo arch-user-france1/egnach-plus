@@ -13,57 +13,88 @@ export default function CookieBanner() {
   }
 
   return (
+    /* full-screen backdrop */
     <div style={{
       position: 'absolute',
-      bottom: 0,
-      left: 0,
-      right: 0,
+      inset: 0,
       zIndex: 9999,
-      background: 'rgba(20, 20, 20, 0.95)',
-      color: '#f0f0f0',
-      padding: '16px 20px',
+      background: 'rgba(0, 0, 0, 0.6)',
       display: 'flex',
-      flexDirection: 'column',
-      gap: 12,
-      backdropFilter: 'blur(6px)',
-      borderTop: '1px solid rgba(255,255,255,0.12)',
+      alignItems: 'flex-end',
+      padding: '0 0 24px',
     }}>
-      <p style={{ margin: 0, fontSize: 13, lineHeight: 1.5 }}>
-        Prototype deployment — no cookies are being collected.
-      </p>
-      <div style={{ display: 'flex', gap: 8 }}>
-        <button
-          onClick={() => dismiss('accepted')}
-          style={{
-            flex: 1,
-            padding: '9px 0',
-            borderRadius: 10,
-            border: 'none',
-            background: 'var(--color-primary, #4a7c59)',
-            color: '#fff',
-            fontWeight: 600,
-            fontSize: 13,
-            cursor: 'pointer',
-          }}
-        >
-          Accept
-        </button>
-        <button
-          onClick={() => dismiss('declined')}
-          style={{
-            flex: 1,
-            padding: '9px 0',
-            borderRadius: 10,
-            border: '1px solid rgba(255,255,255,0.25)',
-            background: 'transparent',
-            color: '#f0f0f0',
-            fontWeight: 600,
-            fontSize: 13,
-            cursor: 'pointer',
-          }}
-        >
-          Decline
-        </button>
+      {/* card */}
+      <div style={{
+        width: '100%',
+        background: '#fff',
+        borderRadius: '20px 20px 0 0',
+        padding: '28px 24px 20px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: 16,
+        boxShadow: '0 -4px 32px rgba(0,0,0,0.18)',
+      }}>
+        {/* cookie icon + title row */}
+        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+          <span style={{ fontSize: 28, lineHeight: 1 }}>🍪</span>
+          <h2 style={{
+            margin: 0,
+            fontSize: 18,
+            fontWeight: 700,
+            color: '#111',
+            letterSpacing: '-0.3px',
+          }}>
+            Datenschutzhinweis
+          </h2>
+        </div>
+
+        {/* body */}
+        <p style={{
+          margin: 0,
+          fontSize: 14,
+          lineHeight: 1.6,
+          color: '#444',
+        }}>
+          Diese Seite ist ein <strong>Prototyp</strong> — es werden
+          keinerlei Cookies gespeichert oder personenbezogene Daten
+          erhoben.
+        </p>
+
+        {/* buttons — equal prominence per DSGVO/DIN requirement */}
+        <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 4 }}>
+          <button
+            onClick={() => dismiss('accepted')}
+            style={{
+              width: '100%',
+              padding: '14px 0',
+              borderRadius: 12,
+              border: 'none',
+              background: 'var(--color-primary, #4a7c59)',
+              color: '#fff',
+              fontWeight: 700,
+              fontSize: 15,
+              cursor: 'pointer',
+            }}
+          >
+            Akzeptieren
+          </button>
+          <button
+            onClick={() => dismiss('declined')}
+            style={{
+              width: '100%',
+              padding: '14px 0',
+              borderRadius: 12,
+              border: '2px solid var(--color-primary, #4a7c59)',
+              background: 'transparent',
+              color: 'var(--color-primary, #4a7c59)',
+              fontWeight: 700,
+              fontSize: 15,
+              cursor: 'pointer',
+            }}
+          >
+            Ablehnen
+          </button>
+        </div>
       </div>
     </div>
   );
