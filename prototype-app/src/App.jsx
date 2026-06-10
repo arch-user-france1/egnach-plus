@@ -106,14 +106,27 @@ function ThemeProvider({ children }) {
   return children;
 }
 
+function PhoneShell({ children }) {
+  const { state } = useStore();
+  const scale = state.textScale || 1;
+  return (
+    <div className="phone-shell">
+      {/* zoom (statt transform) skaliert mit Reflow, damit das Layout kohärent bleibt */}
+      <div style={{ zoom: scale, height: '100%', display: 'flex', flexDirection: 'column', position: 'relative' }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
 export default function App() {
   return (
     <HashRouter>
       <ThemeProvider>
-        <div className="phone-shell" style={{ display: 'flex', flexDirection: 'column', height: '100vh', position: 'relative' }}>
+        <PhoneShell>
           <AnimatedRoutes />
           <CookieBanner />
-        </div>
+        </PhoneShell>
       </ThemeProvider>
     </HashRouter>
   );
