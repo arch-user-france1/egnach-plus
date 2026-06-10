@@ -1,6 +1,6 @@
 import Icon from './Icon.jsx';
 
-export default function IconButton({ name, onClick, size = 36, badge, label }) {
+export default function IconButton({ name, onClick, size = 36, badge, label, style }) {
   return (
     <button
       onClick={onClick}
@@ -11,6 +11,7 @@ export default function IconButton({ name, onClick, size = 36, badge, label }) {
         display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
         color: 'var(--ink)', cursor: 'pointer', position: 'relative',
         flexShrink: 0, padding: 0,
+        ...style,
       }}
     >
       <Icon name={name} size={size > 36 ? 22 : 20} />
