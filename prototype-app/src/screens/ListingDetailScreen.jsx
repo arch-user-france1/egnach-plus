@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Screen, Body, HelpSheet, Toast } from '../components/index.js';
+import { Screen, HelpSheet, Toast } from '../components/index.js';
 import Button from '../components/Button.jsx';
 import Badge from '../components/Badge.jsx';
 import Card from '../components/Card.jsx';
@@ -22,6 +22,7 @@ export default function ListingDetailScreen() {
   const navigate = useNavigate();
   const { state, actions } = useStore();
   const listing = state.listings.find(l => l.id === id) || state.listings[0];
+  const isOwn = !!listing.own;
   const isFav = state.favorites.includes(listing.id);
   const [help, setHelp] = useState(false);
   const [toast, setToast] = useState(false);
@@ -43,9 +44,15 @@ export default function ListingDetailScreen() {
             <button style={{ width: 40, height: 40, borderRadius: 20, background: 'rgba(255,255,255,0.92)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }} aria-label="Teilen">
               <Icon name="share" size={18} />
             </button>
-            <button onClick={() => actions.toggleFavorite(listing.id)} style={{ width: 40, height: 40, borderRadius: 20, background: 'rgba(255,255,255,0.92)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: isFav ? 'var(--danger)' : 'var(--ink)' }} aria-label="Merken" aria-pressed={isFav}>
-              <Icon name="heart" size={18} color={isFav ? 'var(--danger)' : 'currentColor'} />
-            </button>
+            {isOwn ? (
+              <button onClick={() => navigate(`/inserat-bearbeiten/${listing.id}`, { state: { from: 'marktplatz' } })} style={{ width: 40, height: 40, borderRadius: 20, background: 'rgba(255,255,255,0.92)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }} aria-label="Inserat bearbeiten">
+                <Icon name="edit" size={18} />
+              </button>
+            ) : (
+              <button onClick={() => actions.toggleFavorite(listing.id)} style={{ width: 40, height: 40, borderRadius: 20, background: 'rgba(255,255,255,0.92)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: isFav ? 'var(--danger)' : 'var(--ink)' }} aria-label="Merken" aria-pressed={isFav}>
+                <Icon name="heart" size={18} color={isFav ? 'var(--danger)' : 'currentColor'} />
+              </button>
+            )}
             <button onClick={() => setHelp(true)} style={{ width: 40, height: 40, borderRadius: 20, background: 'rgba(255,255,255,0.92)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontFamily: 'var(--font)', fontSize: 16, fontWeight: 700, color: 'var(--ink-2)' }} aria-label="Hilfe">
               ?
             </button>
@@ -60,11 +67,12 @@ export default function ListingDetailScreen() {
         <div style={{ display: 'flex', gap: 6, marginBottom: 10 }}>
           <Badge tone="primary" size="sm">{listing.cat.toUpperCase()}</Badge>
           <Badge tone="neutral" size="sm">{listing.neighborhood}</Badge>
+          {isOwn && <Badge tone="success" size="sm">MEIN INSERAT</Badge>}
         </div>
         <h1 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: 22, fontWeight: 700, letterSpacing: -0.3, color: 'var(--ink)', lineHeight: 1.2 }}>{listing.title}</h1>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 6, marginTop: 8 }}>
           <span style={{ fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 700, color: 'var(--primary)' }}>{listing.price.split(' ')[0]} {listing.price.split(' ')[1]}</span>
-          <span style={{ fontFamily: 'var(--font)', fontSize: 13, color: 'var(--ink-2)' }}>{listing.price.slice(listing.price.indexOf('/'))}{listing.priceWeek ? ` · ${listing.priceWeek}` : ''}</span>
+          <span style={{ fontFamily: 'var(--font)', fontSize: 13, color: 'var(--ink-2)' }}>{listing.price.includes('/') ? listing.price.slice(listing.price.indexOf('/')) : ''}{listing.priceWeek ? ` · ${listing.priceWeek}` : ''}</span>
         </div>
       </div>
 
@@ -149,12 +157,20 @@ export default function ListingDetailScreen() {
       <div style={{ height: 100 }} />
 
       <div style={{ position: 'sticky', bottom: 0, padding: '12px 16px 22px', background: 'var(--card)', borderTop: '1px solid var(--line)', display: 'flex', gap: 10, alignItems: 'center' }}>
-        <button onClick={openChat} style={{ width: 48, height: 48, borderRadius: 'var(--radius-sm)', border: '1.5px solid var(--line-2)', background: 'var(--card)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }} aria-label="Nachricht senden">
-          <Icon name="chat" size={20} />
-        </button>
-        <div style={{ flex: 1 }}>
-          <Button full size="lg" onClick={() => { openChat(); setToast(true); }}>Anfrage senden</Button>
-        </div>
+        {isOwn ? (
+          <div style={{ flex: 1 }}>
+            <Button full size="lg" leading={<Icon name="edit" size={16} color="#fff" />} onClick={() => navigate(`/inserat-bearbeiten/${listing.id}`, { state: { from: 'marktplatz' } })}>Inserat bearbeiten</Button>
+          </div>
+        ) : (
+          <>
+            <button onClick={openChat} style={{ width: 48, height: 48, borderRadius: 'var(--radius-sm)', border: '1.5px solid var(--line-2)', background: 'var(--card)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }} aria-label="Nachricht senden">
+              <Icon name="chat" size={20} />
+            </button>
+            <div style={{ flex: 1 }}>
+              <Button full size="lg" onClick={() => { openChat(); setToast(true); }}>Anfrage senden</Button>
+            </div>
+          </>
+        )}
       </div>
 
       <HelpSheet open={help} onClose={() => setHelp(false)} title="Inserat" intro="So nutzt du dieses Inserat." items={HELP_ITEMS} />

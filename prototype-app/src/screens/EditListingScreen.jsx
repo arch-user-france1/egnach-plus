@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Screen, Body, ConfirmDialog, HelpSheet } from '../components/index.js';
 import TopBar from '../components/TopBar.jsx';
 import IconButton from '../components/IconButton.jsx';
@@ -25,7 +25,10 @@ const HELP_ITEMS = [
 export default function EditListingScreen() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { state, actions } = useStore();
+  // Where to land after save/delete: marketplace if opened from there, otherwise profile
+  const fromMarket = location.state?.from === 'marktplatz';
   const listing = state.listings.find(l => l.id === id);
 
   const [type, setType] = useState(listing?.cat ?? 'Leihen');
@@ -68,12 +71,12 @@ export default function EditListingScreen() {
       description: form.description.trim(),
       available:   form.available.trim() ? `Ab ${form.available.trim()}` : listing.available,
     });
-    navigate('/profil');
+    navigate(-1);
   }
 
   function handleDelete() {
     actions.removeListing(id);
-    navigate('/profil');
+    navigate(fromMarket ? '/marktplatz' : '/profil');
   }
 
   return (
