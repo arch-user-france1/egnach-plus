@@ -13,86 +13,90 @@ export default function CookieBanner() {
   }
 
   return (
-    /* full-screen backdrop */
-    <div style={{
-      position: 'absolute',
-      inset: 0,
-      zIndex: 9999,
-      background: 'rgba(0, 0, 0, 0.6)',
-      display: 'flex',
-      alignItems: 'flex-end',
-      padding: '0 0 24px',
-    }}>
-      {/* card */}
+    // Dim backdrop — signals modal context, blocks interaction with content below
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="cookie-banner-title"
+      style={{
+        position: 'absolute',
+        inset: 0,
+        zIndex: 9999,
+        background: 'rgba(0, 0, 0, 0.55)',
+        display: 'flex',
+        alignItems: 'flex-end',
+      }}
+    >
       <div style={{
         width: '100%',
-        background: '#fff',
-        borderRadius: '20px 20px 0 0',
-        padding: '28px 24px 20px',
+        background: '#ffffff',
+        borderRadius: '16px 16px 0 0',
+        padding: '24px 20px 28px',
         display: 'flex',
         flexDirection: 'column',
-        gap: 16,
-        boxShadow: '0 -4px 32px rgba(0,0,0,0.18)',
+        gap: 12,
+        boxShadow: '0 -2px 24px rgba(0,0,0,0.15)',
       }}>
-        {/* cookie icon + title row */}
-        <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-          <span style={{ fontSize: 28, lineHeight: 1 }}>🍪</span>
-          <h2 style={{
-            margin: 0,
-            fontSize: 18,
-            fontWeight: 700,
-            color: '#111',
-            letterSpacing: '-0.3px',
-          }}>
-            Datenschutzhinweis
-          </h2>
-        </div>
 
-        {/* body */}
+        {/* Self-descriptive title — user immediately knows what this is */}
+        <h2
+          id="cookie-banner-title"
+          style={{
+            margin: 0,
+            fontSize: 17,
+            fontWeight: 700,
+            lineHeight: 1.3,
+            color: '#111111',
+          }}
+        >
+          Cookie Notice
+        </h2>
+
+        {/* Exact text as specified */}
         <p style={{
           margin: 0,
-          fontSize: 14,
-          lineHeight: 1.6,
-          color: '#444',
+          fontSize: 15,
+          lineHeight: 1.55,
+          color: '#333333', // ≥ 4.5:1 contrast on white (WCAG AA)
         }}>
-          Diese Seite ist ein <strong>Prototyp</strong> — es werden
-          keinerlei Cookies gespeichert oder personenbezogene Daten
-          erhoben.
+          Prototype deployment – no cookies are being collected.
         </p>
 
-        {/* buttons — equal prominence per DSGVO/DIN requirement */}
+        {/* Stacked buttons: equal width, min 48px height (ISO 9241-110 error tolerance) */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginTop: 4 }}>
           <button
             onClick={() => dismiss('accepted')}
             style={{
               width: '100%',
-              padding: '14px 0',
-              borderRadius: 12,
+              minHeight: 48,
+              padding: '0 16px',
+              borderRadius: 10,
               border: 'none',
               background: 'var(--color-primary, #4a7c59)',
-              color: '#fff',
-              fontWeight: 700,
-              fontSize: 15,
+              color: '#ffffff',
+              fontWeight: 600,
+              fontSize: 16,
               cursor: 'pointer',
             }}
           >
-            Akzeptieren
+            Accept
           </button>
           <button
             onClick={() => dismiss('declined')}
             style={{
               width: '100%',
-              padding: '14px 0',
-              borderRadius: 12,
-              border: '2px solid var(--color-primary, #4a7c59)',
+              minHeight: 48,
+              padding: '0 16px',
+              borderRadius: 10,
+              border: '1.5px solid #555555',
               background: 'transparent',
-              color: 'var(--color-primary, #4a7c59)',
-              fontWeight: 700,
-              fontSize: 15,
+              color: '#111111', // high contrast, equal visual weight to primary
+              fontWeight: 600,
+              fontSize: 16,
               cursor: 'pointer',
             }}
           >
-            Ablehnen
+            Decline
           </button>
         </div>
       </div>
