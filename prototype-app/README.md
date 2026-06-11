@@ -1,16 +1,21 @@
-# React + Vite
+# Egnach Plus — Klickbarer Prototyp (M322)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Mobile-First-Prototyp der Dorfgemeinschafts-Plattform «Egnach Plus»
+(React + Vite, ohne kostenpflichtige Installationen lauffähig).
 
-Currently, two official plugins are available:
+## Starten
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+```bash
+npm install
+npm run dev      # Entwicklung: http://localhost:5173
+npm run build    # Produktions-Build nach dist/
+```
 
-## React Compiler
+## Dokumentation
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+- **[ARCHITECTURE.md](./ARCHITECTURE.md)** — Umsetzung des MVC-Entwurfsmusters
+  (Model `src/model/`, View `src/screens/` + `src/components/`,
+  Controller `src/controller/`).
+- **[STYLEGUIDE.md](./STYLEGUIDE.md)** — Gestaltungsregeln: Design-Tokens,
+  Gestalt-Gesetze, Interaktionsprinzipien nach ISO 9241-110, Pflichtfeld- und
+  Feedback-Regeln, Barrierefreiheit.
