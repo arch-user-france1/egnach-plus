@@ -13,7 +13,7 @@ export default function TabBar({ active = 0, onNavigate }) {
     <div style={{
       display: 'flex', background: 'var(--card)',
       borderTop: '1px solid var(--line)',
-      paddingTop: 6, paddingBottom: 'env(safe-area-inset-bottom, 18px)',
+      paddingTop: 6,
       paddingBottom: 18,
       flexShrink: 0,
     }}>
