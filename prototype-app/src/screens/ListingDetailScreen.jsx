@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
-import { Screen, HelpSheet, Toast } from '../components/index.js';
+import { Screen, HelpSheet, Toast, ReportSheet } from '../components/index.js';
 import Button from '../components/Button.jsx';
 import Badge from '../components/Badge.jsx';
 import Card from '../components/Card.jsx';
@@ -26,6 +26,7 @@ export default function ListingDetailScreen() {
   const isFav = state.favorites.includes(listing.id);
   const [help, setHelp] = useState(false);
   const [toast, setToast] = useState(false);
+  const [report, setReport] = useState(false);
 
   // Open the existing conversation for this listing, or a new one with its owner.
   const existingThread = state.chatThreads.find(t => t.listingId === listing.id);
@@ -154,6 +155,18 @@ export default function ListingDetailScreen() {
         </Card>
       </div>
 
+      {!isOwn && (
+        <div style={{ padding: '4px 18px 4px', display: 'flex', justifyContent: 'center' }}>
+          <button
+            onClick={() => setReport(true)}
+            style={{ background: 'none', border: 'none', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: 5, padding: '10px 0', fontFamily: 'var(--font)', fontSize: 12, color: 'var(--ink-3)' }}
+          >
+            <Icon name="flag" size={13} color="var(--ink-3)" stroke={2} />
+            Inserat melden
+          </button>
+        </div>
+      )}
+
       <div style={{ height: 100 }} />
 
       <div style={{ position: 'sticky', bottom: 0, padding: '12px 16px 22px', background: 'var(--card)', borderTop: '1px solid var(--line)', display: 'flex', gap: 10, alignItems: 'center' }}>
@@ -175,6 +188,12 @@ export default function ListingDetailScreen() {
 
       <HelpSheet open={help} onClose={() => setHelp(false)} title="Inserat" intro="So nutzt du dieses Inserat." items={HELP_ITEMS} />
       <Toast open={toast} onClose={() => setToast(false)} tone="success" title="Anfrage gesendet" msg="Der Anbieter wird sich bei dir melden." />
+      <ReportSheet
+        open={report}
+        onClose={() => setReport(false)}
+        title="Inserat melden"
+        onSubmit={({ reason, note }) => actions.submitReport({ type: 'listing', refId: listing.id, reason, note })}
+      />
     </Screen>
   );
 }

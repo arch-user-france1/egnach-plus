@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
 import Icon from './Icon.jsx';
 
@@ -273,6 +273,255 @@ export function ConfirmDialog({
               </div>
             </motion.div>
           </div>
+        </>
+      )}
+    </AnimatePresence>
+  );
+}
+
+/* ─── ActionSheet ─────────────────────────────────────────────── */
+export function ActionSheet({ open, onClose, title, items = [] }) {
+  return (
+    <AnimatePresence>
+      {open && (
+        <>
+          <Scrim zIndex={90} onTap={onClose} />
+          <motion.div
+            initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
+            transition={sheetSpring}
+            style={{
+              position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 91,
+              background: 'var(--card)',
+              borderRadius: 'var(--radius-lg) var(--radius-lg) 0 0',
+              boxShadow: '0 -10px 40px rgba(13,22,34,0.22)',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'center', padding: '10px 0 2px' }}>
+              <div style={{ width: 38, height: 4, borderRadius: 2, background: 'var(--line-2)' }} />
+            </div>
+            {title && (
+              <div style={{ padding: '6px 20px 10px', fontFamily: 'var(--font)', fontSize: 12, fontWeight: 700, color: 'var(--ink-3)', letterSpacing: 0.6, textAlign: 'center', textTransform: 'uppercase' }}>
+                {title}
+              </div>
+            )}
+            <div style={{ padding: '4px 16px 8px' }}>
+              {items.map((item, i) => (
+                <button
+                  key={i}
+                  onClick={() => { item.onClick(); onClose(); }}
+                  style={{
+                    width: '100%', textAlign: 'left', cursor: 'pointer',
+                    padding: '14px 16px',
+                    borderRadius: 'var(--radius-sm)',
+                    border: 'none',
+                    background: 'transparent',
+                    display: 'flex', alignItems: 'center', gap: 14,
+                    marginBottom: 4,
+                  }}
+                >
+                  {item.icon && (
+                    <div style={{
+                      width: 36, height: 36, borderRadius: 10, flexShrink: 0,
+                      background: item.danger ? '#FAE5E2' : 'var(--surface-2)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    }}>
+                      <Icon name={item.icon} size={17} color={item.danger ? 'var(--danger)' : 'var(--ink-2)'} stroke={2} />
+                    </div>
+                  )}
+                  <span style={{ fontFamily: 'var(--font)', fontSize: 15, fontWeight: 600, color: item.danger ? 'var(--danger)' : 'var(--ink)' }}>
+                    {item.label}
+                  </span>
+                </button>
+              ))}
+            </div>
+            <div style={{ padding: '4px 16px 26px' }}>
+              <button
+                onClick={onClose}
+                style={{
+                  width: '100%', height: 50, borderRadius: 'var(--radius-sm)',
+                  border: '1px solid var(--line-2)', background: 'var(--card)',
+                  fontFamily: 'var(--font)', fontSize: 15, fontWeight: 600, color: 'var(--ink)',
+                  cursor: 'pointer',
+                }}
+              >
+                Abbrechen
+              </button>
+            </div>
+          </motion.div>
+        </>
+      )}
+    </AnimatePresence>
+  );
+}
+
+/* ─── ReportSheet ─────────────────────────────────────────────── */
+const REPORT_REASONS = [
+  'Spam oder Werbung',
+  'Unangemessene Inhalte',
+  'Belästigung oder Bedrohung',
+  'Falsche Angaben',
+  'Sonstiges',
+];
+
+export function ReportSheet({ open, onClose, onSubmit, title = 'Inhalt melden' }) {
+  const [reason, setReason] = useState(null);
+  const [note, setNote] = useState('');
+  const [done, setDone] = useState(false);
+
+  function handleSubmit() {
+    if (!reason) return;
+    onSubmit?.({ reason, note: note.trim() });
+    setDone(true);
+  }
+
+  function handleClose() {
+    setReason(null);
+    setNote('');
+    setDone(false);
+    onClose();
+  }
+
+  return (
+    <AnimatePresence>
+      {open && (
+        <>
+          <Scrim zIndex={90} onTap={handleClose} />
+          <motion.div
+            initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
+            transition={sheetSpring}
+            style={{
+              position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 91,
+              background: 'var(--card)',
+              borderRadius: 'var(--radius-lg) var(--radius-lg) 0 0',
+              boxShadow: '0 -10px 40px rgba(13,22,34,0.22)',
+              maxHeight: '88%',
+              display: 'flex', flexDirection: 'column',
+            }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'center', padding: '10px 0 2px' }}>
+              <div style={{ width: 38, height: 4, borderRadius: 2, background: 'var(--line-2)' }} />
+            </div>
+            <div style={{ padding: '14px 20px 12px', display: 'flex', alignItems: 'flex-start', gap: 14, flexShrink: 0 }}>
+              <div style={{
+                width: 40, height: 40, borderRadius: 12, flexShrink: 0,
+                background: '#FAE5E2',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}>
+                <Icon name="flag" size={20} color="var(--danger)" stroke={2} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700, color: 'var(--ink)' }}>{title}</div>
+                <div style={{ fontFamily: 'var(--font)', fontSize: 13, color: 'var(--ink-2)', marginTop: 4, lineHeight: 1.5 }}>
+                  {done ? 'Vielen Dank für deine Meldung.' : 'Wähle den Grund für deine Meldung aus.'}
+                </div>
+              </div>
+              <button
+                onClick={handleClose}
+                style={{
+                  width: 30, height: 30, borderRadius: '50%', flexShrink: 0,
+                  background: 'var(--surface-2)', border: 'none',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center',
+                  cursor: 'pointer',
+                }}
+              >
+                <Icon name="close" size={14} stroke={2} color="var(--ink-2)" />
+              </button>
+            </div>
+
+            {done ? (
+              <>
+                <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '24px 20px' }}>
+                  <div style={{
+                    width: 64, height: 64, borderRadius: '50%',
+                    background: '#E1F1E7',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    marginBottom: 16,
+                  }}>
+                    <Icon name="check" size={28} color="#1F8A5B" stroke={2.5} />
+                  </div>
+                  <div style={{ fontFamily: 'var(--font)', fontSize: 15, fontWeight: 700, color: 'var(--ink)', textAlign: 'center', marginBottom: 8 }}>
+                    Meldung erhalten
+                  </div>
+                  <div style={{ fontFamily: 'var(--font)', fontSize: 13, color: 'var(--ink-2)', textAlign: 'center', lineHeight: 1.55, maxWidth: 260 }}>
+                    Wir prüfen deinen Hinweis und reagieren innerhalb von 24 Stunden.
+                  </div>
+                </div>
+                <div style={{ padding: '12px 20px 26px', borderTop: '1px solid var(--line)', flexShrink: 0 }}>
+                  <button
+                    onClick={handleClose}
+                    style={{
+                      width: '100%', height: 50, borderRadius: 'var(--radius-sm)',
+                      border: 'none', background: 'var(--primary)', color: '#fff',
+                      fontFamily: 'var(--font)', fontSize: 15, fontWeight: 700,
+                      cursor: 'pointer',
+                    }}
+                  >
+                    Schliessen
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <div style={{ flex: 1, overflowY: 'auto', padding: '4px 20px 8px' }}>
+                  {REPORT_REASONS.map((r, i) => (
+                    <button
+                      key={i}
+                      onClick={() => setReason(r)}
+                      style={{
+                        width: '100%', textAlign: 'left', cursor: 'pointer',
+                        padding: '13px 14px',
+                        borderRadius: 'var(--radius-sm)',
+                        border: reason === r ? '1.5px solid var(--danger)' : '1px solid var(--line)',
+                        background: reason === r ? '#FAE5E2' : 'var(--card)',
+                        marginBottom: 8,
+                        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                      }}
+                    >
+                      <span style={{ fontFamily: 'var(--font)', fontSize: 14, fontWeight: reason === r ? 600 : 400, color: reason === r ? 'var(--danger)' : 'var(--ink)' }}>
+                        {r}
+                      </span>
+                      {reason === r && <Icon name="check" size={16} color="var(--danger)" stroke={2.5} />}
+                    </button>
+                  ))}
+                  <div style={{ marginTop: 4 }}>
+                    <div style={{ fontFamily: 'var(--font)', fontSize: 12, fontWeight: 600, color: 'var(--ink-3)', marginBottom: 6 }}>
+                      Zusätzliche Hinweise (optional)
+                    </div>
+                    <textarea
+                      value={note}
+                      onChange={e => setNote(e.target.value)}
+                      placeholder="Beschreibe das Problem kurz…"
+                      rows={3}
+                      style={{
+                        width: '100%', borderRadius: 'var(--radius-sm)',
+                        border: '1px solid var(--line)', background: 'var(--surface-2)',
+                        padding: 12, fontFamily: 'var(--font)', fontSize: 13,
+                        color: 'var(--ink)', resize: 'none', outline: 'none',
+                        boxSizing: 'border-box',
+                      }}
+                    />
+                  </div>
+                </div>
+                <div style={{ padding: '12px 20px 26px', borderTop: '1px solid var(--line)', flexShrink: 0 }}>
+                  <button
+                    onClick={handleSubmit}
+                    disabled={!reason}
+                    style={{
+                      width: '100%', height: 50, borderRadius: 'var(--radius-sm)',
+                      border: 'none',
+                      background: reason ? 'var(--danger)' : 'var(--line)',
+                      color: reason ? '#fff' : 'var(--ink-3)',
+                      fontFamily: 'var(--font)', fontSize: 15, fontWeight: 700,
+                      cursor: reason ? 'pointer' : 'not-allowed',
+                      transition: 'background 0.2s',
+                    }}
+                  >
+                    Meldung absenden
+                  </button>
+                </div>
+              </>
+            )}
+          </motion.div>
         </>
       )}
     </AnimatePresence>

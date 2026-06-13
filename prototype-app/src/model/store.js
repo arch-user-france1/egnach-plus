@@ -33,6 +33,7 @@ const STORAGE_KEYS = [
   'egnach_onboarded', 'egnach_user', 'egnach_lang', 'egnach_text_scale',
   'egnach_favorites', 'egnach_rsvp', 'egnach_chat_messages',
   'egnach_availability', 'egnach_user_listings', 'egnach_user_events',
+  'egnach_reports',
 ];
 
 function load(key, fallback) {
@@ -59,6 +60,7 @@ let state = {
   listings:     [...LISTINGS, ...load('egnach_user_listings', SAMPLE_OWN_LISTINGS)],
   events:       [...EVENTS,   ...load('egnach_user_events',   [])],
   chatThreads:  CHAT_THREADS,
+  reports:      load('egnach_reports', []),
 };
 
 // --- Observer ---------------------------------------------------------------
@@ -171,6 +173,18 @@ export function addEvent(event) {
     const userEvents = userEventsOf(s).concat(event);
     save('egnach_user_events', userEvents);
     return { ...s, events: [...EVENTS, ...userEvents] };
+  });
+}
+
+export function submitReport({ type, refId, reason, note }) {
+  setState(s => {
+    const reports = [...s.reports, {
+      id: 'r' + Date.now(),
+      type, refId, reason, note,
+      timestamp: new Date().toISOString(),
+    }];
+    save('egnach_reports', reports);
+    return { ...s, reports };
   });
 }
 

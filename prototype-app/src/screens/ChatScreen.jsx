@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate, useParams, useSearchParams, Navigate } from 'react-router-dom';
-import { Screen, HelpButton, HelpSheet, Toast } from '../components/index.js';
+import { Screen, HelpButton, HelpSheet, Toast, ActionSheet, ReportSheet } from '../components/index.js';
 import TopBar from '../components/TopBar.jsx';
 import IconButton from '../components/IconButton.jsx';
 import Avatar from '../components/Avatar.jsx';
@@ -85,6 +85,8 @@ export default function ChatScreen() {
   const bottomRef = useRef(null);
   const [help, setHelp] = useState(false);
   const [toast, setToast] = useState(false);
+  const [options, setOptions] = useState(false);
+  const [report, setReport] = useState(false);
 
   const seedThread = state.chatThreads.find(t => t.id === threadId);
   const listing = listingId ? state.listings.find(l => l.id === listingId) : null;
@@ -140,7 +142,7 @@ export default function ChatScreen() {
           </div>
         </div>
         <IconButton name="bell" label="Stummschalten" />
-        <IconButton name="options" label="Mehr Optionen" />
+        <IconButton name="options" label="Mehr Optionen" onClick={() => setOptions(true)} />
         <HelpButton onClick={() => setHelp(true)} />
       </div>
 
@@ -215,6 +217,21 @@ export default function ChatScreen() {
       </div>
       <HelpSheet open={help} onClose={() => setHelp(false)} title="Chat" intro="So kommunizierst du mit Nachbarn in Egnach Plus." items={HELP_ITEMS} />
       <Toast open={toast} onClose={() => setToast(false)} tone="success" title="Nachricht gesendet" msg="Deine Nachricht wurde zugestellt." />
+      <ActionSheet
+        open={options}
+        onClose={() => setOptions(false)}
+        title={thread.name}
+        items={[
+          { icon: 'bell',  label: 'Stummschalten',  onClick: () => {} },
+          { icon: 'flag',  label: 'Chat melden',    danger: true, onClick: () => setReport(true) },
+        ]}
+      />
+      <ReportSheet
+        open={report}
+        onClose={() => setReport(false)}
+        title="Chat melden"
+        onSubmit={({ reason, note }) => actions.submitReport({ type: 'chat', refId: thread.id, reason, note })}
+      />
     </Screen>
   );
 }

@@ -31,6 +31,8 @@ export const actions = {
   removeListing: model.removeListing,
   /** Neuen Anlass erstellen. */
   addEvent: model.addEvent,
+  /** Inhalt (Inserat, Anlass, Chat) melden. */
+  submitReport: model.submitReport,
   /** Prototyp auf Werkszustand zurücksetzen. */
   reset: model.reset,
 };
