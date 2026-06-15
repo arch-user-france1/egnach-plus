@@ -21,6 +21,8 @@ const TYPES = [
 
 const TYPE_TONES = { Leihen: 'sand', Dienste: 'lake', Tausch: 'moss', Jobs: 'rose' };
 
+const EINHEITEN = ['Tag', 'Std.', 'Woche', 'Tausch'];
+
 const HELP_ITEMS = [
   { icon: 'edit',      title: 'Titel & Fotos',           text: 'Ein klarer Titel und gute Fotos erhöhen deine Antwortrate deutlich.' },
   { icon: 'briefcase', title: 'Kategorie wählen',         text: 'Wähle die Kategorie, die am besten zu deinem Angebot passt.' },
@@ -58,7 +60,7 @@ export default function CreateListingScreen() {
   const [step, setStep] = useState(0);
   const [direction, setDirection] = useState(1);
   const [type, setType] = useState(defaultType);
-  const [form, setForm] = useState({ title: '', description: '', price: '', date: '' });
+  const [form, setForm] = useState({ title: '', description: '', priceAmount: '', priceUnit: 'Tag', date: '' });
   const [errors, setErrors] = useState({});
   const [help, setHelp] = useState(false);
   const [draftToast, setDraftToast] = useState(false);
@@ -73,7 +75,7 @@ export default function CreateListingScreen() {
     if (!form.title.trim())        e.title = 'Bitte einen Titel eingeben';
     if (form.title.length > 60)    e.title = 'Max. 60 Zeichen';
     if (!form.description.trim())  e.description = 'Bitte eine Beschreibung eingeben';
-    if (!form.price.trim())        e.price = 'Bitte einen Preis eingeben';
+    if (form.priceUnit !== 'Tausch' && !form.priceAmount.trim()) e.priceAmount = 'Bitte einen Preis eingeben';
     if (!form.date.trim())         e.date = 'Bitte ein Datum eingeben';
     return e;
   }
@@ -96,7 +98,7 @@ export default function CreateListingScreen() {
         title: form.title.trim(),
         cat: type,
         neighborhood,
-        price: form.price.trim().startsWith('CHF') ? form.price.trim() : `CHF ${form.price.trim()}`,
+        price: form.priceUnit === 'Tausch' ? 'Tausch' : `CHF ${form.priceAmount.trim()} / ${form.priceUnit}`,
         rating: 0, reviews: 0, avatar: initials, ownerName: name,
         tone: TYPE_TONES[type] || 'sand', verified,
         available: parsed ? `Ab ${parsed.day}. ${parsed.month}` : `Ab ${form.date}`,
@@ -236,10 +238,40 @@ export default function CreateListingScreen() {
                 <Field label="Beschreibung" required multiline rows={4} value={form.description} onChange={set('description')}
                   error={errors.description} hint={errors.description || `${form.description.length} / 500`}
                   placeholder="Beschreibe dein Angebot…" />
-                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-                  <Field label="Preis" required value={form.price} onChange={set('price')}
-                    error={errors.price} hint={errors.price || 'CHF / Einheit'}
-                    trailing={<span style={{ fontFamily: 'var(--font)', fontSize: 13, color: 'var(--ink-3)', fontWeight: 600 }}>CHF</span>} />
+                <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+                  <span style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+                    <span style={{ fontFamily: 'var(--font)', fontSize: 12, fontWeight: 600, color: 'var(--ink)' }}>Einheit</span>
+                    <span style={{ color: 'var(--danger)', fontSize: 12 }}>*</span>
+                  </span>
+                  <div style={{ display: 'flex', gap: 6 }}>
+                    {EINHEITEN.map(u => {
+                      const active = form.priceUnit === u;
+                      return (
+                        <button
+                          key={u}
+                          type="button"
+                          onClick={() => { setForm(f => ({ ...f, priceUnit: u })); setErrors(er => ({ ...er, priceAmount: null })); }}
+                          style={{
+                            flex: 1, padding: '8px 4px', borderRadius: 20,
+                            border: `1.5px solid ${active ? 'var(--primary)' : 'var(--line)'}`,
+                            background: active ? 'var(--primary-tint)' : 'var(--card)',
+                            fontFamily: 'var(--font)', fontSize: 13, fontWeight: 600,
+                            color: active ? 'var(--primary-ink)' : 'var(--ink-2)',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          {u}
+                        </button>
+                      );
+                    })}
+                  </div>
+                </div>
+                <div style={{ display: 'grid', gridTemplateColumns: form.priceUnit === 'Tausch' ? '1fr' : '1fr 1fr', gap: 12 }}>
+                  {form.priceUnit !== 'Tausch' && (
+                    <Field label="Preis" required value={form.priceAmount} onChange={set('priceAmount')}
+                      error={errors.priceAmount} hint={errors.priceAmount || `CHF / ${form.priceUnit}`}
+                      trailing={<span style={{ fontFamily: 'var(--font)', fontSize: 13, color: 'var(--ink-3)', fontWeight: 600 }}>CHF</span>} />
+                  )}
                   <DatePicker label="Verfügbar ab" required value={form.date} onChange={set('date')}
                     error={errors.date} hint={errors.date || 'TT.MM.JJJJ'} placeholder="11.06.2026" />
                 </div>
@@ -267,7 +299,7 @@ export default function CreateListingScreen() {
                 <div style={{ fontFamily: 'var(--font)', fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', letterSpacing: 0.8 }}>VORSCHAU</div>
                 <div style={{ fontFamily: 'var(--font)', fontSize: 16, fontWeight: 700, color: 'var(--ink)' }}>{form.title || 'Kein Titel'}</div>
                 <div style={{ fontFamily: 'var(--font)', fontSize: 14, fontWeight: 700, color: 'var(--primary)' }}>
-                  {form.price ? `CHF ${form.price}` : '—'} · {type}
+                  {form.priceUnit === 'Tausch' ? 'Tausch' : form.priceAmount ? `CHF ${form.priceAmount} / ${form.priceUnit}` : '—'} · {type}
                 </div>
                 <div style={{ fontFamily: 'var(--font)', fontSize: 13, color: 'var(--ink-2)', lineHeight: 1.5 }}>{form.description || 'Keine Beschreibung'}</div>
                 <div style={{ fontFamily: 'var(--font)', fontSize: 12, color: 'var(--ink-3)' }}>Verfügbar ab: {form.date}</div>
