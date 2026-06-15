@@ -15,6 +15,15 @@ const TYPES = [
   { icon: 'car',       label: 'Jobs' },
 ];
 
+const EINHEITEN = ['Tag', 'Std.', 'Woche', 'Tausch'];
+
+function parsePriceStr(str) {
+  if (!str || str === 'Tausch') return { priceAmount: '', priceUnit: 'Tausch' };
+  const m = (str || '').match(/^CHF\s*([\d.]+)\s*\/\s*(.+)$/);
+  if (m) return { priceAmount: m[1], priceUnit: m[2].trim() };
+  return { priceAmount: str.replace(/^CHF\s*/, '').trim(), priceUnit: 'Tag' };
+}
+
 const HELP_ITEMS = [
   { icon: 'edit',      title: 'Titel & Beschreibung',  text: 'Wähle einen klaren Titel und beschreibe den Artikel so genau wie möglich.' },
   { icon: 'briefcase', title: 'Kategorie wählen',       text: 'Wähle die passende Kategorie für dein Inserat.' },
@@ -31,11 +40,13 @@ export default function EditListingScreen() {
   const fromMarket = location.state?.from === 'marktplatz';
   const listing = state.listings.find(l => l.id === id);
 
+  const { priceAmount: initPriceAmount, priceUnit: initPriceUnit } = parsePriceStr(listing?.price);
   const [type, setType] = useState(listing?.cat ?? 'Leihen');
   const [form, setForm] = useState({
     title:       listing?.title ?? '',
     description: listing?.description ?? '',
-    price:       listing?.price?.replace(/^CHF\s*/, '') ?? '',
+    priceAmount: initPriceAmount,
+    priceUnit:   initPriceUnit,
     available:   listing?.available?.replace(/^Ab\s*/, '') ?? '',
   });
   const [errors, setErrors] = useState({});
@@ -57,7 +68,7 @@ export default function EditListingScreen() {
     if (!form.title.trim())       e.title = 'Bitte einen Titel eingeben';
     if (form.title.length > 60)   e.title = 'Max. 60 Zeichen';
     if (!form.description.trim()) e.description = 'Bitte eine Beschreibung eingeben';
-    if (!form.price.trim())       e.price = 'Bitte einen Preis eingeben';
+    if (form.priceUnit !== 'Tausch' && !form.priceAmount.trim()) e.priceAmount = 'Bitte einen Preis eingeben';
     return e;
   }
 
@@ -67,7 +78,7 @@ export default function EditListingScreen() {
     actions.updateListing(id, {
       title:       form.title.trim(),
       cat:         type,
-      price:       form.price.trim().startsWith('CHF') ? form.price.trim() : `CHF ${form.price.trim()}`,
+      price:       form.priceUnit === 'Tausch' ? 'Tausch' : `CHF ${form.priceAmount.trim()} / ${form.priceUnit}`,
       description: form.description.trim(),
       available:   form.available.trim() ? `Ab ${form.available.trim()}` : listing.available,
     });
@@ -119,9 +130,39 @@ export default function EditListingScreen() {
             hint={errors.title || `${form.title.length} / 60`} />
           <Field label="Beschreibung" required multiline rows={4} value={form.description}
             onChange={set('description')} error={errors.description} />
-          <Field label="Preis" required value={form.price} onChange={set('price')}
-            error={errors.price} hint={errors.price || 'CHF / Einheit'}
-            trailing={<span style={{ fontFamily: 'var(--font)', fontSize: 13, color: 'var(--ink-3)', fontWeight: 600 }}>CHF</span>} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <span style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+              <span style={{ fontFamily: 'var(--font)', fontSize: 12, fontWeight: 600, color: 'var(--ink)' }}>Einheit</span>
+              <span style={{ color: 'var(--danger)', fontSize: 12 }}>*</span>
+            </span>
+            <div style={{ display: 'flex', gap: 6 }}>
+              {EINHEITEN.map(u => {
+                const active = form.priceUnit === u;
+                return (
+                  <button
+                    key={u}
+                    type="button"
+                    onClick={() => { setForm(f => ({ ...f, priceUnit: u })); setErrors(er => ({ ...er, priceAmount: null })); }}
+                    style={{
+                      flex: 1, padding: '8px 4px', borderRadius: 20,
+                      border: `1.5px solid ${active ? 'var(--primary)' : 'var(--line)'}`,
+                      background: active ? 'var(--primary-tint)' : 'var(--card)',
+                      fontFamily: 'var(--font)', fontSize: 13, fontWeight: 600,
+                      color: active ? 'var(--primary-ink)' : 'var(--ink-2)',
+                      cursor: 'pointer',
+                    }}
+                  >
+                    {u}
+                  </button>
+                );
+              })}
+            </div>
+            {form.priceUnit !== 'Tausch' && (
+              <Field label="Preis" required value={form.priceAmount} onChange={set('priceAmount')}
+                error={errors.priceAmount} hint={errors.priceAmount || `CHF / ${form.priceUnit}`}
+                trailing={<span style={{ fontFamily: 'var(--font)', fontSize: 13, color: 'var(--ink-3)', fontWeight: 600 }}>CHF</span>} />
+            )}
+          </div>
           <Field label="Verfügbar ab" value={form.available} onChange={set('available')}
             hint="z.B. sofort oder TT.MM.JJJJ" />
         </div>
