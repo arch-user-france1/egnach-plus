@@ -186,6 +186,13 @@ export default function ProfileScreen() {
           <Row icon="info" label="Hilfe & Support" onClick={() => { }} last />
         </Card>
 
+        <div style={{ padding: '20px 16px 6px', fontFamily: 'var(--font)', fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', letterSpacing: 1 }}>ÜBER DIE APP</div>
+        <Card padding={0} style={{ margin: '0 16px' }}>
+          <Row icon="info" label="Impressum" onClick={() => { }} />
+          <Row icon="shield" label="Datenschutzerklärung" onClick={() => { }} />
+          <Row icon="briefcase" label="Nutzungsbedingungen" onClick={() => { }} last />
+        </Card>
+
         <div style={{ padding: '24px 16px 16px' }}>
           <Button full size="md" variant="danger" onClick={() => setLogoutConfirm(true)}>Abmelden</Button>
         </div>
