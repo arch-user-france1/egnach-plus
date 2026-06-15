@@ -1,13 +1,15 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Screen, Body, HScroll, HelpButton, HelpSheet } from '../components/index.js';
+import { Screen, Body, HScroll, HelpButton, HelpSheet, CatGlyph, catKey } from '../components/index.js';
 import IconButton from '../components/IconButton.jsx';
 import Card from '../components/Card.jsx';
 import Chip from '../components/Chip.jsx';
 import Icon from '../components/Icon.jsx';
 import Badge from '../components/Badge.jsx';
 import { useStore } from '../hooks/useStore.js';
+import { useLayoutVariant } from '../hooks/useLayoutVariant.js';
+import { track } from '../model/analytics.js';
 
 const CATS = ['Alle', 'Gemeinde', 'Sport', 'Familie', 'Senioren', 'Sprache', 'Kultur'];
 
@@ -49,6 +51,7 @@ function getDayLabel(day, events) {
 export default function EventsScreen() {
   const navigate = useNavigate();
   const { state } = useStore();
+  const variant = useLayoutVariant();
   const [activeCat, setActiveCat] = useState('Alle');
   const [view, setView] = useState('list');
   const [help, setHelp] = useState(false);
@@ -71,7 +74,7 @@ export default function EventsScreen() {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <IconButton name="search" label="Suchen" />
-          <HelpButton onClick={() => setHelp(true)} />
+          <HelpButton onClick={() => { track('open_help', { screen: 'events', variant }); setHelp(true); }} />
         </div>
       </div>
 
@@ -97,9 +100,18 @@ export default function EventsScreen() {
         </div>
 
         <HScroll padding="0 16px 4px">
-          {CATS.map(c => (
-            <Chip key={c} active={activeCat === c} tone={c === 'Gemeinde' && activeCat !== c ? 'primary' : 'default'} onClick={() => setActiveCat(c)}>{c}</Chip>
-          ))}
+          {CATS.map(c => {
+            const key = c === 'Alle' ? null : catKey(c);
+            return (
+              <Chip
+                key={c}
+                active={activeCat === c}
+                tone={c === 'Gemeinde' && activeCat !== c ? 'primary' : 'default'}
+                onClick={() => setActiveCat(c)}
+                leading={key ? <CatGlyph name={key} size={15} stroke={2} /> : undefined}
+              >{c}</Chip>
+            );
+          })}
         </HScroll>
 
         {Object.entries(byDay).map(([day, events]) => (
@@ -147,7 +159,7 @@ export default function EventsScreen() {
 
       <div style={{ position: 'absolute', right: 18, bottom: 20, zIndex: 5 }}>
         <motion.button
-          onClick={() => navigate('/anlass-erstellen')}
+          onClick={() => { track('open_create_flow', { screen: 'events', variant }); navigate('/anlass-erstellen'); }}
           aria-label="Anlass erstellen"
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}

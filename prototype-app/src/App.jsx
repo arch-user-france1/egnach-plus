@@ -3,7 +3,10 @@ import { HashRouter, Routes, Route, Navigate, useLocation, useNavigate } from 'r
 import { AnimatePresence, motion } from 'framer-motion';
 import { buildCssVars } from './theme/theme.js';
 import { useStore } from './hooks/useStore.js';
+import { useLayoutVariant } from './hooks/useLayoutVariant.js';
+import { trackExposureOnce } from './model/analytics.js';
 import TabBar from './components/TabBar.jsx';
+import GlassNav from './components/glass/GlassNav.jsx';
 import CookieBanner from './components/CookieBanner.jsx';
 
 import SplashScreen        from './screens/SplashScreen.jsx';
@@ -26,6 +29,11 @@ import CreateEventScreen   from './screens/CreateEventScreen.jsx';
 import EditListingScreen   from './screens/EditListingScreen.jsx';
 import SettingsScreen      from './screens/SettingsScreen.jsx';
 
+// Variante B (Glass) — neu gestaltete Browse-Screens des A/B-Tests
+import GlassHomeScreen        from './screens/glass/GlassHomeScreen.jsx';
+import GlassMarketplaceScreen from './screens/glass/GlassMarketplaceScreen.jsx';
+import GlassEventsScreen      from './screens/glass/GlassEventsScreen.jsx';
+
 const TAB_ROUTES = {
   '/home':       0,
   '/karte':      0,
@@ -47,9 +55,15 @@ function AnimatedRoutes() {
   const location = useLocation();
   const navigate = useNavigate();
   const { state } = useStore();
+  // Eine Entscheidung, so hoch wie möglich im Baum: Welche Variante rendert?
+  const variant = useLayoutVariant();
+  const isGlass = variant === 'glass';
 
   const activeTab = TAB_ROUTES[location.pathname];
   const showTabBar = activeTab !== undefined;
+
+  // Exposure/Assignment loggen, sobald der Nutzer eine Variante erstmals sieht.
+  useEffect(() => { trackExposureOnce(variant); }, [variant]);
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
@@ -71,15 +85,16 @@ function AnimatedRoutes() {
               <Route path="/login"         element={<LoginScreen />} />
               <Route path="/register"      element={<RegisterScreen />} />
               <Route path="/verify"        element={<VerifyScreen />} />
-              <Route path="/home"          element={<HomeScreen />} />
+              {/* Die drei Browse-Screens wechseln je Variante (gleiche Daten, andere Chrome). */}
+              <Route path="/home"          element={isGlass ? <GlassHomeScreen /> : <HomeScreen />} />
               <Route path="/karte"         element={<MapScreen />} />
               <Route path="/map"           element={<MapScreen />} />
-              <Route path="/marktplatz"    element={<MarketplaceScreen />} />
+              <Route path="/marktplatz"    element={isGlass ? <GlassMarketplaceScreen /> : <MarketplaceScreen />} />
               <Route path="/marktplatz/:id" element={<ListingDetailScreen />} />
               <Route path="/inserat-erstellen" element={<CreateListingScreen />} />
               <Route path="/inserat-bearbeiten/:id" element={<EditListingScreen />} />
               <Route path="/anlass-erstellen"  element={<CreateEventScreen />} />
-              <Route path="/anlaesse"      element={<EventsScreen />} />
+              <Route path="/anlaesse"      element={isGlass ? <GlassEventsScreen /> : <EventsScreen />} />
               <Route path="/anlaesse/:id"  element={<EventDetailScreen />} />
               <Route path="/chat"          element={<ChatListScreen />} />
               <Route path="/chat/:threadId" element={<ChatScreen />} />
@@ -90,8 +105,11 @@ function AnimatedRoutes() {
             </Routes>
           </motion.div>
         </AnimatePresence>
+        {/* Glass-Variante: schwebende Pill-Navigation über dem scrollenden Inhalt. */}
+        {showTabBar && isGlass && <GlassNav active={activeTab} onNavigate={(p) => navigate(p)} />}
       </div>
-      {showTabBar && <TabBar active={activeTab} onNavigate={(p) => navigate(p)} />}
+      {/* Classic-Variante: fixe TabBar am unteren Rand. */}
+      {showTabBar && !isGlass && <TabBar active={activeTab} onNavigate={(p) => navigate(p)} />}
     </div>
   );
 }

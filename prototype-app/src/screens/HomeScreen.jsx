@@ -10,6 +10,8 @@ import Chip from '../components/Chip.jsx';
 import Photo from '../components/Photo.jsx';
 import Icon from '../components/Icon.jsx';
 import { useStore } from '../hooks/useStore.js';
+import { useLayoutVariant } from '../hooks/useLayoutVariant.js';
+import { track } from '../model/analytics.js';
 
 const stagger = {
   visible: { transition: { staggerChildren: 0.07 } },
@@ -29,6 +31,7 @@ const HELP_ITEMS = [
 export default function HomeScreen() {
   const navigate = useNavigate();
   const { state } = useStore();
+  const variant = useLayoutVariant();
   const [help, setHelp] = useState(false);
 
   const events = state.events.slice(0, 3);
@@ -48,7 +51,7 @@ export default function HomeScreen() {
         </div>
         <IconButton name="bell" badge="3" label="Benachrichtigungen" />
         <IconButton name="qr" label="QR-Scanner" onClick={() => navigate('/map')} />
-        <HelpButton onClick={() => setHelp(true)} />
+        <HelpButton onClick={() => { track('open_help', { screen: 'home', variant }); setHelp(true); }} />
       </div>
 
       <Body>

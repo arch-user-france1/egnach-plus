@@ -4,6 +4,7 @@ import { Screen, Body, HelpSheet, Toast } from '../components/index.js';
 import TopBar from '../components/TopBar.jsx';
 import IconButton from '../components/IconButton.jsx';
 import { useStore } from '../hooks/useStore.js';
+import { useLayoutVariant } from '../hooks/useLayoutVariant.js';
 
 /* ─── Local sub-components ──────────────────────────────────────── */
 function FlipSwitch({ on, onChange }) {
@@ -88,10 +89,18 @@ const FONT_SIZES = [
 const PROFILE_OPTIONS = ['Alle', 'Verifizierte', 'Niemand'];
 const LOCATION_OPTIONS = ['Genau', 'Ungefähr', 'Aus'];
 
+// A/B-Test: Layout-Darstellung. 'System' folgt der A/B-Zuteilung.
+const LAYOUT_OPTIONS = [
+  { value: 'system',  label: 'System' },
+  { value: 'classic', label: 'Classic' },
+  { value: 'glass',   label: 'Glas' },
+];
+
 /* ─── Screen ────────────────────────────────────────────────────── */
 export default function SettingsScreen() {
   const navigate = useNavigate();
   const { state, actions } = useStore();
+  const activeVariant = useLayoutVariant();
 
   const [einfach, setEinfach] = useState(false);
   const fontIdx = FONT_SIZES.reduce(
@@ -176,6 +185,46 @@ export default function SettingsScreen() {
               <span style={{ fontFamily: 'var(--font-display)', fontSize: 15, fontWeight: 600, color: 'var(--ink)' }}>
                 Grüezi {state.user.name.split(' ')[0]}!
               </span>
+            </div>
+          </div>
+        </Card>
+
+        {/* Darstellung — A/B-Layout-Umschalter */}
+        <SectionLabel>DARSTELLUNG</SectionLabel>
+        <Card>
+          <div style={{ padding: '13px 16px' }}>
+            <div style={{ display: 'flex', alignItems: 'flex-start', gap: 12, marginBottom: 10 }}>
+              <div style={{ width: 32, height: 32, borderRadius: 8, background: 'var(--surface-2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ink-2)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                  <rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18"/>
+                </svg>
+              </div>
+              <div style={{ flex: 1 }}>
+                <div style={{ fontFamily: 'var(--font)', fontSize: 14, fontWeight: 500, color: 'var(--ink)' }}>Layout</div>
+                <div style={{ fontFamily: 'var(--font)', fontSize: 11, color: 'var(--ink-3)', marginTop: 1 }}>
+                  «System» folgt dem laufenden A/B-Test · aktiv: {activeVariant === 'glass' ? 'Glas' : 'Classic'}
+                </div>
+              </div>
+            </div>
+            <div style={{ display: 'flex', gap: 6 }}>
+              {LAYOUT_OPTIONS.map(opt => {
+                const active = (state.layoutOverride || 'system') === opt.value;
+                return (
+                  <button
+                    key={opt.value}
+                    onClick={() => actions.setLayoutOverride(opt.value)}
+                    aria-pressed={active}
+                    style={{
+                      flex: 1, height: 38, borderRadius: 'var(--radius-sm)',
+                      border: `1px solid ${active ? 'var(--primary)' : 'var(--line)'}`,
+                      background: active ? 'var(--primary)' : 'var(--card)',
+                      fontFamily: 'var(--font)', fontSize: 13, fontWeight: active ? 700 : 500,
+                      color: active ? '#fff' : 'var(--ink)',
+                      cursor: 'pointer',
+                    }}
+                  >{opt.label}</button>
+                );
+              })}
             </div>
           </div>
         </Card>

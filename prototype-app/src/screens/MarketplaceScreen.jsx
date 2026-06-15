@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Screen, Body, HScroll, HelpButton, HelpSheet } from '../components/index.js';
+import { Screen, Body, HScroll, HelpButton, HelpSheet, CatGlyph, catKey } from '../components/index.js';
 import IconButton from '../components/IconButton.jsx';
 import Card from '../components/Card.jsx';
 import Badge from '../components/Badge.jsx';
@@ -11,9 +11,10 @@ import Avatar from '../components/Avatar.jsx';
 import Switch from '../components/Switch.jsx';
 import Icon from '../components/Icon.jsx';
 import { useStore } from '../hooks/useStore.js';
+import { useLayoutVariant } from '../hooks/useLayoutVariant.js';
+import { track } from '../model/analytics.js';
 
 const CATS = ['Alle', 'Leihen', 'Dienste', 'Tausch', 'Jobs'];
-const CAT_ICONS = { Leihen: 'briefcase', Dienste: 'paws', Tausch: 'reload', Jobs: 'car' };
 
 const SORTS = [
   { id: 'distanz',   label: 'Distanz',   icon: 'pin' },
@@ -154,6 +155,7 @@ function OptionsSheet({ open, onClose, sort, setSort, onlyMine, setOnlyMine, ver
 export default function MarketplaceScreen() {
   const navigate = useNavigate();
   const { state, actions } = useStore();
+  const variant = useLayoutVariant();
   const [activeCat, setActiveCat] = useState('Alle');
   const [query, setQuery] = useState('');
   const [onlyMine, setOnlyMine] = useState(false);
@@ -192,7 +194,7 @@ export default function MarketplaceScreen() {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <IconButton name="options" label="Sortieren und filtern" badge={filtersActive ? '•' : undefined} onClick={() => setOptions(true)} />
-          <HelpButton onClick={() => setHelp(true)} />
+          <HelpButton onClick={() => { track('open_help', { screen: 'markt', variant }); setHelp(true); }} />
         </div>
       </div>
 
@@ -234,7 +236,7 @@ export default function MarketplaceScreen() {
           <Chip active={activeCat === 'Alle'} onClick={() => setActiveCat('Alle')}>Alle</Chip>
           {CATS.slice(1).map(c => (
             <Chip key={c} active={activeCat === c} onClick={() => setActiveCat(c)}
-              leading={<Icon name={CAT_ICONS[c]} size={12} stroke={2} />}>{c}</Chip>
+              leading={<CatGlyph name={catKey(c)} size={15} stroke={2} />}>{c}</Chip>
           ))}
           <Chip active={onlyMine} onClick={() => setOnlyMine(!onlyMine)}
             leading={<Icon name="user" size={12} stroke={2} />}>Meine Inserate</Chip>
@@ -326,9 +328,10 @@ export default function MarketplaceScreen() {
 
       <div style={{ position: 'absolute', right: 18, bottom: 20, zIndex: 5 }}>
         <motion.button
-          onClick={() => navigate('/inserat-erstellen', {
-            state: { defaultType: activeCat !== 'Alle' ? activeCat : null },
-          })}
+          onClick={() => {
+            track('open_create_flow', { screen: 'markt', variant });
+            navigate('/inserat-erstellen', { state: { defaultType: activeCat !== 'Alle' ? activeCat : null } });
+          }}
           aria-label="Inserat erstellen"
           initial={{ scale: 0, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}

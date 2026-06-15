@@ -15,6 +15,8 @@ export const actions = {
   setUser: model.setUser,
   /** Textskalierung («Grosser Text», Barrierefreiheit) setzen. */
   setTextScale: model.setTextScale,
+  /** Layout-Darstellung (A/B) setzen: 'system' | 'classic' | 'glass'. */
+  setLayoutOverride: model.setLayoutOverride,
   /** Inserat als Favorit markieren / Markierung entfernen. */
   toggleFavorite: model.toggleFavorite,
   /** Anlass-Teilnahme zusagen / Zusage zurückziehen. */
