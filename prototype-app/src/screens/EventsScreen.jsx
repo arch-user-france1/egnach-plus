@@ -7,6 +7,7 @@ import Card from '../components/Card.jsx';
 import Chip from '../components/Chip.jsx';
 import Icon from '../components/Icon.jsx';
 import Badge from '../components/Badge.jsx';
+import EventCalendar from './glass/EventCalendar.jsx';
 import { useStore } from '../hooks/useStore.js';
 import { useLayoutVariant } from '../hooks/useLayoutVariant.js';
 import { track } from '../model/analytics.js';
@@ -50,7 +51,7 @@ function getDayLabel(day, events) {
 
 export default function EventsScreen() {
   const navigate = useNavigate();
-  const { state } = useStore();
+  const { state, actions } = useStore();
   const variant = useLayoutVariant();
   const [activeCat, setActiveCat] = useState('Alle');
   const [view, setView] = useState('list');
@@ -114,7 +115,9 @@ export default function EventsScreen() {
           })}
         </HScroll>
 
-        {Object.entries(byDay).map(([day, events]) => (
+        {view === 'calendar' ? (
+          <EventCalendar glass={false} events={filtered} state={state} actions={actions} navigate={navigate} />
+        ) : Object.entries(byDay).map(([day, events]) => (
           <div key={day}>
             <div style={{ padding: '18px 16px 8px', display: 'flex', alignItems: 'center', gap: 8 }}>
               <span style={{ fontFamily: 'var(--font)', fontSize: 12, fontWeight: 700, color: 'var(--ink-2)', letterSpacing: 0.5, textTransform: 'uppercase', whiteSpace: 'nowrap' }}>

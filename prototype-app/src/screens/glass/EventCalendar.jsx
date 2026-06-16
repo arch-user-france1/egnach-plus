@@ -19,6 +19,14 @@ const MONTHS = ['Januar', 'Februar', 'März', 'April', 'Mai', 'Juni', 'Juli', 'A
 
 const key = (d) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`;
 
+// Oberflächen-Stil je Variante: Glas (frosted) oder Classic (solide Karte),
+// damit derselbe Kalender in beiden Layouts stimmig wirkt.
+function panelStyle(glass) {
+  return glass
+    ? abPanel
+    : { background: 'var(--card)', border: '1px solid var(--line)', boxShadow: '0 1px 2px rgba(15,30,55,0.05)' };
+}
+
 // 14 Tage ab dem Montag der Woche, die den Anker enthält.
 function build14Days(anchor) {
   const offset = (anchor.getDay() + 6) % 7;
@@ -63,7 +71,8 @@ function LegendItem({ color, hollow, label }) {
   );
 }
 
-export default function EventCalendar({ events, state, actions, navigate }) {
+export default function EventCalendar({ events, state, actions, navigate, glass = true }) {
+  const panel = panelStyle(glass);
   const days = useMemo(() => build14Days(TODAY), []);
 
   const eventsOn = useMemo(() => {
@@ -92,7 +101,7 @@ export default function EventCalendar({ events, state, actions, navigate }) {
   return (
     <div style={{ padding: '0 16px' }}>
       {/* Kalender-Karte */}
-      <div style={{ borderRadius: 'var(--radius)', padding: '12px 12px 14px', ...abPanel }}>
+      <div style={{ borderRadius: 'var(--radius)', padding: '12px 12px 14px', ...panel }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '0 2px 10px' }}>
           <span style={{ fontFamily: 'var(--font-display)', fontSize: 15, fontWeight: 700, color: 'var(--ink)' }}>{rangeLabel}</span>
           <span style={{ fontFamily: 'var(--font)', fontSize: 11, color: 'var(--ink-3)' }}>2 Wochen</span>
@@ -158,14 +167,14 @@ export default function EventCalendar({ events, state, actions, navigate }) {
       </div>
 
       {selEvents.length === 0 ? (
-        <div style={{ borderRadius: 'var(--radius)', padding: '24px 16px', textAlign: 'center', ...abPanel }}>
+        <div style={{ borderRadius: 'var(--radius)', padding: '24px 16px', textAlign: 'center', ...panel }}>
           <Icon name="calendar" size={22} color="var(--ink-3)" stroke={1.6} />
           <div style={{ fontFamily: 'var(--font)', fontSize: 13, color: 'var(--ink-3)', marginTop: 8 }}>Keine Anlässe an diesem Tag.</div>
         </div>
       ) : (
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
           {selEvents.map(e => (
-            <DayEventCard key={e.id} event={e} status={statusOf(state, e.id)} actions={actions} navigate={navigate} />
+            <DayEventCard key={e.id} event={e} status={statusOf(state, e.id)} actions={actions} navigate={navigate} glass={glass} />
           ))}
         </div>
       )}
@@ -175,7 +184,8 @@ export default function EventCalendar({ events, state, actions, navigate }) {
 }
 
 // ─── Anlass-Karte im Tages-Detail (je Antwort-Zustand) ──────────────────────
-function DayEventCard({ event: e, status, actions, navigate }) {
+function DayEventCard({ event: e, status, actions, navigate, glass = true }) {
+  const panel = panelStyle(glass);
   const meta = (
     <>
       <div
@@ -247,7 +257,7 @@ function DayEventCard({ event: e, status, actions, navigate }) {
 
   // ── Vorschlag: klar erkennbar, zwei eindeutige Knöpfe ──
   return (
-    <div style={{ borderRadius: 'var(--radius)', padding: '12px 14px', ...abPanel }}>
+    <div style={{ borderRadius: 'var(--radius)', padding: '12px 14px', ...panel }}>
       <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
         <span style={{
           display: 'inline-flex', alignItems: 'center', gap: 5, height: 22, padding: '0 9px', borderRadius: 999,
