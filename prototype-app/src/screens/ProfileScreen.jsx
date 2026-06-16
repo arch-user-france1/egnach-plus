@@ -58,7 +58,7 @@ export default function ProfileScreen() {
       <div style={{ padding: '10px 16px 8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
         <h1 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 700, letterSpacing: -0.4, color: 'var(--ink)' }}>Profil</h1>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <IconButton name="options" label="Einstellungen" />
+          <IconButton name="options" label="Einstellungen" onClick={() => navigate('/einstellungen')} />
           <HelpButton onClick={() => setHelp(true)} />
         </div>
       </div>
