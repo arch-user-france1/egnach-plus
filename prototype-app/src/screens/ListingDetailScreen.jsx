@@ -40,8 +40,7 @@ export default function ListingDetailScreen() {
     isOwn
       ? [{ key: 'edit', label: 'Bearbeiten', icon: 'edit', tone: 'primary', onClick: () => navigate(`/inserat-bearbeiten/${listing.id}`, { state: { from: 'marktplatz' } }) }]
       : [
-          { key: 'chat', label: 'Nachricht', icon: 'chat', tone: 'secondary', onClick: openChat },
-          { key: 'send', label: 'Anfrage', icon: 'send', tone: 'primary', onClick: () => { openChat(); setToast(true); } },
+          { key: 'send', label: 'Anfrage', icon: 'chat', tone: 'primary', onClick: () => { openChat(); setToast(true); } },
         ],
     isGlass,
   );
@@ -177,14 +176,9 @@ export default function ListingDetailScreen() {
               <Button full size="lg" leading={<Icon name="edit" size={16} color="#fff" />} onClick={() => navigate(`/inserat-bearbeiten/${listing.id}`, { state: { from: 'marktplatz' } })}>Inserat bearbeiten</Button>
             </div>
           ) : (
-            <>
-              <button onClick={openChat} style={{ width: 48, height: 48, borderRadius: 'var(--radius-sm)', border: '1.5px solid var(--line-2)', background: 'var(--card)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }} aria-label="Nachricht senden">
-                <Icon name="chat" size={20} />
-              </button>
-              <div style={{ flex: 1 }}>
-                <Button full size="lg" onClick={() => { openChat(); setToast(true); }}>Anfrage senden</Button>
-              </div>
-            </>
+            <div style={{ flex: 1 }}>
+              <Button full size="lg" leading={<Icon name="chat" size={18} color="#fff" />} onClick={() => { openChat(); setToast(true); }}>Anfrage senden</Button>
+            </div>
           )}
         </div>
       )}

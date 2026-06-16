@@ -68,6 +68,7 @@ function Bubble({ own, text, translatedFrom, translatedTo, translation, time, tr
 }
 
 const HELP_ITEMS = [
+  { icon: 'store',    title: 'Direkt aus dem Marktplatz', text: 'Der Chat ist mit dem Marktplatz verbunden: Du kannst ein Inserat direkt anfragen und die Zahlung bequem im Chat abschliessen — alles an einem Ort.' },
   { icon: 'language', title: 'Auto-Übersetzung',   text: 'Aktiviere die Übersetzung, um eingehende Nachrichten auf Deutsch zu lesen.' },
   { icon: 'chat',     title: 'Anfrage stellen',    text: 'Schreibe direkt über diesen Chat, um ein Inserat anzufragen.' },
   { icon: 'send',     title: 'Nachricht senden',   text: 'Tippe deine Nachricht und sende sie mit dem Pfeil-Button.' },
