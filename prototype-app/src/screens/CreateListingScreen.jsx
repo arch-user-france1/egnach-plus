@@ -10,6 +10,7 @@ import DatePicker from '../components/DatePicker.jsx';
 import HelpBanner from '../components/HelpBanner.jsx';
 import Photo from '../components/Photo.jsx';
 import Icon from '../components/Icon.jsx';
+import GlassHelpFab from '../components/glass/GlassHelpFab.jsx';
 import { useStore } from '../hooks/useStore.js';
 import { useLayoutVariant } from '../hooks/useLayoutVariant.js';
 import { useGlassPageActions } from '../components/glass/GlassChrome.jsx';
@@ -164,7 +165,7 @@ export default function CreateListingScreen() {
         leading={<IconButton name="close" onClick={() => navigate(-1)} label="Schliessen" />}
         title="Neues Inserat"
         trailing={<span style={{ fontFamily: 'var(--font)', fontSize: 13, fontWeight: 600, color: 'var(--ink-2)' }}>Entwurf</span>}
-        onHelp={() => setHelp(true)}
+        onHelp={isGlass ? undefined : () => setHelp(true)}
       />
 
       <Body padding="14px 18px 20px">
@@ -342,6 +343,7 @@ export default function CreateListingScreen() {
         </div>
       )}
       <HelpSheet open={help} onClose={() => setHelp(false)} title="Inserat erstellen" intro="So erstellst du ein Inserat auf dem Marktplatz." items={HELP_ITEMS} />
+      {isGlass && <GlassHelpFab onClick={() => setHelp(true)} />}
       <Toast open={draftToast} onClose={() => setDraftToast(false)} tone="info" title="Entwurf gespeichert" msg="Du kannst deinen Entwurf jederzeit weiter bearbeiten." />
     </Screen>
   );

@@ -7,6 +7,7 @@ import Chip from '../components/Chip.jsx';
 import Switch from '../components/Switch.jsx';
 import Button from '../components/Button.jsx';
 import Icon from '../components/Icon.jsx';
+import GlassHelpFab from '../components/glass/GlassHelpFab.jsx';
 import { useState } from 'react';
 import { useStore } from '../hooks/useStore.js';
 import { useLayoutVariant } from '../hooks/useLayoutVariant.js';
@@ -63,7 +64,7 @@ export default function ProfileScreen() {
     <Screen background="var(--surface)">
       <div style={{ padding: '10px 16px 8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
         <h1 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 700, letterSpacing: -0.4, color: 'var(--ink)' }}>Profil</h1>
-        <HelpButton onClick={() => setHelp(true)} />
+        {activeVariant !== 'glass' && <HelpButton onClick={() => setHelp(true)} />}
       </div>
 
       <Body>
@@ -272,6 +273,7 @@ export default function ProfileScreen() {
         cancelLabel="Abbrechen"
         confirmLabel="Abmelden"
       />
+      {activeVariant === 'glass' && <GlassHelpFab onClick={() => setHelp(true)} />}
     </Screen>
   );
 }

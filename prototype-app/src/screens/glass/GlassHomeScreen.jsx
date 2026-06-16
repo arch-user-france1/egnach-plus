@@ -30,21 +30,16 @@ const QUICK = [
   { icon:  'map',      label: 'Karte',   ink: 'var(--accent)', path: '/map' },
 ];
 
-function GlassHomeHeader({ user, onLocation }) {
+function GlassHomeHeader({ user }) {
   return (
     <div style={{ padding: '10px 16px 12px', display: 'flex', alignItems: 'center', gap: 8 }}>
       <Avatar size={40} initials={user.initials} verified={user.verified} />
       <div style={{ flex: 1, minWidth: 0 }}>
         <div style={{ fontFamily: 'var(--font)', fontSize: 11, color: 'var(--ink-3)' }}>Grüezi, {user.name.split(' ')[0]}</div>
-        <button
-          onClick={onLocation}
-          aria-label="Quartier wählen"
-          style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 1, border: 'none', background: 'transparent', padding: 0, cursor: 'pointer' }}
-        >
+        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 1 }}>
           <Icon name="pin" size={12} color="var(--primary)" stroke={2} />
           <span style={{ fontFamily: 'var(--font)', fontSize: 13, fontWeight: 600, color: 'var(--ink)', whiteSpace: 'nowrap' }}>{user.neighborhood}</span>
-          <Icon name="chevronDown" size={12} color="var(--ink-2)" stroke={2} />
-        </button>
+        </div>
       </div>
       <IconButton name="bell" badge="3" label="Benachrichtigungen" />
     </div>
@@ -68,7 +63,7 @@ export default function GlassHomeScreen() {
 
   return (
     <Fragment>
-      <GlassShell headerH={62} header={<GlassHomeHeader user={state.user} onLocation={() => navigate('/map')} />} onHelp={openHelp}>
+      <GlassShell headerH={62} header={<GlassHomeHeader user={state.user} />} onHelp={openHelp}>
         <div style={{ padding: '8px 16px 14px' }}>
           <GlassSearch placeholder="Suche in Egnach…" mic onClick={() => navigate('/marktplatz')} />
         </div>

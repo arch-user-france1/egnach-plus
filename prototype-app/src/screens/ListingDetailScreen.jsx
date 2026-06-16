@@ -8,12 +8,13 @@ import Avatar from '../components/Avatar.jsx';
 import Dots from '../components/Dots.jsx';
 import Photo from '../components/Photo.jsx';
 import Icon from '../components/Icon.jsx';
+import GlassHelpFab from '../components/glass/GlassHelpFab.jsx';
 import { useStore } from '../hooks/useStore.js';
 import { useLayoutVariant } from '../hooks/useLayoutVariant.js';
 import { useGlassPageActions } from '../components/glass/GlassChrome.jsx';
 
 const HELP_ITEMS = [
-  { icon: 'chat',      title: 'Anfrage senden',        text: 'Schreibe dem Anbieter direkt über den Chat an.' },
+  { icon: 'chat',      title: 'Anfrage senden',        text: 'Schreibe dem Anbieter direkt über den Chat.' },
   { icon: 'heart',     title: 'Merken',                 text: 'Speichere Inserate mit dem Herz-Icon, um sie später zu finden.' },
   { icon: 'share',     title: 'Teilen',                 text: 'Teile das Inserat mit anderen Personen.' },
   { icon: 'shield',    title: 'Verifizierte Anbieter',  text: 'Anbieter mit grünem Häkchen wurden durch die Gemeinde Egnach verifiziert.' },
@@ -46,6 +47,7 @@ export default function ListingDetailScreen() {
   );
 
   return (
+    <>
     <Screen background="var(--surface)" style={{ overflowY: 'auto' }}>
       <div style={{ position: 'relative', height: 280, flexShrink: 0 }}>
         <Photo width="100%" height={280} radius={0} tone={listing.tone} hint="produktfoto" />
@@ -66,9 +68,11 @@ export default function ListingDetailScreen() {
                 <Icon name="heart" size={18} color={isFav ? 'var(--danger)' : 'currentColor'} />
               </button>
             )}
-            <button onClick={() => setHelp(true)} style={{ width: 40, height: 40, borderRadius: 20, background: 'rgba(255,255,255,0.92)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontFamily: 'var(--font)', fontSize: 16, fontWeight: 700, color: 'var(--ink-2)' }} aria-label="Hilfe">
-              ?
-            </button>
+            {!isGlass && (
+              <button onClick={() => setHelp(true)} style={{ width: 40, height: 40, borderRadius: 20, background: 'rgba(255,255,255,0.92)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontFamily: 'var(--font)', fontSize: 16, fontWeight: 700, color: 'var(--ink-2)' }} aria-label="Hilfe">
+                ?
+              </button>
+            )}
           </div>
         </div>
         <div style={{ position: 'absolute', bottom: 12, left: 0, right: 0 }}>
@@ -186,5 +190,7 @@ export default function ListingDetailScreen() {
       <HelpSheet open={help} onClose={() => setHelp(false)} title="Inserat" intro="So nutzt du dieses Inserat." items={HELP_ITEMS} />
       <Toast open={toast} onClose={() => setToast(false)} tone="success" title="Anfrage gesendet" msg="Der Anbieter wird sich bei dir melden." />
     </Screen>
+    {isGlass && <GlassHelpFab onClick={() => setHelp(true)} />}
+    </>
   );
 }

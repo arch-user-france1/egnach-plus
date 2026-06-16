@@ -6,6 +6,7 @@ import IconButton from '../components/IconButton.jsx';
 import Button from '../components/Button.jsx';
 import Field from '../components/Field.jsx';
 import Icon from '../components/Icon.jsx';
+import GlassHelpFab from '../components/glass/GlassHelpFab.jsx';
 import { useStore } from '../hooks/useStore.js';
 import { useLayoutVariant } from '../hooks/useLayoutVariant.js';
 import { useGlassPageActions } from '../components/glass/GlassChrome.jsx';
@@ -104,7 +105,7 @@ export default function EditListingScreen() {
       <TopBar
         leading={<IconButton name="back" onClick={() => navigate(-1)} label="Zurück" />}
         title="Inserat bearbeiten"
-        onHelp={() => setHelp(true)}
+        onHelp={isGlass ? undefined : () => setHelp(true)}
       />
 
       <Body padding="16px 18px 24px">
@@ -219,6 +220,7 @@ export default function EditListingScreen() {
         intro="Hier kannst du dein Inserat anpassen oder löschen."
         items={HELP_ITEMS}
       />
+      {isGlass && <GlassHelpFab onClick={() => setHelp(true)} />}
     </Screen>
   );
 }

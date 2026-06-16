@@ -7,7 +7,9 @@ import Avatar from '../components/Avatar.jsx';
 import Switch from '../components/Switch.jsx';
 import Photo from '../components/Photo.jsx';
 import Icon from '../components/Icon.jsx';
+import GlassHelpFab from '../components/glass/GlassHelpFab.jsx';
 import { useStore } from '../hooks/useStore.js';
+import { useLayoutVariant } from '../hooks/useLayoutVariant.js';
 
 function Bubble({ own, text, translatedFrom, translatedTo, translation, time, translateOn, partnerInitials, partnerName, listing, onListingClick }) {
   const showTrans = translateOn && (translatedFrom || translatedTo);
@@ -86,6 +88,7 @@ export default function ChatScreen() {
   const bottomRef = useRef(null);
   const [help, setHelp] = useState(false);
   const [toast, setToast] = useState(false);
+  const isGlass = useLayoutVariant() === 'glass';
 
   const seedThread = state.chatThreads.find(t => t.id === threadId);
   const listing = listingId ? state.listings.find(l => l.id === listingId) : null;
@@ -141,7 +144,7 @@ export default function ChatScreen() {
           </div>
         </div>
         <IconButton name="bell" label="Stummschalten" />
-        <HelpButton onClick={() => setHelp(true)} />
+        {!isGlass && <HelpButton onClick={() => setHelp(true)} />}
       </div>
 
       {/* Translation banner */}
@@ -215,6 +218,7 @@ export default function ChatScreen() {
       </div>
       <HelpSheet open={help} onClose={() => setHelp(false)} title="Chat" intro="So kommunizierst du mit Nachbarn in Egnach Plus." items={HELP_ITEMS} />
       <Toast open={toast} onClose={() => setToast(false)} tone="success" title="Nachricht gesendet" msg="Deine Nachricht wurde zugestellt." />
+      {isGlass && <GlassHelpFab onClick={() => setHelp(true)} />}
     </Screen>
   );
 }

@@ -9,6 +9,7 @@ import Mark from '../components/Mark.jsx';
 import Chip from '../components/Chip.jsx';
 import Photo from '../components/Photo.jsx';
 import Icon from '../components/Icon.jsx';
+import GlassHelpFab from '../components/glass/GlassHelpFab.jsx';
 import { useStore } from '../hooks/useStore.js';
 import { useLayoutVariant } from '../hooks/useLayoutVariant.js';
 import { useGlassPageActions } from '../components/glass/GlassChrome.jsx';
@@ -43,6 +44,7 @@ export default function EventDetailScreen() {
   ], isGlass);
 
   return (
+    <>
     <Screen background="var(--surface)" style={{ overflowY: 'auto' }}>
       <div style={{ position: 'relative', height: 240, flexShrink: 0 }}>
         <Photo width="100%" height={240} radius={0} tone={event.tone} hint={event.title} />
@@ -58,9 +60,11 @@ export default function EventDetailScreen() {
             <button style={{ width: 40, height: 40, borderRadius: 20, background: 'rgba(255,255,255,0.92)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: isGoing ? 'var(--danger)' : 'var(--ink)' }} aria-label="Merken">
               <Icon name="heart" size={18} color={isGoing ? 'var(--danger)' : 'currentColor'} />
             </button>
-            <button onClick={() => setHelp(true)} style={{ width: 40, height: 40, borderRadius: 20, background: 'rgba(255,255,255,0.92)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontFamily: 'var(--font)', fontSize: 16, fontWeight: 700, color: 'var(--ink-2)' }} aria-label="Hilfe">
-              ?
-            </button>
+            {!isGlass && (
+              <button onClick={() => setHelp(true)} style={{ width: 40, height: 40, borderRadius: 20, background: 'rgba(255,255,255,0.92)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontFamily: 'var(--font)', fontSize: 16, fontWeight: 700, color: 'var(--ink-2)' }} aria-label="Hilfe">
+                ?
+              </button>
+            )}
           </div>
         </div>
         <div style={{ position: 'absolute', left: 18, right: 18, bottom: 14 }}>
@@ -159,5 +163,7 @@ export default function EventDetailScreen() {
       <HelpSheet open={help} onClose={() => setHelp(false)} title="Anlass" intro="Alles, was du über diesen Anlass wissen musst." items={HELP_ITEMS} />
       <Toast open={toast} onClose={() => setToast(false)} tone="success" title="Du bist dabei!" msg={`Anmeldung für «${event.title}» bestätigt.`} />
     </Screen>
+    {isGlass && <GlassHelpFab onClick={() => setHelp(true)} />}
+    </>
   );
 }

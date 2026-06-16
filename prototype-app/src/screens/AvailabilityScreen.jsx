@@ -9,6 +9,7 @@ import Checkbox from '../components/Checkbox.jsx';
 import HelpBanner from '../components/HelpBanner.jsx';
 import Badge from '../components/Badge.jsx';
 import Icon from '../components/Icon.jsx';
+import GlassHelpFab from '../components/glass/GlassHelpFab.jsx';
 import { useStore } from '../hooks/useStore.js';
 import { useLayoutVariant } from '../hooks/useLayoutVariant.js';
 import { useGlassPageActions } from '../components/glass/GlassChrome.jsx';
@@ -65,7 +66,7 @@ export default function AvailabilityScreen() {
 
   return (
     <Screen background="var(--surface)">
-      <TopBar leading={<IconButton name="back" onClick={() => navigate(-1)} label="Zurück" />} title="Verfügbarkeit" onHelp={() => setHelp(true)} />
+      <TopBar leading={<IconButton name="back" onClick={() => navigate(-1)} label="Zurück" />} title="Verfügbarkeit" onHelp={isGlass ? undefined : () => setHelp(true)} />
       <Body padding="0 0 8px">
         <div style={{ padding: '14px 18px 4px' }}>
           <h2 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700, letterSpacing: -0.3, color: 'var(--ink)' }}>Wann bist du verfügbar?</h2>
@@ -199,6 +200,7 @@ export default function AvailabilityScreen() {
       )}
 
       <HelpSheet open={help} onClose={() => setHelp(false)} title="Verfügbarkeit" intro="So verwaltest du deine verfügbaren Zeitfenster." items={HELP_ITEMS} />
+      {isGlass && <GlassHelpFab onClick={() => setHelp(true)} />}
       <Toast open={toast} onClose={() => setToast(false)} tone="success" title="Verfügbarkeit gespeichert" msg="Deine Zeitfenster wurden aktualisiert." />
       <ConfirmDialog
         open={discardConfirm}

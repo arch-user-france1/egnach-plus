@@ -5,9 +5,12 @@ import { Screen, Body, HelpButton, HelpSheet } from '../components/index.js';
 import IconButton from '../components/IconButton.jsx';
 import Avatar from '../components/Avatar.jsx';
 import Icon from '../components/Icon.jsx';
+import GlassHelpFab from '../components/glass/GlassHelpFab.jsx';
 import { useStore } from '../hooks/useStore.js';
+import { useLayoutVariant } from '../hooks/useLayoutVariant.js';
 
 const HELP_ITEMS = [
+  { icon: 'store',    title: 'Direkt aus dem Marktplatz', text: 'Der Chat ist mit dem Marktplatz verbunden: Du kannst ein Inserat direkt anfragen und die Zahlung bequem im Chat abschliessen — alles an einem Ort.' },
   { icon: 'chat',     title: 'Unterhaltungen',    text: 'Hier siehst du alle deine Chats mit Nachbarn auf einen Blick.' },
   { icon: 'language', title: 'Auto-Übersetzung',  text: 'In jedem Chat kannst du Nachrichten automatisch auf Deutsch übersetzen lassen.' },
   { icon: 'search',   title: 'Chat finden',       text: 'Suche nach einer Person, um eine bestehende Unterhaltung zu öffnen.' },
@@ -33,6 +36,7 @@ export default function ChatListScreen() {
   const [help, setHelp] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [query, setQuery] = useState('');
+  const isGlass = useLayoutVariant() === 'glass';
 
   const q = query.trim().toLowerCase();
   const threads = state.chatThreads.filter(t =>
@@ -50,7 +54,7 @@ export default function ChatListScreen() {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <IconButton name="search" label="Chats suchen" badge={query ? '•' : undefined} onClick={() => setSearchOpen(o => { if (o) setQuery(''); return !o; })} />
-          <HelpButton onClick={() => setHelp(true)} />
+          {!isGlass && <HelpButton onClick={() => setHelp(true)} />}
         </div>
       </div>
 
@@ -132,6 +136,7 @@ export default function ChatListScreen() {
       </Body>
 
       <HelpSheet open={help} onClose={() => setHelp(false)} title="Chat" intro="Deine Unterhaltungen mit Nachbarn in Egnach Plus." items={HELP_ITEMS} />
+      {isGlass && <GlassHelpFab onClick={() => setHelp(true)} />}
     </Screen>
   );
 }
