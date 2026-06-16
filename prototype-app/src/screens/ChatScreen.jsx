@@ -140,7 +140,6 @@ export default function ChatScreen() {
           </div>
         </div>
         <IconButton name="bell" label="Stummschalten" />
-        <IconButton name="options" label="Mehr Optionen" />
         <HelpButton onClick={() => setHelp(true)} />
       </div>
 

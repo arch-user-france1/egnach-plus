@@ -192,10 +192,7 @@ export default function MarketplaceScreen() {
           <h1 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 700, letterSpacing: -0.4, color: 'var(--ink)' }}>Marktplatz</h1>
           <div style={{ fontFamily: 'var(--font)', fontSize: 11, color: 'var(--ink-3)', marginTop: 2 }}>{state.listings.length} aktive Inserate</div>
         </div>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <IconButton name="options" label="Sortieren und filtern" badge={filtersActive ? '•' : undefined} onClick={() => setOptions(true)} />
-          <HelpButton onClick={() => { track('open_help', { screen: 'markt', variant }); setHelp(true); }} />
-        </div>
+        <HelpButton onClick={() => { track('open_help', { screen: 'markt', variant }); setHelp(true); }} />
       </div>
 
       <Body>

@@ -1,7 +1,6 @@
 import { useState, Fragment } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { HScroll, HelpSheet, Chip, CatChip } from '../../components/index.js';
-import IconButton from '../../components/IconButton.jsx';
 import Avatar from '../../components/Avatar.jsx';
 import Photo from '../../components/Photo.jsx';
 import Icon from '../../components/Icon.jsx';
@@ -75,7 +74,6 @@ export default function GlassMarketplaceScreen() {
         <h1 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 700, letterSpacing: -0.4, color: 'var(--ink)' }}>Marktplatz</h1>
         <div style={{ fontFamily: 'var(--font)', fontSize: 11, color: 'var(--ink-3)', marginTop: 2 }}>{state.listings.length} aktive Inserate</div>
       </div>
-      <IconButton name="options" label={`Sortiert nach ${sort.label}`} onClick={() => setSortIdx((sortIdx + 1) % SORTS.length)} />
     </div>
   );
 

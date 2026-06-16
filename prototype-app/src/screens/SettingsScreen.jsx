@@ -91,8 +91,8 @@ const LOCATION_OPTIONS = ['Genau', 'Ungefähr', 'Aus'];
 
 // A/B-Test: Layout-Darstellung. 'System' folgt der A/B-Zuteilung.
 const LAYOUT_OPTIONS = [
-  { value: 'system',  label: 'System' },
-  { value: 'classic', label: 'Classic' },
+  { value: 'system',  label: 'Automatisch' },
+  { value: 'classic', label: 'Klassisch' },
   { value: 'glass',   label: 'Glas' },
 ];
 
@@ -202,7 +202,7 @@ export default function SettingsScreen() {
               <div style={{ flex: 1 }}>
                 <div style={{ fontFamily: 'var(--font)', fontSize: 14, fontWeight: 500, color: 'var(--ink)' }}>Layout</div>
                 <div style={{ fontFamily: 'var(--font)', fontSize: 11, color: 'var(--ink-3)', marginTop: 1 }}>
-                  «System» folgt dem laufenden A/B-Test · aktiv: {activeVariant === 'glass' ? 'Glas' : 'Classic'}
+                  «Automatisch» folgt dem laufenden A/B-Test · aktiv: {activeVariant === 'glass' ? 'Glas' : 'Klassisch'}
                 </div>
               </div>
             </div>
