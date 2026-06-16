@@ -56,8 +56,15 @@ export default function EventsScreen() {
   const [activeCat, setActiveCat] = useState('Alle');
   const [view, setView] = useState('list');
   const [help, setHelp] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [query, setQuery] = useState('');
 
-  const filtered = activeCat === 'Alle' ? state.events : state.events.filter(e => e.cats.includes(activeCat));
+  const q = query.trim().toLowerCase();
+  const filtered = state.events.filter(e => {
+    if (activeCat !== 'Alle' && !e.cats.includes(activeCat)) return false;
+    if (q && ![e.title, e.location, ...(e.cats || [])].some(v => String(v ?? '').toLowerCase().includes(q))) return false;
+    return true;
+  });
 
   // Group by day
   const byDay = {};
@@ -74,12 +81,34 @@ export default function EventsScreen() {
           <div style={{ fontFamily: 'var(--font)', fontSize: 11, color: 'var(--ink-3)', marginTop: 2 }}>{filtered.length} Anlässe · diese Woche</div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <IconButton name="search" label="Suchen" />
+          <IconButton name="search" label="Anlässe suchen" badge={query ? '•' : undefined} onClick={() => setSearchOpen(o => { if (o) setQuery(''); return !o; })} />
           <HelpButton onClick={() => { track('open_help', { screen: 'events', variant }); setHelp(true); }} />
         </div>
       </div>
 
       <Body>
+        {/* Suche */}
+        {searchOpen && (
+          <div style={{ padding: '4px 16px 8px' }}>
+            <div style={{ height: 44, borderRadius: 22, background: 'var(--card)', border: '1px solid var(--line)', padding: '0 16px', display: 'flex', alignItems: 'center', gap: 10 }}>
+              <Icon name="search" size={18} color="var(--ink-3)" />
+              <input
+                autoFocus
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Anlässe durchsuchen…"
+                aria-label="Anlässe durchsuchen"
+                style={{ flex: 1, minWidth: 0, border: 'none', outline: 'none', background: 'transparent', fontFamily: 'var(--font)', fontSize: 14, color: 'var(--ink)' }}
+              />
+              {query && (
+                <button onClick={() => setQuery('')} aria-label="Suche löschen" style={{ width: 24, height: 24, borderRadius: 12, border: 'none', background: 'var(--surface-2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
+                  <Icon name="close" size={12} stroke={2} color="var(--ink-2)" />
+                </button>
+              )}
+            </div>
+          </div>
+        )}
+
         {/* Segmented control */}
         <div style={{ padding: '4px 16px 12px' }}>
           <div style={{ height: 40, borderRadius: 20, padding: 4, background: 'var(--surface-2)', border: '1px solid var(--line)', display: 'flex', gap: 4 }}>
@@ -114,6 +143,14 @@ export default function EventsScreen() {
             );
           })}
         </HScroll>
+
+        {view !== 'calendar' && filtered.length === 0 && (
+          <div style={{ margin: '8px 16px', padding: '28px 16px', borderRadius: 'var(--radius)', background: 'var(--card)', border: '1px dashed var(--line-2)', textAlign: 'center' }}>
+            <Icon name="search" size={24} color="var(--ink-3)" stroke={1.6} />
+            <div style={{ fontFamily: 'var(--font)', fontSize: 13, fontWeight: 600, color: 'var(--ink)', marginTop: 8 }}>Keine Anlässe gefunden</div>
+            <div style={{ fontFamily: 'var(--font)', fontSize: 12, color: 'var(--ink-3)', marginTop: 4 }}>Passe deine Suche oder die Kategorie an.</div>
+          </div>
+        )}
 
         {view === 'calendar' ? (
           <EventCalendar glass={false} events={filtered} state={state} actions={actions} navigate={navigate} />

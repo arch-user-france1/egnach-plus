@@ -4,7 +4,7 @@ import { HScroll, HelpSheet, Chip, CatChip } from '../../components/index.js';
 import IconButton from '../../components/IconButton.jsx';
 import Photo from '../../components/Photo.jsx';
 import Icon from '../../components/Icon.jsx';
-import { GlassShell, abPanel } from '../../components/glass/index.js';
+import { GlassShell, GlassSearch, abPanel } from '../../components/glass/index.js';
 import EventCalendar from './EventCalendar.jsx';
 import { useStore } from '../../hooks/useStore.js';
 import { useLayoutVariant } from '../../hooks/useLayoutVariant.js';
@@ -59,8 +59,15 @@ export default function GlassEventsScreen() {
   const [activeCat, setActiveCat] = useState('Alle');
   const [view, setView] = useState('list');
   const [help, setHelp] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [query, setQuery] = useState('');
 
-  const filtered = activeCat === 'Alle' ? state.events : state.events.filter(e => e.cats.includes(activeCat));
+  const q = query.trim().toLowerCase();
+  const filtered = state.events.filter(e => {
+    if (activeCat !== 'Alle' && !e.cats.includes(activeCat)) return false;
+    if (q && ![e.title, e.location, ...(e.cats || [])].some(v => String(v ?? '').toLowerCase().includes(q))) return false;
+    return true;
+  });
   const byDay = {};
   filtered.forEach(e => { (byDay[e.day] = byDay[e.day] || []).push(e); });
 
@@ -73,13 +80,20 @@ export default function GlassEventsScreen() {
         <h1 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 700, letterSpacing: -0.4, color: 'var(--ink)' }}>Anlässe</h1>
         <div style={{ fontFamily: 'var(--font)', fontSize: 11, color: 'var(--ink-3)', marginTop: 2 }}>{filtered.length} Anlässe · diese Woche</div>
       </div>
-      <IconButton name="search" label="Suchen" />
+      <IconButton name="search" label="Anlässe suchen" badge={query ? '•' : undefined} onClick={() => setSearchOpen(o => { if (o) setQuery(''); return !o; })} />
     </div>
   );
 
   return (
     <Fragment>
       <GlassShell headerH={58} header={header} createLabel="Anlass" createIcon="plus" onCreate={openCreate} onHelp={openHelp}>
+        {/* Suche */}
+        {searchOpen && (
+          <div style={{ padding: '8px 16px 4px' }}>
+            <GlassSearch placeholder="Anlässe durchsuchen…" value={query} onChange={setQuery} ariaLabel="Anlässe durchsuchen" />
+          </div>
+        )}
+
         {/* Glas-Segmented Liste / Kalender */}
         <div style={{ padding: '8px 16px 12px' }}>
           <div style={{ height: 42, borderRadius: 21, padding: 4, display: 'flex', gap: 4, ...abPanel }}>
@@ -107,6 +121,14 @@ export default function GlassEventsScreen() {
             <CatFilterChip key={c} name={c} label={c} active={activeCat === c} onClick={() => setActiveCat(activeCat === c ? 'Alle' : c)} />
           ))}
         </HScroll>
+
+        {view !== 'calendar' && filtered.length === 0 && (
+          <div style={{ margin: '8px 16px', padding: '28px 16px', borderRadius: 'var(--radius)', textAlign: 'center', ...abPanel }}>
+            <Icon name="search" size={24} color="var(--ink-3)" stroke={1.6} />
+            <div style={{ fontFamily: 'var(--font)', fontSize: 13, fontWeight: 600, color: 'var(--ink)', marginTop: 8 }}>Keine Anlässe gefunden</div>
+            <div style={{ fontFamily: 'var(--font)', fontSize: 12, color: 'var(--ink-3)', marginTop: 4 }}>Passe deine Suche oder die Kategorie an.</div>
+          </div>
+        )}
 
         {view === 'calendar' ? (
           <EventCalendar events={filtered} state={state} actions={actions} navigate={navigate} />
