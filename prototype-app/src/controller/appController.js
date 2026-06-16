@@ -21,6 +21,12 @@ export const actions = {
   toggleFavorite: model.toggleFavorite,
   /** Anlass-Teilnahme zusagen / Zusage zurückziehen. */
   toggleRsvp: model.toggleRsvp,
+  /** Anlass zusagen (Kalender). */
+  acceptEvent: model.acceptEvent,
+  /** Anlass absagen (Kalender). */
+  declineEvent: model.declineEvent,
+  /** Antwort auf einen Anlass zurücknehmen → «Vorschlag» (Kalender). */
+  resetEventResponse: model.resetEventResponse,
   /** Chat-Nachricht senden (optional mit Übersetzung und Inserat-Bezug). */
   sendMessage: model.sendMessage,
   /** Verfügbarkeits-Slots für ein Datum speichern. */

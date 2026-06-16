@@ -32,7 +32,7 @@ const SAMPLE_OWN_LISTINGS = [
 // --- Persistenz -------------------------------------------------------------
 const STORAGE_KEYS = [
   'egnach_onboarded', 'egnach_user', 'egnach_lang', 'egnach_text_scale',
-  'egnach_favorites', 'egnach_rsvp', 'egnach_chat_messages',
+  'egnach_favorites', 'egnach_rsvp', 'egnach_declined', 'egnach_chat_messages',
   'egnach_availability', 'egnach_user_listings', 'egnach_user_events',
   'egnach_layout_override', 'egnach_analytics',
 ];
@@ -56,6 +56,7 @@ let state = {
   textScale:    load('egnach_text_scale', 1),
   favorites:    load('egnach_favorites', []),
   rsvp:         load('egnach_rsvp', []),
+  declined:     load('egnach_declined', []),
   chatMessages: load('egnach_chat_messages', {}),
   availability: load('egnach_availability', AVAILABILITY),
   listings:     [...LISTINGS, ...load('egnach_user_listings', SAMPLE_OWN_LISTINGS)],
@@ -152,16 +153,67 @@ export function setLayoutOverride(value) {
   track('layout_override_set', { override: value, variant: getLayoutVariant() });
 }
 
+// Antwort-Zustand eines Anlasses (für den Kalender):
+//   'accepted'   → in `rsvp`        (Zusage, prominent)
+//   'declined'   → in `declined`    (Absage)
+//   'suggestion' → in keinem        (noch keine Antwort = Vorschlag)
+export function eventResponse(s, id) {
+  if (s.rsvp.includes(id)) return 'accepted';
+  if (s.declined.includes(id)) return 'declined';
+  return 'suggestion';
+}
+
+function persistResponses(rsvp, declined) {
+  save('egnach_rsvp', rsvp);
+  save('egnach_declined', declined);
+}
+
 export function toggleRsvp(eventId) {
   setState(s => {
     const attending = !s.rsvp.includes(eventId);
     const rsvp = attending
       ? [...s.rsvp, eventId]
       : s.rsvp.filter(id => id !== eventId);
-    save('egnach_rsvp', rsvp);
+    // Eine Zusage hebt eine frühere Absage auf (konsistenter Antwort-Zustand).
+    const declined = attending ? s.declined.filter(id => id !== eventId) : s.declined;
+    persistResponses(rsvp, declined);
     // Funnel-Ereignis mit aktiver Variante markieren (A/B messbar machen).
     if (attending) track('attend_event', { eventId, variant: resolveLayoutVariant(s) });
-    return { ...s, rsvp };
+    return { ...s, rsvp, declined };
+  });
+}
+
+/** Anlass zusagen (Kalender: aus Vorschlag/Absage → Zusage). */
+export function acceptEvent(eventId) {
+  setState(s => {
+    if (s.rsvp.includes(eventId)) return s;
+    const rsvp = [...s.rsvp, eventId];
+    const declined = s.declined.filter(id => id !== eventId);
+    persistResponses(rsvp, declined);
+    track('attend_event', { eventId, variant: resolveLayoutVariant(s) });
+    return { ...s, rsvp, declined };
+  });
+}
+
+/** Anlass absagen (Kalender: aus Vorschlag/Zusage → Absage). */
+export function declineEvent(eventId) {
+  setState(s => {
+    if (s.declined.includes(eventId)) return s;
+    const declined = [...s.declined, eventId];
+    const rsvp = s.rsvp.filter(id => id !== eventId);
+    persistResponses(rsvp, declined);
+    track('decline_event', { eventId, variant: resolveLayoutVariant(s) });
+    return { ...s, rsvp, declined };
+  });
+}
+
+/** Antwort zurücknehmen (Kalender: zurück auf «Vorschlag»). */
+export function resetEventResponse(eventId) {
+  setState(s => {
+    const rsvp = s.rsvp.filter(id => id !== eventId);
+    const declined = s.declined.filter(id => id !== eventId);
+    persistResponses(rsvp, declined);
+    return { ...s, rsvp, declined };
   });
 }
 

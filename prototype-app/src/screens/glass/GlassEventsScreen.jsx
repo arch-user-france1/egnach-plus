@@ -5,6 +5,7 @@ import IconButton from '../../components/IconButton.jsx';
 import Photo from '../../components/Photo.jsx';
 import Icon from '../../components/Icon.jsx';
 import { GlassShell, abPanel } from '../../components/glass/index.js';
+import EventCalendar from './EventCalendar.jsx';
 import { useStore } from '../../hooks/useStore.js';
 import { useLayoutVariant } from '../../hooks/useLayoutVariant.js';
 import { track } from '../../model/analytics.js';
@@ -107,49 +108,53 @@ export default function GlassEventsScreen() {
           ))}
         </HScroll>
 
-        {Object.entries(byDay).map(([day, events]) => (
-          <div key={day}>
-            <div style={{ padding: '18px 16px 8px', display: 'flex', alignItems: 'center', gap: 8 }}>
-              <span style={{ fontFamily: 'var(--font)', fontSize: 12, fontWeight: 700, color: 'var(--ink-2)', letterSpacing: 0.5, textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{getDayLabel(day, state.events)}</span>
-              <div style={{ flex: 1, height: 1, background: 'color-mix(in srgb, var(--line) 70%, transparent)' }} />
-            </div>
-            <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
-              {events.map((e) => {
-                const attending = state.rsvp.includes(e.id);
-                return (
-                  <div key={e.id} onClick={() => navigate(`/anlaesse/${e.id}`)} style={{ borderRadius: 'var(--radius)', overflow: 'hidden', cursor: 'pointer', ...abPanel }}>
-                    <div style={{ position: 'relative' }}>
-                      <Photo width="100%" height={100} tone={e.tone} radius={0} hint={e.cats[0]} />
-                      <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(15,30,55,0.12) 0%, rgba(15,30,55,0) 55%)' }} />
-                      <div style={{ position: 'absolute', top: 10, left: 10, borderRadius: 14, padding: '6px 11px', textAlign: 'center', ...abPanel }}>
-                        <div style={{ fontFamily: 'var(--font)', fontSize: 9, fontWeight: 700, color: 'var(--accent)', letterSpacing: 1 }}>{e.month}</div>
-                        <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700, color: 'var(--ink)', lineHeight: 1, marginTop: 1 }}>{e.day}</div>
-                      </div>
-                      <div style={{ position: 'absolute', top: 12, right: 12, borderRadius: 999, padding: '4px 10px', fontFamily: 'var(--font)', fontSize: 11, fontWeight: 700, color: 'var(--ink)', ...abPanel }}>{String(e.time).split('–')[0]}</div>
-                    </div>
-                    <div style={{ padding: '11px 12px 12px' }}>
-                      <div style={{ fontFamily: 'var(--font-display)', fontSize: 15.5, fontWeight: 700, color: 'var(--ink)', lineHeight: 1.25 }}>{e.title}</div>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
-                        <Icon name="pin" size={11} color="var(--ink-3)" stroke={2} />
-                        <span style={{ fontFamily: 'var(--font)', fontSize: 11, color: 'var(--ink-3)' }}>{e.location}</span>
-                      </div>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginTop: 10 }}>
-                        <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
-                          {e.cats.map((c, ci) => <CatChip key={ci} name={c} size="sm" />)}
+        {view === 'calendar' ? (
+          <EventCalendar events={filtered} state={state} actions={actions} navigate={navigate} />
+        ) : (
+          Object.entries(byDay).map(([day, events]) => (
+            <div key={day}>
+              <div style={{ padding: '18px 16px 8px', display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{ fontFamily: 'var(--font)', fontSize: 12, fontWeight: 700, color: 'var(--ink-2)', letterSpacing: 0.5, textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{getDayLabel(day, state.events)}</span>
+                <div style={{ flex: 1, height: 1, background: 'color-mix(in srgb, var(--line) 70%, transparent)' }} />
+              </div>
+              <div style={{ padding: '0 16px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                {events.map((e) => {
+                  const attending = state.rsvp.includes(e.id);
+                  return (
+                    <div key={e.id} onClick={() => navigate(`/anlaesse/${e.id}`)} style={{ borderRadius: 'var(--radius)', overflow: 'hidden', cursor: 'pointer', ...abPanel }}>
+                      <div style={{ position: 'relative' }}>
+                        <Photo width="100%" height={100} tone={e.tone} radius={0} hint={e.cats[0]} />
+                        <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(180deg, rgba(15,30,55,0.12) 0%, rgba(15,30,55,0) 55%)' }} />
+                        <div style={{ position: 'absolute', top: 10, left: 10, borderRadius: 14, padding: '6px 11px', textAlign: 'center', ...abPanel }}>
+                          <div style={{ fontFamily: 'var(--font)', fontSize: 9, fontWeight: 700, color: 'var(--accent)', letterSpacing: 1 }}>{e.month}</div>
+                          <div style={{ fontFamily: 'var(--font-display)', fontSize: 18, fontWeight: 700, color: 'var(--ink)', lineHeight: 1, marginTop: 1 }}>{e.day}</div>
                         </div>
-                        <button
-                          onClick={(ev) => { ev.stopPropagation(); actions.toggleRsvp(e.id); }}
-                          className="ab-press"
-                          style={{ height: 32, padding: '0 14px', borderRadius: 16, border: 'none', background: attending ? 'var(--ink)' : 'var(--primary)', color: '#fff', fontFamily: 'var(--font)', fontWeight: 700, fontSize: 12, cursor: 'pointer', flexShrink: 0 }}
-                        >{attending ? 'Dabei ✓' : 'Dabei'}</button>
+                        <div style={{ position: 'absolute', top: 12, right: 12, borderRadius: 999, padding: '4px 10px', fontFamily: 'var(--font)', fontSize: 11, fontWeight: 700, color: 'var(--ink)', ...abPanel }}>{String(e.time).split('–')[0]}</div>
+                      </div>
+                      <div style={{ padding: '11px 12px 12px' }}>
+                        <div style={{ fontFamily: 'var(--font-display)', fontSize: 15.5, fontWeight: 700, color: 'var(--ink)', lineHeight: 1.25 }}>{e.title}</div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 4, marginTop: 4 }}>
+                          <Icon name="pin" size={11} color="var(--ink-3)" stroke={2} />
+                          <span style={{ fontFamily: 'var(--font)', fontSize: 11, color: 'var(--ink-3)' }}>{e.location}</span>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8, marginTop: 10 }}>
+                          <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
+                            {e.cats.map((c, ci) => <CatChip key={ci} name={c} size="sm" />)}
+                          </div>
+                          <button
+                            onClick={(ev) => { ev.stopPropagation(); actions.toggleRsvp(e.id); }}
+                            className="ab-press"
+                            style={{ height: 32, padding: '0 14px', borderRadius: 16, border: 'none', background: attending ? 'var(--ink)' : 'var(--primary)', color: '#fff', fontFamily: 'var(--font)', fontWeight: 700, fontSize: 12, cursor: 'pointer', flexShrink: 0 }}
+                          >{attending ? 'Dabei ✓' : 'Dabei'}</button>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                );
-              })}
+                  );
+                })}
+              </div>
             </div>
-          </div>
-        ))}
+          ))
+        )}
         <div style={{ height: 12 }} />
       </GlassShell>
 
