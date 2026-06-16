@@ -46,7 +46,12 @@ export default function ProfileScreen() {
   const navigate = useNavigate();
   const { state, actions } = useStore();
   const activeVariant = useLayoutVariant();
+  const [einfach, setEinfach] = useState(false);
   const [notifs, setNotifs] = useState(true);
+  const [notifChat, setNotifChat] = useState(true);
+  const [notifEvents, setNotifEvents] = useState(true);
+  const [notifMarket, setNotifMarket] = useState(false);
+  const [notifWeekly, setNotifWeekly] = useState(true);
   const [autoTranslate, setAutoTranslate] = useState(true);
   const bigText = state.textScale > 1;
   const [highContrast, setHighContrast] = useState(false);
@@ -198,7 +203,21 @@ export default function ProfileScreen() {
 
         <div style={{ padding: '16px 16px 6px', fontFamily: 'var(--font)', fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', letterSpacing: 1 }}>EINSTELLUNGEN</div>
         <Card padding={0} style={{ margin: '0 16px' }}>
+          <Row icon="info" label="Einfach-Modus" value="Nur die wichtigsten Funktionen anzeigen" toggleOn={einfach} onToggle={setEinfach} />
           <Row icon="bell" label="Benachrichtigungen" toggleOn={notifs} onToggle={setNotifs} />
+          {notifs && !einfach && (
+            [
+              { label: 'Nachrichten',          on: notifChat,   set: setNotifChat },
+              { label: 'Anlässe in der Nähe',  on: notifEvents, set: setNotifEvents },
+              { label: 'Marktplatz-Antworten', on: notifMarket, set: setNotifMarket },
+              { label: 'Wochenübersicht',      on: notifWeekly, set: setNotifWeekly },
+            ].map((r) => (
+              <div key={r.label} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 16px 10px 52px', borderBottom: '1px solid var(--line)' }}>
+                <div style={{ flex: 1, fontFamily: 'var(--font)', fontSize: 13, fontWeight: 500, color: 'var(--ink)' }}>{r.label}</div>
+                <Switch on={r.on} size="sm" onChange={r.set} />
+              </div>
+            ))
+          )}
           <Row icon="globe" label="Sprache & Region" value="Deutsch · Schweiz" onClick={() => { }} />
           <Row icon="language" label="Auto-Übersetzung" value="EN, SQ, IT" toggleOn={autoTranslate} onToggle={setAutoTranslate} />
           <Row icon="pin" label="Mein Quartier" value={state.user.neighborhood} onClick={() => { }} last />
@@ -222,7 +241,6 @@ export default function ProfileScreen() {
           <Row icon="shield" label="Verifizierung" value="Verifiziert" onClick={() => navigate('/verify')} />
           <Row icon="lock" label="Passkey verwalten" onClick={() => { }} />
           <Row icon="calendar" label="Verfügbarkeit" onClick={() => navigate('/verfuegbarkeit')} />
-          <Row icon="info" label="Einstellungen" onClick={() => navigate('/einstellungen')} />
           <Row icon="info" label="Hilfe & Support" onClick={() => { }} last />
         </Card>
 

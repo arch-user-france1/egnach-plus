@@ -28,7 +28,6 @@ import ProfileScreen       from './screens/ProfileScreen.jsx';
 import AvailabilityScreen  from './screens/AvailabilityScreen.jsx';
 import CreateEventScreen   from './screens/CreateEventScreen.jsx';
 import EditListingScreen   from './screens/EditListingScreen.jsx';
-import SettingsScreen      from './screens/SettingsScreen.jsx';
 
 // Variante B (Glass) — neu gestaltete Browse-Screens des A/B-Tests
 import GlassHomeScreen        from './screens/glass/GlassHomeScreen.jsx';
@@ -55,7 +54,7 @@ function glassNavTab(pathname) {
   if (pathname.startsWith('/marktplatz') || pathname.startsWith('/inserat')) return 1;
   if (pathname.startsWith('/anlaesse') || pathname.startsWith('/anlass'))    return 2;
   if (pathname.startsWith('/chat'))                                          return 3;
-  if (pathname.startsWith('/profil') || pathname.startsWith('/einstellungen') || pathname.startsWith('/verfuegbarkeit')) return 4;
+  if (pathname.startsWith('/profil') || pathname.startsWith('/verfuegbarkeit')) return 4;
   if (pathname.startsWith('/home') || pathname.startsWith('/karte') || pathname.startsWith('/map')) return 0;
   return -1;
 }
@@ -116,7 +115,6 @@ function AnimatedRoutes() {
               <Route path="/chat/:threadId" element={<ChatScreen />} />
               <Route path="/profil"        element={<ProfileScreen />} />
               <Route path="/verfuegbarkeit" element={<AvailabilityScreen />} />
-              <Route path="/einstellungen" element={<SettingsScreen />} />
               <Route path="*"              element={<Navigate to="/" replace />} />
             </Routes>
           </motion.div>
