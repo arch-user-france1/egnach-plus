@@ -1,6 +1,5 @@
 import { useNavigate } from 'react-router-dom';
 import { Screen, Body, HelpButton, HelpSheet, Toast, ConfirmDialog } from '../components/index.js';
-import IconButton from '../components/IconButton.jsx';
 import Avatar from '../components/Avatar.jsx';
 import Badge from '../components/Badge.jsx';
 import Card from '../components/Card.jsx';
@@ -8,8 +7,10 @@ import Chip from '../components/Chip.jsx';
 import Switch from '../components/Switch.jsx';
 import Button from '../components/Button.jsx';
 import Icon from '../components/Icon.jsx';
+import GlassHelpFab from '../components/glass/GlassHelpFab.jsx';
 import { useState } from 'react';
 import { useStore } from '../hooks/useStore.js';
+import { useLayoutVariant } from '../hooks/useLayoutVariant.js';
 
 function Row({ icon, label, value, toggleOn, onToggle, last, onClick }) {
   return (
@@ -45,7 +46,13 @@ const HELP_ITEMS = [
 export default function ProfileScreen() {
   const navigate = useNavigate();
   const { state, actions } = useStore();
+  const activeVariant = useLayoutVariant();
+  const [einfach, setEinfach] = useState(false);
   const [notifs, setNotifs] = useState(true);
+  const [notifChat, setNotifChat] = useState(true);
+  const [notifEvents, setNotifEvents] = useState(true);
+  const [notifMarket, setNotifMarket] = useState(false);
+  const [notifWeekly, setNotifWeekly] = useState(true);
   const [autoTranslate, setAutoTranslate] = useState(true);
   const bigText = state.textScale > 1;
   const [highContrast, setHighContrast] = useState(false);
@@ -57,10 +64,7 @@ export default function ProfileScreen() {
     <Screen background="var(--surface)">
       <div style={{ padding: '10px 16px 8px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
         <h1 style={{ margin: 0, fontFamily: 'var(--font-display)', fontSize: 24, fontWeight: 700, letterSpacing: -0.4, color: 'var(--ink)' }}>Profil</h1>
-        <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <IconButton name="options" label="Einstellungen" />
-          <HelpButton onClick={() => setHelp(true)} />
-        </div>
+        {activeVariant !== 'glass' && <HelpButton onClick={() => setHelp(true)} />}
       </div>
 
       <Body>
@@ -87,6 +91,48 @@ export default function ProfileScreen() {
             <div style={{ flex: 1 }}><Button full size="md" variant="outline" leading={<Icon name="share" size={14} />}>Teilen</Button></div>
           </div>
         </div>
+
+        {/* App-Ansicht (A/B-Layout) — gross, beschriftet und in einfacher Sprache,
+            damit auch weniger technikaffine Personen sofort verstehen, was passiert. */}
+        <div style={{ padding: '4px 16px 8px', fontFamily: 'var(--font)', fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', letterSpacing: 1 }}>ANSICHT</div>
+        <Card padding={0} style={{ margin: '0 16px' }}>
+          <div style={{ padding: '14px 16px' }}>
+            <div style={{ fontFamily: 'var(--font)', fontSize: 15, fontWeight: 700, color: 'var(--ink)' }}>Wie soll die App aussehen?</div>
+            <div style={{ fontFamily: 'var(--font)', fontSize: 12.5, color: 'var(--ink-3)', marginTop: 3, lineHeight: 1.45 }}>
+              Tippe auf ein Design. Die App ändert sich sofort — du kannst jederzeit zurückwechseln.
+            </div>
+            <div style={{ display: 'flex', gap: 10, marginTop: 14 }}>
+              {[
+                { v: 'classic', label: 'Klassisch', hint: 'Gewohnt' },
+                { v: 'glass',   label: 'Glas',      hint: 'Neu' },
+              ].map((o) => {
+                const active = activeVariant === o.v;
+                return (
+                  <button
+                    key={o.v}
+                    onClick={() => actions.setLayoutOverride(o.v)}
+                    aria-pressed={active}
+                    style={{
+                      flex: 1, padding: '12px 8px', borderRadius: 'var(--radius)', cursor: 'pointer',
+                      border: `2px solid ${active ? 'var(--primary)' : 'var(--line)'}`,
+                      background: active ? 'var(--primary-tint)' : 'var(--card)',
+                      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 4,
+                    }}
+                  >
+                    <span style={{ fontFamily: 'var(--font)', fontSize: 15, fontWeight: 700, color: active ? 'var(--primary-ink)' : 'var(--ink)' }}>{o.label}</span>
+                    <span style={{
+                      fontFamily: 'var(--font)', fontSize: 11, fontWeight: 600,
+                      color: active ? 'var(--primary)' : 'var(--ink-3)',
+                      display: 'inline-flex', alignItems: 'center', gap: 4,
+                    }}>
+                      {active ? <><Icon name="check" size={12} stroke={3} color="var(--primary)" /> Aktiv</> : o.hint}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </Card>
 
         {/* Meine Ausschreibungen */}
         {(() => {
@@ -158,7 +204,21 @@ export default function ProfileScreen() {
 
         <div style={{ padding: '16px 16px 6px', fontFamily: 'var(--font)', fontSize: 11, fontWeight: 700, color: 'var(--ink-3)', letterSpacing: 1 }}>EINSTELLUNGEN</div>
         <Card padding={0} style={{ margin: '0 16px' }}>
+          <Row icon="info" label="Einfach-Modus" value="Nur die wichtigsten Funktionen anzeigen" toggleOn={einfach} onToggle={setEinfach} />
           <Row icon="bell" label="Benachrichtigungen" toggleOn={notifs} onToggle={setNotifs} />
+          {notifs && !einfach && (
+            [
+              { label: 'Nachrichten',          on: notifChat,   set: setNotifChat },
+              { label: 'Anlässe in der Nähe',  on: notifEvents, set: setNotifEvents },
+              { label: 'Marktplatz-Antworten', on: notifMarket, set: setNotifMarket },
+              { label: 'Wochenübersicht',      on: notifWeekly, set: setNotifWeekly },
+            ].map((r) => (
+              <div key={r.label} style={{ display: 'flex', alignItems: 'center', gap: 12, padding: '10px 16px 10px 52px', borderBottom: '1px solid var(--line)' }}>
+                <div style={{ flex: 1, fontFamily: 'var(--font)', fontSize: 13, fontWeight: 500, color: 'var(--ink)' }}>{r.label}</div>
+                <Switch on={r.on} size="sm" onChange={r.set} />
+              </div>
+            ))
+          )}
           <Row icon="globe" label="Sprache & Region" value="Deutsch · Schweiz" onClick={() => { }} />
           <Row icon="language" label="Auto-Übersetzung" value="EN, SQ, IT" toggleOn={autoTranslate} onToggle={setAutoTranslate} />
           <Row icon="pin" label="Mein Quartier" value={state.user.neighborhood} onClick={() => { }} last />
@@ -182,7 +242,6 @@ export default function ProfileScreen() {
           <Row icon="shield" label="Verifizierung" value="Verifiziert" onClick={() => navigate('/verify')} />
           <Row icon="lock" label="Passkey verwalten" onClick={() => { }} />
           <Row icon="calendar" label="Verfügbarkeit" onClick={() => navigate('/verfuegbarkeit')} />
-          <Row icon="info" label="Einstellungen" onClick={() => navigate('/einstellungen')} />
           <Row icon="info" label="Hilfe & Support" onClick={() => { }} last />
         </Card>
 
@@ -199,6 +258,8 @@ export default function ProfileScreen() {
         <div style={{ textAlign: 'center', padding: '0 16px 16px', fontFamily: 'var(--font)', fontSize: 10, color: 'var(--ink-3)' }}>
           Egnach Plus · v1.0.0 · Gemeinde Egnach
         </div>
+        {/* Glass: Inhalt über der schwebenden Navigation freihalten. */}
+        {activeVariant === 'glass' && <div style={{ height: 96 }} />}
       </Body>
 
       <HelpSheet open={help} onClose={() => setHelp(false)} title="Profil" intro="Verwalte dein Profil und deine Einstellungen." items={HELP_ITEMS} />
@@ -212,6 +273,7 @@ export default function ProfileScreen() {
         cancelLabel="Abbrechen"
         confirmLabel="Abmelden"
       />
+      {activeVariant === 'glass' && <GlassHelpFab onClick={() => setHelp(true)} />}
     </Screen>
   );
 }

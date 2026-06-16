@@ -9,7 +9,10 @@ import Mark from '../components/Mark.jsx';
 import Chip from '../components/Chip.jsx';
 import Photo from '../components/Photo.jsx';
 import Icon from '../components/Icon.jsx';
+import GlassHelpFab from '../components/glass/GlassHelpFab.jsx';
 import { useStore } from '../hooks/useStore.js';
+import { useLayoutVariant } from '../hooks/useLayoutVariant.js';
+import { useGlassPageActions } from '../components/glass/GlassChrome.jsx';
 
 const HELP_ITEMS = [
   { icon: 'check',    title: 'Teilnehmen',          text: 'Tippe auf «Teilnehmen», um deine Anmeldung zu bestätigen. Du kannst dich jederzeit abmelden.' },
@@ -33,7 +36,15 @@ export default function EventDetailScreen() {
     if (!wasGoing) setToast(true);
   }
 
+  // Glass-Variante: Haupt-Aktion in der immer sichtbaren unteren Leiste.
+  const isGlass = useLayoutVariant() === 'glass';
+  useGlassPageActions([
+    { key: 'share', label: 'Teilen', icon: 'share', tone: 'secondary', onClick: () => {} },
+    { key: 'rsvp', label: isGoing ? 'Abmelden' : 'Teilnehmen', icon: 'check', tone: isGoing ? 'secondary' : 'primary', onClick: handleRsvp },
+  ], isGlass);
+
   return (
+    <>
     <Screen background="var(--surface)" style={{ overflowY: 'auto' }}>
       <div style={{ position: 'relative', height: 240, flexShrink: 0 }}>
         <Photo width="100%" height={240} radius={0} tone={event.tone} hint={event.title} />
@@ -49,9 +60,11 @@ export default function EventDetailScreen() {
             <button style={{ width: 40, height: 40, borderRadius: 20, background: 'rgba(255,255,255,0.92)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', color: isGoing ? 'var(--danger)' : 'var(--ink)' }} aria-label="Merken">
               <Icon name="heart" size={18} color={isGoing ? 'var(--danger)' : 'currentColor'} />
             </button>
-            <button onClick={() => setHelp(true)} style={{ width: 40, height: 40, borderRadius: 20, background: 'rgba(255,255,255,0.92)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontFamily: 'var(--font)', fontSize: 16, fontWeight: 700, color: 'var(--ink-2)' }} aria-label="Hilfe">
-              ?
-            </button>
+            {!isGlass && (
+              <button onClick={() => setHelp(true)} style={{ width: 40, height: 40, borderRadius: 20, background: 'rgba(255,255,255,0.92)', border: 'none', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', fontFamily: 'var(--font)', fontSize: 16, fontWeight: 700, color: 'var(--ink-2)' }} aria-label="Hilfe">
+                ?
+              </button>
+            )}
           </div>
         </div>
         <div style={{ position: 'absolute', left: 18, right: 18, bottom: 14 }}>
@@ -129,24 +142,28 @@ export default function EventDetailScreen() {
 
       <div style={{ height: 100 }} />
 
-      <div style={{ position: 'sticky', bottom: 0, padding: '12px 16px 22px', background: 'var(--card)', borderTop: '1px solid var(--line)', display: 'flex', gap: 10 }}>
-        <button style={{ width: 48, height: 48, borderRadius: 'var(--radius-sm)', border: '1.5px solid var(--line-2)', background: 'var(--card)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }} aria-label="Teilen">
-          <Icon name="share" size={18} />
-        </button>
-        <div style={{ flex: 1 }}>
-          <Button
-            full size="lg"
-            variant={isGoing ? 'outline' : 'primary'}
-            leading={<Icon name={isGoing ? 'check' : 'check'} size={18} color={isGoing ? 'var(--ink)' : '#fff'} stroke={2.2} />}
-            onClick={handleRsvp}
-          >
-            {isGoing ? 'Abmelden' : 'Teilnehmen'}
-          </Button>
+      {!isGlass && (
+        <div style={{ position: 'sticky', bottom: 0, padding: '12px 16px 22px', background: 'var(--card)', borderTop: '1px solid var(--line)', display: 'flex', gap: 10 }}>
+          <button style={{ width: 48, height: 48, borderRadius: 'var(--radius-sm)', border: '1.5px solid var(--line-2)', background: 'var(--card)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }} aria-label="Teilen">
+            <Icon name="share" size={18} />
+          </button>
+          <div style={{ flex: 1 }}>
+            <Button
+              full size="lg"
+              variant={isGoing ? 'outline' : 'primary'}
+              leading={<Icon name={isGoing ? 'check' : 'check'} size={18} color={isGoing ? 'var(--ink)' : '#fff'} stroke={2.2} />}
+              onClick={handleRsvp}
+            >
+              {isGoing ? 'Abmelden' : 'Teilnehmen'}
+            </Button>
+          </div>
         </div>
-      </div>
+      )}
 
       <HelpSheet open={help} onClose={() => setHelp(false)} title="Anlass" intro="Alles, was du über diesen Anlass wissen musst." items={HELP_ITEMS} />
       <Toast open={toast} onClose={() => setToast(false)} tone="success" title="Du bist dabei!" msg={`Anmeldung für «${event.title}» bestätigt.`} />
     </Screen>
+    {isGlass && <GlassHelpFab onClick={() => setHelp(true)} />}
+    </>
   );
 }

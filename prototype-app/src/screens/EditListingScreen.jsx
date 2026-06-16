@@ -6,7 +6,10 @@ import IconButton from '../components/IconButton.jsx';
 import Button from '../components/Button.jsx';
 import Field from '../components/Field.jsx';
 import Icon from '../components/Icon.jsx';
+import GlassHelpFab from '../components/glass/GlassHelpFab.jsx';
 import { useStore } from '../hooks/useStore.js';
+import { useLayoutVariant } from '../hooks/useLayoutVariant.js';
+import { useGlassPageActions } from '../components/glass/GlassChrome.jsx';
 
 const TYPES = [
   { icon: 'briefcase', label: 'Leihen' },
@@ -52,6 +55,13 @@ export default function EditListingScreen() {
   const [errors, setErrors] = useState({});
   const [confirm, setConfirm] = useState(false);
   const [help, setHelp] = useState(false);
+  const isGlass = useLayoutVariant() === 'glass';
+
+  // Glass-Variante: Haupt-Aktionen in der immer sichtbaren unteren Leiste.
+  useGlassPageActions([
+    { key: 'cancel', label: 'Abbrechen', icon: 'close', tone: 'secondary', onClick: () => navigate(-1) },
+    { key: 'save', label: 'Speichern', icon: 'check', tone: 'primary', onClick: () => handleSave() },
+  ], isGlass && !!listing);
 
   if (!listing) {
     navigate(-1);
@@ -95,7 +105,7 @@ export default function EditListingScreen() {
       <TopBar
         leading={<IconButton name="back" onClick={() => navigate(-1)} label="Zurück" />}
         title="Inserat bearbeiten"
-        onHelp={() => setHelp(true)}
+        onHelp={isGlass ? undefined : () => setHelp(true)}
       />
 
       <Body padding="16px 18px 24px">
@@ -181,12 +191,16 @@ export default function EditListingScreen() {
             Inserat löschen
           </button>
         </div>
+        {/* Glass: Inhalt über der schwebenden Leiste freihalten. */}
+        {isGlass && <div style={{ height: 96 }} />}
       </Body>
 
-      <div style={{ padding: '12px 16px 22px', borderTop: '1px solid var(--line)', background: 'var(--card)', display: 'flex', gap: 10, flexShrink: 0 }}>
-        <div style={{ flex: 1 }}><Button full size="lg" variant="outline" onClick={() => navigate(-1)}>Abbrechen</Button></div>
-        <div style={{ flex: 1 }}><Button full size="lg" onClick={handleSave}>Speichern</Button></div>
-      </div>
+      {!isGlass && (
+        <div style={{ padding: '12px 16px 22px', borderTop: '1px solid var(--line)', background: 'var(--card)', display: 'flex', gap: 10, flexShrink: 0 }}>
+          <div style={{ flex: 1 }}><Button full size="lg" variant="outline" onClick={() => navigate(-1)}>Abbrechen</Button></div>
+          <div style={{ flex: 1 }}><Button full size="lg" onClick={handleSave}>Speichern</Button></div>
+        </div>
+      )}
 
       <ConfirmDialog
         open={confirm}
@@ -206,6 +220,7 @@ export default function EditListingScreen() {
         intro="Hier kannst du dein Inserat anpassen oder löschen."
         items={HELP_ITEMS}
       />
+      {isGlass && <GlassHelpFab onClick={() => setHelp(true)} />}
     </Screen>
   );
 }

@@ -5,9 +5,12 @@ import { Screen, Body, HelpButton, HelpSheet } from '../components/index.js';
 import IconButton from '../components/IconButton.jsx';
 import Avatar from '../components/Avatar.jsx';
 import Icon from '../components/Icon.jsx';
+import GlassHelpFab from '../components/glass/GlassHelpFab.jsx';
 import { useStore } from '../hooks/useStore.js';
+import { useLayoutVariant } from '../hooks/useLayoutVariant.js';
 
 const HELP_ITEMS = [
+  { icon: 'store',    title: 'Direkt aus dem Marktplatz', text: 'Der Chat ist mit dem Marktplatz verbunden: Du kannst ein Inserat direkt anfragen und die Zahlung bequem im Chat abschliessen — alles an einem Ort.' },
   { icon: 'chat',     title: 'Unterhaltungen',    text: 'Hier siehst du alle deine Chats mit Nachbarn auf einen Blick.' },
   { icon: 'language', title: 'Auto-Übersetzung',  text: 'In jedem Chat kannst du Nachrichten automatisch auf Deutsch übersetzen lassen.' },
   { icon: 'search',   title: 'Chat finden',       text: 'Suche nach einer Person, um eine bestehende Unterhaltung zu öffnen.' },
@@ -31,8 +34,13 @@ export default function ChatListScreen() {
   const navigate = useNavigate();
   const { state } = useStore();
   const [help, setHelp] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [query, setQuery] = useState('');
+  const isGlass = useLayoutVariant() === 'glass';
 
-  const threads = state.chatThreads;
+  const q = query.trim().toLowerCase();
+  const threads = state.chatThreads.filter(t =>
+    !q || [t.name, preview(t)].some(v => String(v ?? '').toLowerCase().includes(q)));
   const unreadTotal = threads.reduce((n, t) => n + (t.unread || 0), 0);
 
   return (
@@ -45,12 +53,32 @@ export default function ChatListScreen() {
           </div>
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-          <IconButton name="search" label="Suchen" />
-          <HelpButton onClick={() => setHelp(true)} />
+          <IconButton name="search" label="Chats suchen" badge={query ? '•' : undefined} onClick={() => setSearchOpen(o => { if (o) setQuery(''); return !o; })} />
+          {!isGlass && <HelpButton onClick={() => setHelp(true)} />}
         </div>
       </div>
 
       <Body>
+        {searchOpen && (
+          <div style={{ padding: '6px 16px 4px' }}>
+            <div style={{ height: 44, borderRadius: 22, background: 'var(--card)', border: '1px solid var(--line)', padding: '0 16px', display: 'flex', alignItems: 'center', gap: 10 }}>
+              <Icon name="search" size={18} color="var(--ink-3)" />
+              <input
+                autoFocus
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
+                placeholder="Unterhaltungen durchsuchen…"
+                aria-label="Unterhaltungen durchsuchen"
+                style={{ flex: 1, minWidth: 0, border: 'none', outline: 'none', background: 'transparent', fontFamily: 'var(--font)', fontSize: 14, color: 'var(--ink)' }}
+              />
+              {query && (
+                <button onClick={() => setQuery('')} aria-label="Suche löschen" style={{ width: 24, height: 24, borderRadius: 12, border: 'none', background: 'var(--surface-2)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer', flexShrink: 0 }}>
+                  <Icon name="close" size={12} stroke={2} color="var(--ink-2)" />
+                </button>
+              )}
+            </div>
+          </div>
+        )}
         <motion.div variants={stagger} initial="hidden" animate="visible" style={{ padding: '6px 12px 0', display: 'flex', flexDirection: 'column' }}>
           {threads.map(thread => (
             <motion.div key={thread.id} variants={rowItem}>
@@ -96,10 +124,19 @@ export default function ChatListScreen() {
           ))}
         </motion.div>
 
-        <div style={{ height: 80 }} />
+        {threads.length === 0 && (
+          <div style={{ margin: '8px 16px', padding: '28px 16px', borderRadius: 'var(--radius)', background: 'var(--card)', border: '1px dashed var(--line-2)', textAlign: 'center' }}>
+            <Icon name="search" size={24} color="var(--ink-3)" stroke={1.6} />
+            <div style={{ fontFamily: 'var(--font)', fontSize: 13, fontWeight: 600, color: 'var(--ink)', marginTop: 8 }}>Keine Unterhaltungen gefunden</div>
+            <div style={{ fontFamily: 'var(--font)', fontSize: 12, color: 'var(--ink-3)', marginTop: 4 }}>Versuche einen anderen Namen.</div>
+          </div>
+        )}
+
+        <div style={{ height: 96 }} />
       </Body>
 
       <HelpSheet open={help} onClose={() => setHelp(false)} title="Chat" intro="Deine Unterhaltungen mit Nachbarn in Egnach Plus." items={HELP_ITEMS} />
+      {isGlass && <GlassHelpFab onClick={() => setHelp(true)} />}
     </Screen>
   );
 }

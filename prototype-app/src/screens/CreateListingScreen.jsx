@@ -10,7 +10,10 @@ import DatePicker from '../components/DatePicker.jsx';
 import HelpBanner from '../components/HelpBanner.jsx';
 import Photo from '../components/Photo.jsx';
 import Icon from '../components/Icon.jsx';
+import GlassHelpFab from '../components/glass/GlassHelpFab.jsx';
 import { useStore } from '../hooks/useStore.js';
+import { useLayoutVariant } from '../hooks/useLayoutVariant.js';
+import { useGlassPageActions } from '../components/glass/GlassChrome.jsx';
 
 const TYPES = [
   { icon: 'briefcase', label: 'Leihen' },
@@ -64,6 +67,15 @@ export default function CreateListingScreen() {
   const [errors, setErrors] = useState({});
   const [help, setHelp] = useState(false);
   const [draftToast, setDraftToast] = useState(false);
+  const isGlass = useLayoutVariant() === 'glass';
+
+  // Glass-Variante: Haupt-Aktionen wandern in die immer sichtbare untere Leiste.
+  useGlassPageActions([
+    { key: 'back', label: step === 0 ? 'Entwurf' : 'Zurück', icon: step === 0 ? 'check' : 'back', tone: 'secondary',
+      onClick: () => { if (step === 0) setDraftToast(true); else go(-1); } },
+    { key: 'next', label: step === 1 ? 'Publizieren' : 'Weiter', icon: step === 1 ? 'check' : 'arrowSmall', tone: 'primary',
+      onClick: handleNext },
+  ], isGlass && step !== 2);
 
   const set = (k) => (e) => {
     setForm(f => ({ ...f, [k]: e.target.value }));
@@ -153,7 +165,7 @@ export default function CreateListingScreen() {
         leading={<IconButton name="close" onClick={() => navigate(-1)} label="Schliessen" />}
         title="Neues Inserat"
         trailing={<span style={{ fontFamily: 'var(--font)', fontSize: 13, fontWeight: 600, color: 'var(--ink-2)' }}>Entwurf</span>}
-        onHelp={() => setHelp(true)}
+        onHelp={isGlass ? undefined : () => setHelp(true)}
       />
 
       <Body padding="14px 18px 20px">
@@ -312,21 +324,26 @@ export default function CreateListingScreen() {
             </>}
           </motion.div>
         </AnimatePresence>
+        {/* Glass: Inhalt über der schwebenden Leiste freihalten. */}
+        {isGlass && <div style={{ height: 96 }} />}
       </Body>
 
-      <div style={{ padding: '12px 16px 22px', borderTop: '1px solid var(--line)', background: 'var(--card)', display: 'flex', gap: 10, flexShrink: 0 }}>
-        <div style={{ flex: 1 }}>
-          <Button full size="lg" variant="outline" onClick={() => { if (step === 0) setDraftToast(true); else go(-1); }}>
-            {step === 0 ? 'Entwurf speichern' : 'Zurück'}
-          </Button>
+      {!isGlass && (
+        <div style={{ padding: '12px 16px 22px', borderTop: '1px solid var(--line)', background: 'var(--card)', display: 'flex', gap: 10, flexShrink: 0 }}>
+          <div style={{ flex: 1 }}>
+            <Button full size="lg" variant="outline" onClick={() => { if (step === 0) setDraftToast(true); else go(-1); }}>
+              {step === 0 ? 'Entwurf speichern' : 'Zurück'}
+            </Button>
+          </div>
+          <div style={{ flex: 1 }}>
+            <Button full size="lg" trailing={<Icon name="arrowSmall" size={18} color="#fff" stroke={2.2} />} onClick={handleNext}>
+              {step === 1 ? 'Publizieren' : 'Weiter'}
+            </Button>
+          </div>
         </div>
-        <div style={{ flex: 1 }}>
-          <Button full size="lg" trailing={<Icon name="arrowSmall" size={18} color="#fff" stroke={2.2} />} onClick={handleNext}>
-            {step === 1 ? 'Publizieren' : 'Weiter'}
-          </Button>
-        </div>
-      </div>
+      )}
       <HelpSheet open={help} onClose={() => setHelp(false)} title="Inserat erstellen" intro="So erstellst du ein Inserat auf dem Marktplatz." items={HELP_ITEMS} />
+      {isGlass && <GlassHelpFab onClick={() => setHelp(true)} />}
       <Toast open={draftToast} onClose={() => setDraftToast(false)} tone="info" title="Entwurf gespeichert" msg="Du kannst deinen Entwurf jederzeit weiter bearbeiten." />
     </Screen>
   );

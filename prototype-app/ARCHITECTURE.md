@@ -66,3 +66,28 @@ src/
 Lokaler UI-Zustand (z. B. welcher Schritt eines Formular-Wizards gerade
 sichtbar ist, ob ein Hilfe-Sheet offen ist) bleibt bewusst in der View
 (`useState`): Er ist reine Darstellungslogik und gehört nicht ins Model.
+
+## A/B-Test: Layout-Variante (Classic ↔ Glass)
+
+Der Prototyp unterstützt zwei Layouts derselben Daten und kann sie hinter
+einem Flag gegeneinander testen:
+
+- **Classic** — die bestehende Produktiv-Darstellung (fixe `TabBar`, opaker
+  Header, einspaltige Listen, oranger «+»-FAB je Screen).
+- **Glass (Variante B)** — getönte «Liquid-Glass»-Oberfläche mit schwebender
+  Pill-Navigation, Glas-Header/-Suche, dauerhaftem Hilfe-«?» und
+  kontextspezifischen Aktionen (`+ Inserat` / `+ Anlass`).
+
+| Schicht | Umsetzung |
+|---|---|
+| **Model** | `layoutOverride: 'system' \| 'classic' \| 'glass'` (persistiert). `resolveLayoutVariant()` löst die aktive Variante auf — Reihenfolge: 1. Nutzer-Override, 2. stabile A/B-Zuteilung (Hash der Nutzer-ID → 50/50), 3. Default `classic`. Telemetrie in `src/model/analytics.js`. |
+| **Controller** | `actions.setLayoutOverride(value)` |
+| **View** | `useLayoutVariant()` (Observer auf das Model). Der **AppShell** (`App.jsx`) entscheidet an genau **einer** Stelle: Glass-Variante → schwebende `GlassNav` + neu gestaltete Browse-Screens (`src/screens/glass/*`); Classic → fixe `TabBar` + bestehende Screens. Die Darstellung ist in `Einstellungen → Darstellung` umschaltbar (sofort, ohne Reload). |
+
+Die **Daten** (Inserate, Anlässe) sind in beiden Varianten identisch und kommen
+aus demselben Model; nur die Container/Chrome unterscheiden sich. Die
+Glas-Primitiven liegen in `src/components/glass/`, das geteilte Kategorie-Glyph-
+System (in **beiden** Varianten genutzt) in `src/components/glyphs.jsx`.
+Schlüssel-Funnel-Ereignisse (Hilfe geöffnet, Erstellen-Flow geöffnet, Teilnahme
+zugesagt …) werden mit der aktiven `layoutVariant` markiert, damit der A/B-Test
+messbar ist.

@@ -8,6 +8,7 @@
 // über die hier exportierten Domänen-Operationen, die der Controller aufruft.
 // ============================================================================
 import { LISTINGS, EVENTS, CHAT_THREADS, AVAILABILITY } from '../data/seed.js';
+import { track } from './analytics.js';
 
 const SAMPLE_OWN_LISTINGS = [
   {
@@ -31,8 +32,9 @@ const SAMPLE_OWN_LISTINGS = [
 // --- Persistenz -------------------------------------------------------------
 const STORAGE_KEYS = [
   'egnach_onboarded', 'egnach_user', 'egnach_lang', 'egnach_text_scale',
-  'egnach_favorites', 'egnach_rsvp', 'egnach_chat_messages',
+  'egnach_favorites', 'egnach_rsvp', 'egnach_declined', 'egnach_chat_messages',
   'egnach_availability', 'egnach_user_listings', 'egnach_user_events',
+  'egnach_layout_override', 'egnach_analytics',
 ];
 
 function load(key, fallback) {
@@ -54,11 +56,15 @@ let state = {
   textScale:    load('egnach_text_scale', 1),
   favorites:    load('egnach_favorites', []),
   rsvp:         load('egnach_rsvp', []),
+  declined:     load('egnach_declined', []),
   chatMessages: load('egnach_chat_messages', {}),
   availability: load('egnach_availability', AVAILABILITY),
   listings:     [...LISTINGS, ...load('egnach_user_listings', SAMPLE_OWN_LISTINGS)],
   events:       [...EVENTS,   ...load('egnach_user_events',   [])],
   chatThreads:  CHAT_THREADS,
+  // A/B-Test: vom Nutzer gewählte Layout-Darstellung. 'system' folgt der
+  // stabilen A/B-Zuteilung; 'classic'/'glas' überschreiben sie explizit.
+  layoutOverride: load('egnach_layout_override', 'system'),
 };
 
 // --- Observer ---------------------------------------------------------------
@@ -81,6 +87,37 @@ function setState(updater) {
 // Nutzer-erstellte Einträge sind die, die nicht aus den Seed-Daten stammen.
 const userListingsOf = (s) => s.listings.filter(l => !LISTINGS.find(sl => sl.id === l.id));
 const userEventsOf   = (s) => s.events.filter(e => !EVENTS.find(se => se.id === e.id));
+
+// --- A/B-Layout: Auflösung der aktiven Variante -----------------------------
+// Auflösungsreihenfolge (erster Treffer gewinnt):
+//   1. Nutzer-Override aus den Einstellungen ('classic' | 'glass')
+//   2. Stabile A/B-Zuteilung (Hash der Nutzer-ID → 50/50)
+//   3. Default 'classic' (bis das Experiment hochgefahren ist)
+function hashString(str) {
+  let h = 0;
+  for (let i = 0; i < str.length; i++) {
+    h = (h << 5) - h + str.charCodeAt(i);
+    h |= 0; // auf 32-Bit halten
+  }
+  return Math.abs(h);
+}
+
+// Stabil pro Nutzer: derselbe Bucket über alle Sessions (kein Flackern).
+function abAssignment(s) {
+  const key = s.user?.id || s.user?.name || 'anon';
+  return hashString(key) % 2 === 0 ? 'classic' : 'glass';
+}
+
+export function resolveLayoutVariant(s = state) {
+  const o = s.layoutOverride;
+  if (o === 'classic' || o === 'glass') return o;
+  return abAssignment(s);
+}
+
+/** Aktive Variante für die Analytik-Markierung (ohne Hook). */
+export function getLayoutVariant() {
+  return resolveLayoutVariant(state);
+}
 
 // --- Domänen-Operationen (werden vom Controller aufgerufen) ------------------
 export function completeOnboarding(lang) {
@@ -109,13 +146,74 @@ export function toggleFavorite(listingId) {
   });
 }
 
+export function setLayoutOverride(value) {
+  // 'system' | 'classic' | 'glass' — wird sofort app-weit angewandt.
+  save('egnach_layout_override', value);
+  setState(s => ({ ...s, layoutOverride: value }));
+  track('layout_override_set', { override: value, variant: getLayoutVariant() });
+}
+
+// Antwort-Zustand eines Anlasses (für den Kalender):
+//   'accepted'   → in `rsvp`        (Zusage, prominent)
+//   'declined'   → in `declined`    (Absage)
+//   'suggestion' → in keinem        (noch keine Antwort = Vorschlag)
+export function eventResponse(s, id) {
+  if (s.rsvp.includes(id)) return 'accepted';
+  if (s.declined.includes(id)) return 'declined';
+  return 'suggestion';
+}
+
+function persistResponses(rsvp, declined) {
+  save('egnach_rsvp', rsvp);
+  save('egnach_declined', declined);
+}
+
 export function toggleRsvp(eventId) {
   setState(s => {
-    const rsvp = s.rsvp.includes(eventId)
-      ? s.rsvp.filter(id => id !== eventId)
-      : [...s.rsvp, eventId];
-    save('egnach_rsvp', rsvp);
-    return { ...s, rsvp };
+    const attending = !s.rsvp.includes(eventId);
+    const rsvp = attending
+      ? [...s.rsvp, eventId]
+      : s.rsvp.filter(id => id !== eventId);
+    // Eine Zusage hebt eine frühere Absage auf (konsistenter Antwort-Zustand).
+    const declined = attending ? s.declined.filter(id => id !== eventId) : s.declined;
+    persistResponses(rsvp, declined);
+    // Funnel-Ereignis mit aktiver Variante markieren (A/B messbar machen).
+    if (attending) track('attend_event', { eventId, variant: resolveLayoutVariant(s) });
+    return { ...s, rsvp, declined };
+  });
+}
+
+/** Anlass zusagen (Kalender: aus Vorschlag/Absage → Zusage). */
+export function acceptEvent(eventId) {
+  setState(s => {
+    if (s.rsvp.includes(eventId)) return s;
+    const rsvp = [...s.rsvp, eventId];
+    const declined = s.declined.filter(id => id !== eventId);
+    persistResponses(rsvp, declined);
+    track('attend_event', { eventId, variant: resolveLayoutVariant(s) });
+    return { ...s, rsvp, declined };
+  });
+}
+
+/** Anlass absagen (Kalender: aus Vorschlag/Zusage → Absage). */
+export function declineEvent(eventId) {
+  setState(s => {
+    if (s.declined.includes(eventId)) return s;
+    const declined = [...s.declined, eventId];
+    const rsvp = s.rsvp.filter(id => id !== eventId);
+    persistResponses(rsvp, declined);
+    track('decline_event', { eventId, variant: resolveLayoutVariant(s) });
+    return { ...s, rsvp, declined };
+  });
+}
+
+/** Antwort zurücknehmen (Kalender: zurück auf «Vorschlag»). */
+export function resetEventResponse(eventId) {
+  setState(s => {
+    const rsvp = s.rsvp.filter(id => id !== eventId);
+    const declined = s.declined.filter(id => id !== eventId);
+    persistResponses(rsvp, declined);
+    return { ...s, rsvp, declined };
   });
 }
 
@@ -146,6 +244,7 @@ export function addListing(listing) {
   setState(s => {
     const userListings = userListingsOf(s).concat({ ...listing, own: true });
     save('egnach_user_listings', userListings);
+    track('listing_created', { variant: resolveLayoutVariant(s) });
     return { ...s, listings: [...LISTINGS, ...userListings] };
   });
 }
@@ -170,6 +269,7 @@ export function addEvent(event) {
   setState(s => {
     const userEvents = userEventsOf(s).concat(event);
     save('egnach_user_events', userEvents);
+    track('event_created', { variant: resolveLayoutVariant(s) });
     return { ...s, events: [...EVENTS, ...userEvents] };
   });
 }

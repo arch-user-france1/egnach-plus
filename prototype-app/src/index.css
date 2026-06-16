@@ -3,3 +3,16 @@ body { margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
 
 .hide-scrollbar { scrollbar-width: none; }
 .hide-scrollbar::-webkit-scrollbar { display: none; }
+
+/* ─── Glass-Layout (Variante B) Animationen & Mikro-Interaktionen ─────────── */
+@keyframes ab-nav-in { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes ab-fab-in { from { opacity: 0; transform: translateY(10px) scale(0.94); } to { opacity: 1; transform: translateY(0) scale(1); } }
+.ab-tab { transition: color .18s ease; }
+.ab-tab-pill { transition: background .2s ease, border-color .2s ease, transform .2s cubic-bezier(.22,1,.36,1); }
+.ab-press { transition: transform .12s ease; }
+.ab-press:active { transform: scale(0.95); }
+
+@media (prefers-reduced-motion: reduce) {
+  [style*="ab-nav-in"], [style*="ab-fab-in"] { animation: none !important; }
+  .ab-tab-pill, .ab-press { transition: none !important; }
+}

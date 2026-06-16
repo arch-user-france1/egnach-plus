@@ -15,10 +15,18 @@ export const actions = {
   setUser: model.setUser,
   /** Textskalierung («Grosser Text», Barrierefreiheit) setzen. */
   setTextScale: model.setTextScale,
+  /** Layout-Darstellung (A/B) setzen: 'system' | 'classic' | 'glass'. */
+  setLayoutOverride: model.setLayoutOverride,
   /** Inserat als Favorit markieren / Markierung entfernen. */
   toggleFavorite: model.toggleFavorite,
   /** Anlass-Teilnahme zusagen / Zusage zurückziehen. */
   toggleRsvp: model.toggleRsvp,
+  /** Anlass zusagen (Kalender). */
+  acceptEvent: model.acceptEvent,
+  /** Anlass absagen (Kalender). */
+  declineEvent: model.declineEvent,
+  /** Antwort auf einen Anlass zurücknehmen → «Vorschlag» (Kalender). */
+  resetEventResponse: model.resetEventResponse,
   /** Chat-Nachricht senden (optional mit Übersetzung und Inserat-Bezug). */
   sendMessage: model.sendMessage,
   /** Verfügbarkeits-Slots für ein Datum speichern. */
