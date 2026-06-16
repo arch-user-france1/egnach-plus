@@ -5,6 +5,7 @@ import Avatar from '../../components/Avatar.jsx';
 import Photo from '../../components/Photo.jsx';
 import Icon from '../../components/Icon.jsx';
 import { GlassShell, GlassSearch, abPanel } from '../../components/glass/index.js';
+import GlassOptionsSheet from './GlassOptionsSheet.jsx';
 import { useStore } from '../../hooks/useStore.js';
 import { useLayoutVariant } from '../../hooks/useLayoutVariant.js';
 import { track } from '../../model/analytics.js';
@@ -32,8 +33,9 @@ function parsePrice(p) {
   return m ? parseFloat(m[0]) : 0;
 }
 const SORTS = [
-  { id: 'distanz', label: 'Distanz', fn: (a, b) => parseDistance(a.distance) - parseDistance(b.distance) },
-  { id: 'preis',   label: 'Preis',   fn: (a, b) => parsePrice(a.price) - parsePrice(b.price) },
+  { id: 'distanz',   label: 'Distanz',   icon: 'pin',   fn: (a, b) => parseDistance(a.distance) - parseDistance(b.distance) },
+  { id: 'preis',     label: 'Preis',     icon: 'swiss', fn: (a, b) => parsePrice(a.price) - parsePrice(b.price) },
+  { id: 'bewertung', label: 'Bewertung', icon: 'star',  fn: (a, b) => (b.rating || 0) - (a.rating || 0) },
 ];
 
 function CatFilterChip({ name, label, active, onClick }) {
@@ -50,17 +52,27 @@ export default function GlassMarketplaceScreen() {
   const variant = useLayoutVariant();
   const [activeCat, setActiveCat] = useState('Alle');
   const [query, setQuery] = useState('');
-  const [sortIdx, setSortIdx] = useState(0);
+  const [sortId, setSortId] = useState('distanz');
+  const [options, setOptions] = useState(false);
+  const [onlyMine, setOnlyMine] = useState(false);
+  const [verifiedOnly, setVerifiedOnly] = useState(false);
   const [help, setHelp] = useState(false);
 
-  const sort = SORTS[sortIdx];
+  const sort = SORTS.find(s => s.id === sortId) || SORTS[0];
+  const filtersActive = onlyMine || verifiedOnly;
   const q = query.trim().toLowerCase();
   const filtered = state.listings.filter(l => {
     if (activeCat !== 'Alle' && l.cat !== activeCat) return false;
+    if (onlyMine && !l.own) return false;
+    if (verifiedOnly && !l.verified) return false;
     if (q && ![l.title, l.description, l.neighborhood, l.ownerName, l.cat]
       .some(v => String(v ?? '').toLowerCase().includes(q))) return false;
     return true;
   }).sort(sort.fn);
+
+  function resetFilters() {
+    setActiveCat('Alle'); setQuery(''); setOnlyMine(false); setVerifiedOnly(false); setSortId('distanz');
+  }
 
   function openHelp() { track('open_help', { screen: 'markt', variant }); setHelp(true); }
   function openCreate() {
@@ -81,7 +93,7 @@ export default function GlassMarketplaceScreen() {
     <Fragment>
       <GlassShell headerH={58} header={header} createLabel="Inserat" createIcon="plus" onCreate={openCreate} onHelp={openHelp}>
         <div style={{ padding: '8px 16px 12px' }}>
-          <GlassSearch placeholder="Was suchst du?" filter value={query} onChange={setQuery} onFilter={() => setSortIdx((sortIdx + 1) % SORTS.length)} />
+          <GlassSearch placeholder="Was suchst du?" filter value={query} onChange={setQuery} onFilter={() => setOptions(true)} />
         </div>
 
         <HScroll padding="0 16px">
@@ -96,11 +108,11 @@ export default function GlassMarketplaceScreen() {
             {filtered.length} {filtered.length === 1 ? 'Ergebnis' : 'Ergebnisse'} · Egnach
           </span>
           <button
-            onClick={() => setSortIdx((sortIdx + 1) % SORTS.length)}
-            aria-label={`Sortiert nach ${sort.label}, tippen zum Wechseln`}
-            style={{ border: 'none', background: 'transparent', padding: 0, cursor: 'pointer', fontFamily: 'var(--font)', fontSize: 12, fontWeight: 600, color: 'var(--ink)', display: 'inline-flex', alignItems: 'center', gap: 4 }}
+            onClick={() => setOptions(true)}
+            aria-label="Sortieren und filtern"
+            style={{ border: 'none', background: 'transparent', padding: 0, cursor: 'pointer', fontFamily: 'var(--font)', fontSize: 12, fontWeight: 600, color: filtersActive ? 'var(--primary)' : 'var(--ink)', display: 'inline-flex', alignItems: 'center', gap: 4 }}
           >
-            <Icon name="filter" size={12} stroke={2} /> {sort.label}
+            <Icon name="filter" size={12} stroke={2} color={filtersActive ? 'var(--primary)' : 'var(--ink)'} /> {sort.label}{filtersActive ? ' · Filter' : ''}
           </button>
         </div>
 
@@ -109,7 +121,7 @@ export default function GlassMarketplaceScreen() {
             <div style={{ gridColumn: '1 / -1', padding: '28px 16px', borderRadius: 'var(--radius)', textAlign: 'center', ...abPanel }}>
               <Icon name="search" size={24} color="var(--ink-3)" stroke={1.6} />
               <div style={{ fontFamily: 'var(--font)', fontSize: 13, fontWeight: 600, color: 'var(--ink)', marginTop: 8 }}>Keine Inserate gefunden</div>
-              <button onClick={() => { setActiveCat('Alle'); setQuery(''); }} style={{ background: 'none', border: 'none', fontFamily: 'var(--font)', fontSize: 12, fontWeight: 600, color: 'var(--primary)', cursor: 'pointer', marginTop: 8, padding: 0 }}>Filter zurücksetzen →</button>
+              <button onClick={resetFilters} style={{ background: 'none', border: 'none', fontFamily: 'var(--font)', fontSize: 12, fontWeight: 600, color: 'var(--primary)', cursor: 'pointer', marginTop: 8, padding: 0 }}>Filter zurücksetzen →</button>
             </div>
           )}
           {filtered.map((it) => {
@@ -146,6 +158,16 @@ export default function GlassMarketplaceScreen() {
       </GlassShell>
 
       <HelpSheet open={help} onClose={() => setHelp(false)} {...HELP} />
+
+      <GlassOptionsSheet
+        open={options}
+        onClose={() => setOptions(false)}
+        sorts={SORTS}
+        sortId={sortId} setSortId={setSortId}
+        onlyMine={onlyMine} setOnlyMine={setOnlyMine}
+        verifiedOnly={verifiedOnly} setVerifiedOnly={setVerifiedOnly}
+        onReset={() => { resetFilters(); setOptions(false); }}
+      />
     </Fragment>
   );
 }
