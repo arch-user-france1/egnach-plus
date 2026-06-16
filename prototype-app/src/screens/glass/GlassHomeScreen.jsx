@@ -97,9 +97,20 @@ export default function GlassHomeScreen() {
                 </div>
                 <button
                   onClick={(e) => { e.stopPropagation(); actions.toggleRsvp(hero.id); }}
+                  aria-label={state.rsvp.includes(hero.id) ? 'Teilnahme zurückziehen' : 'Teilnehmen'}
                   className="ab-press"
-                  style={{ height: 38, padding: '0 16px', borderRadius: 19, border: 'none', background: state.rsvp.includes(hero.id) ? 'var(--ink)' : 'var(--primary)', color: '#fff', fontFamily: 'var(--font)', fontWeight: 700, fontSize: 13, cursor: 'pointer', flexShrink: 0 }}
-                >{state.rsvp.includes(hero.id) ? 'Dabei ✓' : 'Dabei'}</button>
+                  style={{
+                    height: 38, padding: '0 16px', borderRadius: 19, cursor: 'pointer', flexShrink: 0,
+                    display: 'inline-flex', alignItems: 'center', gap: 5,
+                    fontFamily: 'var(--font)', fontWeight: 700, fontSize: 13,
+                    ...(state.rsvp.includes(hero.id)
+                      ? { background: 'color-mix(in srgb, var(--primary) 16%, var(--card))', border: '1px solid color-mix(in srgb, var(--primary) 42%, transparent)', color: 'var(--primary)' }
+                      : { background: 'var(--primary)', border: 'none', color: '#fff' }),
+                  }}
+                >
+                  {state.rsvp.includes(hero.id) && <Icon name="check" size={14} stroke={3} color="var(--primary)" />}
+                  {state.rsvp.includes(hero.id) ? 'Zugesagt' : 'Teilnehmen'}
+                </button>
               </div>
             </div>
           </div>

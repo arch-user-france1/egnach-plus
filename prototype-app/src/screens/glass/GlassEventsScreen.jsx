@@ -143,9 +143,20 @@ export default function GlassEventsScreen() {
                           </div>
                           <button
                             onClick={(ev) => { ev.stopPropagation(); actions.toggleRsvp(e.id); }}
+                            aria-label={attending ? `Teilnahme an ${e.title} zurückziehen` : `An ${e.title} teilnehmen`}
                             className="ab-press"
-                            style={{ height: 32, padding: '0 14px', borderRadius: 16, border: 'none', background: attending ? 'var(--ink)' : 'var(--primary)', color: '#fff', fontFamily: 'var(--font)', fontWeight: 700, fontSize: 12, cursor: 'pointer', flexShrink: 0 }}
-                          >{attending ? 'Dabei ✓' : 'Dabei'}</button>
+                            style={{
+                              height: 32, padding: attending ? '0 11px' : '0 14px', borderRadius: 16, cursor: 'pointer', flexShrink: 0,
+                              display: 'inline-flex', alignItems: 'center', gap: 5,
+                              fontFamily: 'var(--font)', fontWeight: 700, fontSize: 12,
+                              ...(attending
+                                ? { background: 'color-mix(in srgb, var(--primary) 14%, var(--card))', border: '1px solid color-mix(in srgb, var(--primary) 40%, transparent)', color: 'var(--primary)' }
+                                : { background: 'var(--primary)', border: 'none', color: '#fff' }),
+                            }}
+                          >
+                            {attending && <Icon name="check" size={13} stroke={3} color="var(--primary)" />}
+                            {attending ? 'Zugesagt' : 'Teilnehmen'}
+                          </button>
                         </div>
                       </div>
                     </div>
