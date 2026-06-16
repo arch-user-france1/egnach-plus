@@ -6,7 +6,8 @@ import { useStore } from './hooks/useStore.js';
 import { useLayoutVariant } from './hooks/useLayoutVariant.js';
 import { trackExposureOnce } from './model/analytics.js';
 import TabBar from './components/TabBar.jsx';
-import GlassNav from './components/glass/GlassNav.jsx';
+import GlassBottomBar from './components/glass/GlassBottomBar.jsx';
+import { GlassChromeProvider } from './components/glass/GlassChrome.jsx';
 import CookieBanner from './components/CookieBanner.jsx';
 
 import SplashScreen        from './screens/SplashScreen.jsx';
@@ -43,6 +44,21 @@ const TAB_ROUTES = {
   '/chat':       3,
   '/profil':     4,
 };
+
+// Routen des Anmelde-/Onboarding-Flusses — hier erscheint keine Navigation.
+const CHROMELESS = new Set(['/', '/splash', '/onboarding', '/login', '/register', '/verify']);
+
+// In der Glass-Variante bleibt die Navigation überall sichtbar (auch beim
+// Erstellen). Diese Zuordnung hebt für eine beliebige Route den passenden Tab
+// hervor (Detail-/Erstellen-Seiten markieren ihren Eltern-Tab).
+function glassNavTab(pathname) {
+  if (pathname.startsWith('/marktplatz') || pathname.startsWith('/inserat')) return 1;
+  if (pathname.startsWith('/anlaesse') || pathname.startsWith('/anlass'))    return 2;
+  if (pathname.startsWith('/chat'))                                          return 3;
+  if (pathname.startsWith('/profil') || pathname.startsWith('/einstellungen') || pathname.startsWith('/verfuegbarkeit')) return 4;
+  if (pathname.startsWith('/home') || pathname.startsWith('/karte') || pathname.startsWith('/map')) return 0;
+  return -1;
+}
 
 const pageVariants = {
   initial: { opacity: 0, scale: 0.96 },
@@ -105,8 +121,12 @@ function AnimatedRoutes() {
             </Routes>
           </motion.div>
         </AnimatePresence>
-        {/* Glass-Variante: schwebende Pill-Navigation über dem scrollenden Inhalt. */}
-        {showTabBar && isGlass && <GlassNav active={activeTab} onNavigate={(p) => navigate(p)} />}
+        {/* Glass-Variante: schwebende Navigation bleibt überall sichtbar (auch
+            beim Erstellen). Seiten mit Hauptaktion melden diese via Kontext;
+            die Leiste rückt sie dann neben eine kompakte Navigation. */}
+        {isGlass && !CHROMELESS.has(location.pathname) && !location.pathname.startsWith('/chat/') && (
+          <GlassBottomBar active={glassNavTab(location.pathname)} onNavigate={(p) => navigate(p)} />
+        )}
       </div>
       {/* Classic-Variante: fixe TabBar am unteren Rand. */}
       {showTabBar && !isGlass && <TabBar active={activeTab} onNavigate={(p) => navigate(p)} />}
@@ -141,10 +161,12 @@ export default function App() {
   return (
     <HashRouter>
       <ThemeProvider>
-        <PhoneShell>
-          <AnimatedRoutes />
-          <CookieBanner />
-        </PhoneShell>
+        <GlassChromeProvider>
+          <PhoneShell>
+            <AnimatedRoutes />
+            <CookieBanner />
+          </PhoneShell>
+        </GlassChromeProvider>
       </ThemeProvider>
     </HashRouter>
   );

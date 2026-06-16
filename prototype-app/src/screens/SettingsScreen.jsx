@@ -344,6 +344,8 @@ export default function SettingsScreen() {
             Einstellungen speichern
           </button>
         </div>
+        {/* Glass: Inhalt über der schwebenden Navigation freihalten. */}
+        {activeVariant === 'glass' && <div style={{ height: 96 }} />}
       </Body>
 
       <HelpSheet open={help} onClose={() => setHelp(false)} title="Einstellungen" intro="Passe Egnach Plus an deine Bedürfnisse an." items={HELP_ITEMS} />

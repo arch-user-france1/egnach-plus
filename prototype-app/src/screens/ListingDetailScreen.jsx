@@ -9,6 +9,8 @@ import Dots from '../components/Dots.jsx';
 import Photo from '../components/Photo.jsx';
 import Icon from '../components/Icon.jsx';
 import { useStore } from '../hooks/useStore.js';
+import { useLayoutVariant } from '../hooks/useLayoutVariant.js';
+import { useGlassPageActions } from '../components/glass/GlassChrome.jsx';
 
 const HELP_ITEMS = [
   { icon: 'chat',      title: 'Anfrage senden',        text: 'Schreibe dem Anbieter direkt über den Chat an.' },
@@ -31,6 +33,18 @@ export default function ListingDetailScreen() {
   const existingThread = state.chatThreads.find(t => t.listingId === listing.id);
   const chatThreadId = existingThread ? existingThread.id : `listing-${listing.id}`;
   const openChat = () => navigate(`/chat/${chatThreadId}?listingId=${listing.id}`);
+
+  // Glass-Variante: Haupt-Aktionen in der immer sichtbaren unteren Leiste.
+  const isGlass = useLayoutVariant() === 'glass';
+  useGlassPageActions(
+    isOwn
+      ? [{ key: 'edit', label: 'Bearbeiten', icon: 'edit', tone: 'primary', onClick: () => navigate(`/inserat-bearbeiten/${listing.id}`, { state: { from: 'marktplatz' } }) }]
+      : [
+          { key: 'chat', label: 'Nachricht', icon: 'chat', tone: 'secondary', onClick: openChat },
+          { key: 'send', label: 'Anfrage', icon: 'send', tone: 'primary', onClick: () => { openChat(); setToast(true); } },
+        ],
+    isGlass,
+  );
 
   return (
     <Screen background="var(--surface)" style={{ overflowY: 'auto' }}>
@@ -156,22 +170,24 @@ export default function ListingDetailScreen() {
 
       <div style={{ height: 100 }} />
 
-      <div style={{ position: 'sticky', bottom: 0, padding: '12px 16px 22px', background: 'var(--card)', borderTop: '1px solid var(--line)', display: 'flex', gap: 10, alignItems: 'center' }}>
-        {isOwn ? (
-          <div style={{ flex: 1 }}>
-            <Button full size="lg" leading={<Icon name="edit" size={16} color="#fff" />} onClick={() => navigate(`/inserat-bearbeiten/${listing.id}`, { state: { from: 'marktplatz' } })}>Inserat bearbeiten</Button>
-          </div>
-        ) : (
-          <>
-            <button onClick={openChat} style={{ width: 48, height: 48, borderRadius: 'var(--radius-sm)', border: '1.5px solid var(--line-2)', background: 'var(--card)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }} aria-label="Nachricht senden">
-              <Icon name="chat" size={20} />
-            </button>
+      {!isGlass && (
+        <div style={{ position: 'sticky', bottom: 0, padding: '12px 16px 22px', background: 'var(--card)', borderTop: '1px solid var(--line)', display: 'flex', gap: 10, alignItems: 'center' }}>
+          {isOwn ? (
             <div style={{ flex: 1 }}>
-              <Button full size="lg" onClick={() => { openChat(); setToast(true); }}>Anfrage senden</Button>
+              <Button full size="lg" leading={<Icon name="edit" size={16} color="#fff" />} onClick={() => navigate(`/inserat-bearbeiten/${listing.id}`, { state: { from: 'marktplatz' } })}>Inserat bearbeiten</Button>
             </div>
-          </>
-        )}
-      </div>
+          ) : (
+            <>
+              <button onClick={openChat} style={{ width: 48, height: 48, borderRadius: 'var(--radius-sm)', border: '1.5px solid var(--line-2)', background: 'var(--card)', display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer' }} aria-label="Nachricht senden">
+                <Icon name="chat" size={20} />
+              </button>
+              <div style={{ flex: 1 }}>
+                <Button full size="lg" onClick={() => { openChat(); setToast(true); }}>Anfrage senden</Button>
+              </div>
+            </>
+          )}
+        </div>
+      )}
 
       <HelpSheet open={help} onClose={() => setHelp(false)} title="Inserat" intro="So nutzt du dieses Inserat." items={HELP_ITEMS} />
       <Toast open={toast} onClose={() => setToast(false)} tone="success" title="Anfrage gesendet" msg="Der Anbieter wird sich bei dir melden." />

@@ -96,7 +96,7 @@ export default function ChatListScreen() {
           ))}
         </motion.div>
 
-        <div style={{ height: 80 }} />
+        <div style={{ height: 96 }} />
       </Body>
 
       <HelpSheet open={help} onClose={() => setHelp(false)} title="Chat" intro="Deine Unterhaltungen mit Nachbarn in Egnach Plus." items={HELP_ITEMS} />

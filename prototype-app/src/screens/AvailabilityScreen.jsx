@@ -10,6 +10,8 @@ import HelpBanner from '../components/HelpBanner.jsx';
 import Badge from '../components/Badge.jsx';
 import Icon from '../components/Icon.jsx';
 import { useStore } from '../hooks/useStore.js';
+import { useLayoutVariant } from '../hooks/useLayoutVariant.js';
+import { useGlassPageActions } from '../components/glass/GlassChrome.jsx';
 
 const WEEKDAYS = ['M','D','M','D','F','S','S'];
 
@@ -42,6 +44,13 @@ export default function AvailabilityScreen() {
   const [toast, setToast] = useState(false);
   const [discardConfirm, setDiscardConfirm] = useState(false);
   const days = buildCalendar();
+  const isGlass = useLayoutVariant() === 'glass';
+
+  // Glass-Variante: Haupt-Aktionen in der immer sichtbaren unteren Leiste.
+  useGlassPageActions([
+    { key: 'discard', label: 'Verwerfen', icon: 'close', tone: 'secondary', onClick: () => setDiscardConfirm(true) },
+    { key: 'save', label: 'Speichern', icon: 'check', tone: 'primary', onClick: () => handleSave() },
+  ], isGlass);
 
   const dateKey = `2026-06-${String(selectedDay).padStart(2,'0')}`;
   const slots = state.availability[dateKey] || [];
@@ -178,12 +187,16 @@ export default function AvailabilityScreen() {
         <div style={{ padding: '14px 18px 8px' }}>
           <HelpBanner tone="info" title="Hinweis">Setze realistische Zeitfenster — Nachbarn können nur deine freien Slots anfragen. Du erhältst eine Push-Benachrichtigung bei neuen Anfragen.</HelpBanner>
         </div>
+        {/* Glass: Inhalt über der schwebenden Navigation freihalten. */}
+        {isGlass && <div style={{ height: 96 }} />}
       </Body>
 
-      <div style={{ padding: '10px 16px 12px', background: 'var(--card)', borderTop: '1px solid var(--line)', display: 'flex', gap: 10, flexShrink: 0 }}>
-        <div style={{ flex: 1 }}><Button full size="lg" variant="outline" onClick={() => setDiscardConfirm(true)}>Verwerfen</Button></div>
-        <div style={{ flex: 1 }}><Button full size="lg" onClick={handleSave}>Speichern</Button></div>
-      </div>
+      {!isGlass && (
+        <div style={{ padding: '10px 16px 12px', background: 'var(--card)', borderTop: '1px solid var(--line)', display: 'flex', gap: 10, flexShrink: 0 }}>
+          <div style={{ flex: 1 }}><Button full size="lg" variant="outline" onClick={() => setDiscardConfirm(true)}>Verwerfen</Button></div>
+          <div style={{ flex: 1 }}><Button full size="lg" onClick={handleSave}>Speichern</Button></div>
+        </div>
+      )}
 
       <HelpSheet open={help} onClose={() => setHelp(false)} title="Verfügbarkeit" intro="So verwaltest du deine verfügbaren Zeitfenster." items={HELP_ITEMS} />
       <Toast open={toast} onClose={() => setToast(false)} tone="success" title="Verfügbarkeit gespeichert" msg="Deine Zeitfenster wurden aktualisiert." />
