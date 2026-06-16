@@ -1,3 +1,4 @@
+import { useRef, useState, useLayoutEffect } from 'react';
 import GlassActions from './GlassActions.jsx';
 import { AB_BG, AB_GLASS_BG, AB_GLASS_BLUR } from './tokens.js';
 
@@ -9,14 +10,33 @@ import { AB_BG, AB_GLASS_BG, AB_GLASS_BLUR } from './tokens.js';
 // Hinweis: Die schwebende Navigation wird bewusst eine Ebene höher in `App.jsx`
 // gerendert (eine Navigations-Chrome für alle Tab-Screens), damit der Wechsel
 // Classic ↔ Glass an genau einer Stelle entschieden wird.
+//
+// `headerH` ist nur der Startwert/Mindestwert. Die tatsächliche Höhe der
+// (absolut positionierten) Glas-Kopfzeile wird gemessen und exakt als oberer
+// Innenabstand des Scroll-Bereichs reserviert. So überlappt die Kopfzeile nie
+// den ersten Inhalt — unabhängig von Titel-/Untertitel-Länge oder Textskalierung.
 export default function GlassShell({ headerH = 58, header, createLabel, onCreate, createIcon, onHelp, children }) {
+  const headerRef = useRef(null);
+  const [topInset, setTopInset] = useState(headerH);
+
+  useLayoutEffect(() => {
+    const el = headerRef.current;
+    if (!el) return;
+    const measure = () => setTopInset(el.offsetHeight);
+    measure();
+    if (typeof ResizeObserver === 'undefined') return;
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
   return (
     <div style={{ position: 'relative', width: '100%', height: '100%', overflow: 'hidden', background: AB_BG }}>
-      <div style={{ position: 'absolute', inset: 0, overflow: 'auto', paddingTop: headerH, paddingBottom: 124, WebkitOverflowScrolling: 'touch' }}>
+      <div style={{ position: 'absolute', inset: 0, overflow: 'auto', paddingTop: topInset, paddingBottom: 124, WebkitOverflowScrolling: 'touch' }}>
         {children}
       </div>
 
-      <div style={{
+      <div ref={headerRef} style={{
         position: 'absolute', top: 0, left: 0, right: 0, zIndex: 30, minHeight: headerH,
         background: AB_GLASS_BG, backdropFilter: AB_GLASS_BLUR, WebkitBackdropFilter: AB_GLASS_BLUR,
         borderBottom: '1px solid color-mix(in srgb, var(--line) 60%, transparent)',
