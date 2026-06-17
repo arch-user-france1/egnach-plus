@@ -188,6 +188,7 @@ export default function AvailabilityScreen() {
         <div style={{ padding: '14px 18px 8px' }}>
           <HelpBanner tone="info" title="Hinweis">Setze realistische Zeitfenster — Nachbarn können nur deine freien Slots anfragen. Du erhältst eine Push-Benachrichtigung bei neuen Anfragen.</HelpBanner>
         </div>
+        {isGlass && <div style={{ height: 96 }} />}
       </Body>
 
       {!isGlass && (

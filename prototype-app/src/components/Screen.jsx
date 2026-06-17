@@ -20,7 +20,6 @@ export function Body({ children, padding = 0, background, style }) {
       ...style,
     }}>
       {children}
-      <div aria-hidden="true" style={{ height: 'var(--glass-nav-pb, 0px)', flexShrink: 0 }} />
     </div>
   );
 }

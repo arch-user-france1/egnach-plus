@@ -1,5 +1,5 @@
-import { useState, useRef } from 'react';
-import { useLocation, useNavigate, useParams, Navigate } from 'react-router-dom';
+import { useState } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Screen, Body, ConfirmDialog, HelpSheet } from '../components/index.js';
 import TopBar from '../components/TopBar.jsx';
 import IconButton from '../components/IconButton.jsx';
@@ -42,9 +42,6 @@ export default function EditListingScreen() {
   // Where to land after save/delete: marketplace if opened from there, otherwise profile
   const fromMarket = location.state?.from === 'marktplatz';
   const listing = state.listings.find(l => l.id === id);
-  // Tracks an in-progress deletion so the guard doesn't fire a second navigation
-  // on top of the one already issued in handleDelete.
-  const isDeleting = useRef(false);
 
   const { priceAmount: initPriceAmount, priceUnit: initPriceUnit } = parsePriceStr(listing?.price);
   const [type, setType] = useState(listing?.cat ?? 'Leihen');
@@ -66,13 +63,7 @@ export default function EditListingScreen() {
     { key: 'save', label: 'Speichern', icon: 'check', tone: 'primary', onClick: () => handleSave() },
   ], isGlass && !!listing);
 
-  if (!listing) {
-    // During deletion isDeleting is true — handleDelete already fired navigate,
-    // so we just render nothing and let that single navigation complete cleanly.
-    if (isDeleting.current) return null;
-    // Genuinely missing listing (direct URL to non-existent id): navigate away.
-    return <Navigate to={fromMarket ? '/marktplatz' : '/profil'} replace />;
-  }
+  if (!listing) return null;
 
   const set = (k) => (e) => {
     setForm(f => ({ ...f, [k]: e.target.value }));
@@ -102,9 +93,8 @@ export default function EditListingScreen() {
   }
 
   function handleDelete() {
-    isDeleting.current = true;
-    actions.removeListing(id);
     navigate(fromMarket ? '/marktplatz' : '/profil', { replace: true });
+    actions.removeListing(id);
   }
 
   return (
@@ -198,6 +188,7 @@ export default function EditListingScreen() {
             Inserat löschen
           </button>
         </div>
+        {isGlass && <div style={{ height: 96 }} />}
       </Body>
 
       {!isGlass && (

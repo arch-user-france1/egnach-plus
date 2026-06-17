@@ -131,7 +131,7 @@ export default function ChatListScreen() {
             <div style={{ fontFamily: 'var(--font)', fontSize: 12, color: 'var(--ink-3)', marginTop: 4 }}>Versuche einen anderen Namen.</div>
           </div>
         )}
-
+        {isGlass && <div style={{ height: 96 }} />}
       </Body>
 
       <HelpSheet open={help} onClose={() => setHelp(false)} title="Chat" intro="Deine Unterhaltungen mit Nachbarn in Egnach Plus." items={HELP_ITEMS} />

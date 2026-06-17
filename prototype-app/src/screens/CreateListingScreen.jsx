@@ -324,6 +324,7 @@ export default function CreateListingScreen() {
             </>}
           </motion.div>
         </AnimatePresence>
+        {isGlass && <div style={{ height: 96 }} />}
       </Body>
 
       {!isGlass && (

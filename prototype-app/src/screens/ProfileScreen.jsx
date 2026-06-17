@@ -258,6 +258,7 @@ export default function ProfileScreen() {
         <div style={{ textAlign: 'center', padding: '0 16px 16px', fontFamily: 'var(--font)', fontSize: 10, color: 'var(--ink-3)' }}>
           Egnach Plus · v1.0.0 · Gemeinde Egnach
         </div>
+        {activeVariant === 'glass' && <div style={{ height: 96 }} />}
       </Body>
 
       <HelpSheet open={help} onClose={() => setHelp(false)} title="Profil" intro="Verwalte dein Profil und deine Einstellungen." items={HELP_ITEMS} />
