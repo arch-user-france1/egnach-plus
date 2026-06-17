@@ -2,6 +2,7 @@ import { useState, Fragment } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { HScroll, HelpSheet, Chip, CatChip } from '../../components/index.js';
 import Avatar from '../../components/Avatar.jsx';
+import Badge from '../../components/Badge.jsx';
 import Photo from '../../components/Photo.jsx';
 import Icon from '../../components/Icon.jsx';
 import { GlassShell, GlassSearch, abPanel } from '../../components/glass/index.js';
@@ -63,7 +64,9 @@ export default function GlassMarketplaceScreen() {
   const q = query.trim().toLowerCase();
   const filtered = state.listings.filter(l => {
     if (activeCat !== 'Alle' && l.cat !== activeCat) return false;
-    if (onlyMine && !l.own) return false;
+    // Eigene Inserate gehören nicht in den öffentlichen Feed (man kann sich
+    // nicht selbst anschreiben) — nur über den Filter «Nur meine» sichtbar.
+    if (onlyMine ? !l.own : l.own) return false;
     if (verifiedOnly && !l.verified) return false;
     if (q && ![l.title, l.description, l.neighborhood, l.ownerName, l.cat]
       .some(v => String(v ?? '').toLowerCase().includes(q))) return false;
@@ -130,7 +133,10 @@ export default function GlassMarketplaceScreen() {
               <div key={it.id} onClick={() => navigate(`/marktplatz/${it.id}`)} style={{ borderRadius: 'var(--radius)', overflow: 'hidden', cursor: 'pointer', ...abPanel }}>
                 <div style={{ position: 'relative' }}>
                   <Photo width="100%" height={110} tone={it.tone} radius={0} hint="foto" />
-                  <div style={{ position: 'absolute', top: 8, left: 8 }}><CatChip name={it.cat} size="sm" /></div>
+                  <div style={{ position: 'absolute', top: 8, left: 8, display: 'flex', gap: 4 }}>
+                    <CatChip name={it.cat} size="sm" />
+                    {it.own && <Badge tone="success" size="sm">MEIN</Badge>}
+                  </div>
                   <button
                     onClick={(e) => { e.stopPropagation(); actions.toggleFavorite(it.id); }}
                     aria-label={`${it.title} merken`}

@@ -63,12 +63,18 @@ export default function GlassBottomBar({ active = -1, onNavigate }) {
       boxShadow: AB_GLASS_LIFT,
       animation: 'ab-nav-in .45s cubic-bezier(.22,1,.36,1) both',
     }}>
-      {/* Navigation — voll (mit Label) oder kompakt (nur Icons, scrollbar) */}
+      {/* Navigation — voll (mit Label) oder kompakt (nur Icons, scrollbar).
+          Im kompakten Zustand werden die Ränder ausgeblendet (Fade/Blur), damit
+          erkennbar bleibt, dass seitlich noch mehr Tabs sind — im Usability-Test
+          hatten einige vergessen, dass die Leiste mehr als die sichtbaren Knöpfe
+          hat. */}
       <div
         className="hide-scrollbar"
         style={{
           display: 'flex', alignItems: 'center', flex: '1 1 auto', minWidth: 0,
           overflowX: hasActions ? 'auto' : 'visible',
+          maskImage: hasActions ? 'linear-gradient(to right, transparent 0, #000 18px, #000 calc(100% - 18px), transparent 100%)' : undefined,
+          WebkitMaskImage: hasActions ? 'linear-gradient(to right, transparent 0, #000 18px, #000 calc(100% - 18px), transparent 100%)' : undefined,
         }}
       >
         {TABS.map((t, i) => {

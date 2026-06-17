@@ -109,8 +109,15 @@ export default function MapScreen() {
   useEffect(() => {
     if (!containerRef.current || mapRef.current || !window.L) return;
 
+    // Beim Öffnen aus einem Inserat/Anlass direkt auf den gewählten Pin
+    // zentrieren — sonst startet die Karte auf Egnach und der gesuchte Pin
+    // liegt ausserhalb des Sichtfelds (Usability-Test: «Karte im Hintergrund
+    // geöffnet, Fokus erst beim Wechsel gesetzt»).
+    const startPin = MAP_PINS.find(p => p.id === activePin);
     const map = window.L.map(containerRef.current, {
-      center: EGNACH, zoom: 15, zoomControl: false, attributionControl: true,
+      center: startPin ? startPin.pos : EGNACH,
+      zoom: startPin ? 16 : 15,
+      zoomControl: false, attributionControl: true,
     });
     mapRef.current = map;
 
@@ -119,7 +126,7 @@ export default function MapScreen() {
     }).addTo(map);
 
     MAP_PINS.forEach(p => {
-      const m = window.L.marker(p.pos, { icon: makePin(p.kind, p.id === 'ev1') }).addTo(map);
+      const m = window.L.marker(p.pos, { icon: makePin(p.kind, p.id === activePin) }).addTo(map);
       markersRef.current[p.id] = { marker: m, kind: p.kind };
     });
 

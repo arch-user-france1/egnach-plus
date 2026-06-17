@@ -103,6 +103,11 @@ export default function RegisterScreen() {
               Ich akzeptiere die <u>Nutzungsbedingungen</u>, die <u>Datenschutzerklärung</u> und die <u>Cookie Notice</u> der Gemeinde Egnach.
             </span>
           </label>
+          {submitted && !accepted && (
+            <div role="alert" style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: -4, fontFamily: 'var(--font)', fontSize: 12, fontWeight: 600, color: 'var(--danger)' }}>
+              <Icon name="info" size={13} color="var(--danger)" /> Bitte akzeptiere die Bedingungen, um fortzufahren.
+            </div>
+          )}
         </div>
       </Body>
 

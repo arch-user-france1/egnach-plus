@@ -12,7 +12,17 @@ body { margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
 .ab-press { transition: transform .12s ease; }
 .ab-press:active { transform: scale(0.95); }
 
+/* ─── Skeleton-Schimmer (Lade-/Offline-Zustand, z. B. Karten-Vorschau) ─────── */
+@keyframes egnach-shimmer { 100% { transform: translateX(100%); } }
+.egnach-skeleton { position: relative; overflow: hidden; background: var(--surface-2, #ECE7DC); }
+.egnach-skeleton::after {
+  content: ''; position: absolute; inset: 0; transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.55), transparent);
+  animation: egnach-shimmer 1.4s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   [style*="ab-nav-in"], [style*="ab-fab-in"] { animation: none !important; }
   .ab-tab-pill, .ab-press { transition: none !important; }
+  .egnach-skeleton::after { animation: none !important; }
 }

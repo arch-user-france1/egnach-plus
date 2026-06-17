@@ -7,7 +7,7 @@ import IconButton from '../../components/IconButton.jsx';
 import Badge from '../../components/Badge.jsx';
 import Photo from '../../components/Photo.jsx';
 import Icon from '../../components/Icon.jsx';
-import { GlassShell, GlassSearch, QuickTile, abPanel } from '../../components/glass/index.js';
+import { GlassShell, GlassSearch, abPanel } from '../../components/glass/index.js';
 import { useStore } from '../../hooks/useStore.js';
 import { useLayoutVariant } from '../../hooks/useLayoutVariant.js';
 import { track } from '../../model/analytics.js';
@@ -18,17 +18,10 @@ const HELP = {
   items: [
     { icon: 'pin',    title: 'Dein Quartier wählen', text: 'Tippe oben auf den Ort, um Beiträge aus deinem Quartier zu sehen.' },
     { icon: 'search', title: 'Suchen',                text: 'Suche nach Anlässen, Dingen zum Leihen oder Nachbarn — per Text oder Mikrofon.' },
-    { icon: 'paws',   title: 'Schnellzugriff',        text: 'Die vier Kacheln führen dich direkt zu Helfen, Leihen, Anlässen und zur Karte.' },
+    { icon: 'plus',   title: 'Inserat erstellen',     text: 'Mit dem grünen «+ Inserat»-Knopf unten rechts gibst du in wenigen Schritten dein eigenes Inserat auf.' },
     { icon: 'info',   title: 'Hilfe ist immer da',    text: 'Der grüne «?»-Knopf unten rechts öffnet auf jeder Seite passende Erklärungen.' },
   ],
 };
-
-const QUICK = [
-  { glyph: 'garten',   label: 'Helfen',  ink: '#6C792D', path: '/marktplatz' },
-  { glyph: 'werkzeug', label: 'Leihen',  ink: '#536078', path: '/marktplatz' },
-  { glyph: 'gemeinde', label: 'Anlässe', ink: '#3F6079', path: '/anlaesse' },
-  { icon:  'map',      label: 'Karte',   ink: 'var(--accent)', path: '/map' },
-];
 
 function GlassHomeHeader({ user }) {
   return (
@@ -54,24 +47,28 @@ export default function GlassHomeScreen() {
 
   const hero = state.events[0];
   const week = state.events.slice(0, 4);
-  const near = state.listings.slice(0, 2);
+  // Eigene Inserate erscheinen unter «Profil», nicht im öffentlichen Feed —
+  // sonst landet man beim «Kontakt aufnehmen» auf dem eigenen Inserat.
+  const near = state.listings.filter(l => !l.own).slice(0, 2);
 
   function openHelp() {
     track('open_help', { screen: 'home', variant });
     setHelp(true);
   }
 
+  function openCreate() {
+    track('open_create_flow', { screen: 'home', variant });
+    navigate('/inserat-erstellen');
+  }
+
   return (
     <Fragment>
-      <GlassShell headerH={62} header={<GlassHomeHeader user={state.user} />} onHelp={openHelp}>
+      <GlassShell headerH={62} header={<GlassHomeHeader user={state.user} />} createLabel="Inserat" createIcon="plus" onCreate={openCreate} onHelp={openHelp}>
         <div style={{ padding: '8px 16px 14px' }}>
           <GlassSearch placeholder="Suche in Egnach…" mic onClick={() => navigate('/marktplatz')} />
         </div>
 
-        {/* Schnellzugriff — 4 Glas-Kacheln */}
-        <div style={{ padding: '0 16px 6px', display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 10 }}>
-          {QUICK.map((q, i) => <QuickTile key={i} {...q} onClick={() => navigate(q.path)} />)}
-        </div>
+        <SectionHeader title="Aktuell" dense />
 
         {/* Bild-Held mit frostigem Info-Panel */}
         {hero && (
