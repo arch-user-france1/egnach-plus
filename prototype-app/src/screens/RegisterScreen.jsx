@@ -5,6 +5,7 @@ import TopBar from '../components/TopBar.jsx';
 import IconButton from '../components/IconButton.jsx';
 import Button from '../components/Button.jsx';
 import Field from '../components/Field.jsx';
+import DatePicker from '../components/DatePicker.jsx';
 import Checkbox from '../components/Checkbox.jsx';
 import Badge from '../components/Badge.jsx';
 import Icon from '../components/Icon.jsx';
@@ -71,7 +72,7 @@ export default function RegisterScreen() {
           </div>
           <Field label="E-Mail-Adresse" required type="email" value={form.email} onChange={set('email')} hint="Wir senden dir einen Bestätigungslink." error={errors.email} />
           <Field label="Telefonnummer" required value={form.telefon} onChange={set('telefon')} hint="Format: +41 79 123 45 67" placeholder="+41 79 ..." />
-          <Field label="Geburtsdatum" required value={form.geburtsdatum} onChange={set('geburtsdatum')} hint="TT.MM.JJJJ — du musst mind. 16 Jahre alt sein." placeholder="TT.MM.JJJJ" trailing={<Icon name="calendar" size={16} color="var(--ink-3)" />} />
+          <DatePicker label="Geburtsdatum" required value={form.geburtsdatum} onChange={set('geburtsdatum')} hint="TT.MM.JJJJ — du musst mind. 16 Jahre alt sein." placeholder="TT.MM.JJJJ" />
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 6 }}>
             <span style={{ fontFamily: 'var(--font)', fontSize: 12, fontWeight: 600, color: 'var(--ink)' }}>Quartier <span style={{ color: 'var(--danger)' }}>*</span></span>
