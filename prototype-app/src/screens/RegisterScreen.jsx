@@ -100,7 +100,7 @@ export default function RegisterScreen() {
           <label style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginTop: 4, cursor: 'pointer' }}>
             <Checkbox on={accepted} onChange={setAccepted} />
             <span style={{ flex: 1, fontFamily: 'var(--font)', fontSize: 12, lineHeight: 1.5, color: 'var(--ink-2)' }}>
-              Ich akzeptiere die <u>Nutzungsbedingungen</u> und die <u>Datenschutzerklärung</u> der Gemeinde Egnach.
+              Ich akzeptiere die <u>Nutzungsbedingungen</u>, die <u>Datenschutzerklärung</u> und die <u>Cookie Notice</u> der Gemeinde Egnach.
             </span>
           </label>
         </div>

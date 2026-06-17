@@ -8,7 +8,6 @@ import { trackExposureOnce } from './model/analytics.js';
 import TabBar from './components/TabBar.jsx';
 import GlassBottomBar from './components/glass/GlassBottomBar.jsx';
 import { GlassChromeProvider } from './components/glass/GlassChrome.jsx';
-import CookieBanner from './components/CookieBanner.jsx';
 
 import SplashScreen        from './screens/SplashScreen.jsx';
 import OnboardingScreen    from './screens/OnboardingScreen.jsx';
@@ -162,7 +161,6 @@ export default function App() {
         <GlassChromeProvider>
           <PhoneShell>
             <AnimatedRoutes />
-            <CookieBanner />
           </PhoneShell>
         </GlassChromeProvider>
       </ThemeProvider>
