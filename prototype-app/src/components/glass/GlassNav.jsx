@@ -16,7 +16,7 @@ const TABS = [
 export default function GlassNav({ active = 0, onNavigate }) {
   return (
     <div style={{
-      position: 'absolute', left: 14, right: 14, bottom: 22, zIndex: 40,
+      position: 'absolute', left: 14, right: 14, bottom: 22, zIndex: 1000,
       height: 66, borderRadius: 26, padding: '0 6px',
       display: 'flex', alignItems: 'center',
       background: AB_GLASS_BG, border: AB_GLASS_RIM,

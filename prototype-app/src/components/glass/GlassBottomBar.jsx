@@ -1,3 +1,4 @@
+import { useCallback, useEffect, useRef, useState } from 'react';
 import Icon from '../Icon.jsx';
 import { useGlassChrome } from './GlassChrome.jsx';
 import { AB_GLASS_BG, AB_GLASS_BLUR, AB_GLASS_RIM, AB_GLASS_LIFT } from './tokens.js';
@@ -53,9 +54,45 @@ export default function GlassBottomBar({ active = -1, onNavigate }) {
   const { actions } = useGlassChrome();
   const hasActions = !!(actions && actions.length);
 
+  // Rand-Fade nur zeigen, wenn die kompakte Navigation tatsächlich horizontal
+  // scrollbar ist — und nur an der Seite, an der noch Inhalt liegt. Wird über
+  // Scroll-/Resize-Listener live ermittelt.
+  const scrollRef = useRef(null);
+  const [edges, setEdges] = useState({ left: false, right: false });
+
+  const recompute = useCallback(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const max = el.scrollWidth - el.clientWidth;
+    const x = el.scrollLeft;
+    const left = x > 1;
+    const right = x < max - 1;
+    setEdges(prev => (prev.left === left && prev.right === right ? prev : { left, right }));
+  }, []);
+
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return undefined;
+    recompute();
+    // Nach dem Layout (Icons/Fonts) erneut messen.
+    const raf = requestAnimationFrame(recompute);
+    const ro = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(recompute) : null;
+    ro?.observe(el);
+    window.addEventListener('resize', recompute);
+    return () => {
+      cancelAnimationFrame(raf);
+      ro?.disconnect();
+      window.removeEventListener('resize', recompute);
+    };
+    // Bei Wechsel der Aktionen ändert sich die Breite → neu messen.
+  }, [recompute, hasActions, actions?.length]);
+
+  const showFade = edges.left || edges.right;
+  const fadeMask = `linear-gradient(to right, ${edges.left ? 'transparent' : '#000'} 0, #000 18px, #000 calc(100% - 18px), ${edges.right ? 'transparent' : '#000'} 100%)`;
+
   return (
     <div style={{
-      position: 'absolute', left: 14, right: 14, bottom: 22, zIndex: 40,
+      position: 'absolute', left: 14, right: 14, bottom: 22, zIndex: 1000,
       height: 66, borderRadius: 26, padding: '0 6px',
       display: 'flex', alignItems: 'center', gap: 6,
       background: AB_GLASS_BG, border: AB_GLASS_RIM,
@@ -64,17 +101,19 @@ export default function GlassBottomBar({ active = -1, onNavigate }) {
       animation: 'ab-nav-in .45s cubic-bezier(.22,1,.36,1) both',
     }}>
       {/* Navigation — voll (mit Label) oder kompakt (nur Icons, scrollbar).
-          Im kompakten Zustand werden die Ränder ausgeblendet (Fade/Blur), damit
-          erkennbar bleibt, dass seitlich noch mehr Tabs sind — im Usability-Test
-          hatten einige vergessen, dass die Leiste mehr als die sichtbaren Knöpfe
-          hat. */}
+          Ist die kompakte Leiste wirklich scrollbar, wird die jeweilige Seite
+          ausgeblendet (Fade), damit erkennbar bleibt, dass seitlich noch mehr
+          Tabs sind — im Usability-Test hatten einige vergessen, dass die Leiste
+          mehr als die sichtbaren Knöpfe hat. */}
       <div
+        ref={scrollRef}
+        onScroll={recompute}
         className="hide-scrollbar"
         style={{
           display: 'flex', alignItems: 'center', flex: '1 1 auto', minWidth: 0,
           overflowX: hasActions ? 'auto' : 'visible',
-          maskImage: hasActions ? 'linear-gradient(to right, transparent 0, #000 18px, #000 calc(100% - 18px), transparent 100%)' : undefined,
-          WebkitMaskImage: hasActions ? 'linear-gradient(to right, transparent 0, #000 18px, #000 calc(100% - 18px), transparent 100%)' : undefined,
+          maskImage: showFade ? fadeMask : undefined,
+          WebkitMaskImage: showFade ? fadeMask : undefined,
         }}
       >
         {TABS.map((t, i) => {
