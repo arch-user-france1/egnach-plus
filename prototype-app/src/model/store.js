@@ -62,9 +62,9 @@ let state = {
   listings:     [...LISTINGS, ...load('egnach_user_listings', SAMPLE_OWN_LISTINGS)],
   events:       [...EVENTS,   ...load('egnach_user_events',   [])],
   chatThreads:  CHAT_THREADS,
-  // A/B-Test: vom Nutzer gewählte Layout-Darstellung. 'system' folgt der
-  // stabilen A/B-Zuteilung; 'classic'/'glas' überschreiben sie explizit.
-  layoutOverride: load('egnach_layout_override', 'system'),
+  // Layout-Darstellung. Glass ist neu die Standard-Variante; nur ein expliziter
+  // Override auf 'classic' wechselt zurück zur klassischen Darstellung.
+  layoutOverride: load('egnach_layout_override', 'glass'),
 };
 
 // --- Observer ---------------------------------------------------------------
@@ -88,30 +88,13 @@ function setState(updater) {
 const userListingsOf = (s) => s.listings.filter(l => !LISTINGS.find(sl => sl.id === l.id));
 const userEventsOf   = (s) => s.events.filter(e => !EVENTS.find(se => se.id === e.id));
 
-// --- A/B-Layout: Auflösung der aktiven Variante -----------------------------
-// Auflösungsreihenfolge (erster Treffer gewinnt):
-//   1. Nutzer-Override aus den Einstellungen ('classic' | 'glass')
-//   2. Stabile A/B-Zuteilung (Hash der Nutzer-ID → 50/50)
-//   3. Default 'classic' (bis das Experiment hochgefahren ist)
-function hashString(str) {
-  let h = 0;
-  for (let i = 0; i < str.length; i++) {
-    h = (h << 5) - h + str.charCodeAt(i);
-    h |= 0; // auf 32-Bit halten
-  }
-  return Math.abs(h);
-}
-
-// Stabil pro Nutzer: derselbe Bucket über alle Sessions (kein Flackern).
-function abAssignment(s) {
-  const key = s.user?.id || s.user?.name || 'anon';
-  return hashString(key) % 2 === 0 ? 'classic' : 'glass';
-}
-
+// --- Layout-Variante: Auflösung der aktiven Variante ------------------------
+// Glass ist die Standard-Darstellung (Resultat des Usability-Tests, Band D).
+// Nur ein expliziter Nutzer-Override auf 'classic' wechselt zurück zur
+// klassischen Variante; jeder andere Wert ('glass' | 'system' | leer) ergibt
+// 'glass'.
 export function resolveLayoutVariant(s = state) {
-  const o = s.layoutOverride;
-  if (o === 'classic' || o === 'glass') return o;
-  return abAssignment(s);
+  return s.layoutOverride === 'classic' ? 'classic' : 'glass';
 }
 
 /** Aktive Variante für die Analytik-Markierung (ohne Hook). */
