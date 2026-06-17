@@ -25,7 +25,10 @@ export function HelpButton({ onClick, size = 32, tone = 'soft' }) {
 }
 
 /* ─── Scrim ───────────────────────────────────────────────────── */
-function Scrim({ zIndex = 90, onTap }) {
+// Modale Ebenen liegen bewusst über der schwebenden Glas-Chrome
+// (Navigation/Aktionen/Hilfe-FAB = z-index 1000), damit diese ein offenes
+// Sheet/Dialog nie überlagert.
+function Scrim({ zIndex = 1090, onTap }) {
   return (
     <motion.div
       initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
@@ -52,7 +55,7 @@ export function HelpSheet({ open, onClose, title = 'Hilfe', intro, items = [] })
             initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
             transition={sheetSpring}
             style={{
-              position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 91,
+              position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 1091,
               background: 'var(--card)',
               borderRadius: 'var(--radius-lg) var(--radius-lg) 0 0',
               boxShadow: '0 -10px 40px rgba(13,22,34,0.22)',
@@ -162,7 +165,7 @@ export function Toast({ open, onClose, tone = 'success', title, msg, action, bot
           initial={{ opacity: 0, y: 14 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 14 }}
           transition={{ duration: 0.3, ease: 'easeOut' }}
           style={{
-            position: 'absolute', left: 14, right: 14, bottom, zIndex: 80,
+            position: 'absolute', left: 14, right: 14, bottom, zIndex: 1080,
             background: 'var(--card)', border: '1px solid var(--line)',
             borderRadius: 'var(--radius)',
             boxShadow: '0 12px 32px rgba(13,22,34,0.20)',
@@ -216,9 +219,9 @@ export function ConfirmDialog({
     <AnimatePresence>
       {open && (
         <>
-          <Scrim zIndex={99} onTap={onCancel} />
+          <Scrim zIndex={1099} onTap={onCancel} />
           <div style={{
-            position: 'absolute', inset: 0, zIndex: 100,
+            position: 'absolute', inset: 0, zIndex: 1100,
             display: 'flex', alignItems: 'center', justifyContent: 'center',
             padding: '0 24px',
             pointerEvents: 'none',

@@ -11,7 +11,7 @@ export default function GlassHelpFab({ onClick, bottom = 100, right = 16 }) {
       aria-label="Hilfe"
       className="ab-press"
       style={{
-        position: 'absolute', right, bottom, zIndex: 42,
+        position: 'absolute', right, bottom, zIndex: 1000,
         width: 54, height: 54, borderRadius: '50%',
         background: AB_GLASS_BG, border: AB_GLASS_RIM,
         backdropFilter: AB_GLASS_BLUR, WebkitBackdropFilter: AB_GLASS_BLUR,
