@@ -108,14 +108,14 @@ export default function DatePicker({ label, value, onChange, required, error, hi
                 initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
                 transition={{ duration: 0.18 }}
                 onClick={() => setOpen(false)}
-                style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.32)', zIndex: 300 }}
+                style={{ position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.32)', zIndex: 1090 }}
               />
               <motion.div
                 key="dp-sheet"
                 initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
                 transition={{ type: 'spring', stiffness: 390, damping: 34 }}
                 style={{
-                  position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 301,
+                  position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 1091,
                   background: 'var(--card)',
                   borderRadius: '20px 20px 0 0',
                   paddingBottom: 32,

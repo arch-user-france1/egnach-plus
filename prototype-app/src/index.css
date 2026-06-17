@@ -4,6 +4,23 @@ body { margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
 .hide-scrollbar { scrollbar-width: none; }
 .hide-scrollbar::-webkit-scrollbar { display: none; }
 
+/* ─── 2.4.7 Fokus sichtbar (WCAG AA) ─────────────────────────────────────────
+   Durchgängiger, gut sichtbarer Fokus-Ring für alle per Tastatur erreichbaren
+   Bedienelemente. Greift auch bei Feldern, die `outline: none` inline setzen,
+   da `:focus-visible` spezifischer ist und `outline` dort nicht zustands-
+   abhängig inline gesetzt wird. */
+:focus-visible {
+  outline: 3px solid var(--focus-ring, #0B57B0);
+  outline-offset: 2px;
+}
+/* Eingabefelder setzen `outline: none` inline → hier den Ring sicher erzwingen. */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 3px solid var(--focus-ring, #0B57B0) !important;
+  outline-offset: 2px;
+}
+
 /* ─── Glass-Layout (Variante B) Animationen & Mikro-Interaktionen ─────────── */
 @keyframes ab-nav-in { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes ab-fab-in { from { opacity: 0; transform: translateY(10px) scale(0.94); } to { opacity: 1; transform: translateY(0) scale(1); } }
@@ -12,7 +29,17 @@ body { margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
 .ab-press { transition: transform .12s ease; }
 .ab-press:active { transform: scale(0.95); }
 
+/* ─── Skeleton-Schimmer (Lade-/Offline-Zustand, z. B. Karten-Vorschau) ─────── */
+@keyframes egnach-shimmer { 100% { transform: translateX(100%); } }
+.egnach-skeleton { position: relative; overflow: hidden; background: var(--surface-2, #ECE7DC); }
+.egnach-skeleton::after {
+  content: ''; position: absolute; inset: 0; transform: translateX(-100%);
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.55), transparent);
+  animation: egnach-shimmer 1.4s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   [style*="ab-nav-in"], [style*="ab-fab-in"] { animation: none !important; }
   .ab-tab-pill, .ab-press { transition: none !important; }
+  .egnach-skeleton::after { animation: none !important; }
 }

@@ -8,7 +8,7 @@ import { AB_GLASS_BG, AB_GLASS_BLUR, AB_GLASS_RIM, AB_GLASS_LIFT } from './token
 export default function GlassActions({ createLabel, onCreate, createIcon = 'plus', onHelp }) {
   return (
     <div style={{
-      position: 'absolute', right: 16, bottom: 100, zIndex: 42,
+      position: 'absolute', right: 16, bottom: 100, zIndex: 1000,
       display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 12,
       animation: 'ab-fab-in .4s cubic-bezier(.22,1,.36,1) both',
     }}>

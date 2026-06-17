@@ -43,14 +43,14 @@ export default function GlassOptionsSheet({
             initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
             transition={{ duration: 0.18 }}
             onClick={onClose}
-            style={{ position: 'absolute', inset: 0, zIndex: 90, background: 'rgba(13,22,34,0.42)' }}
+            style={{ position: 'absolute', inset: 0, zIndex: 1090, background: 'rgba(13,22,34,0.42)' }}
           />
           <motion.div
             initial={{ y: '100%' }} animate={{ y: 0 }} exit={{ y: '100%' }}
             transition={sheetSpring}
             role="dialog" aria-label="Sortieren und filtern"
             style={{
-              position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 91,
+              position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 1091,
               background: SHEET_BG,
               backdropFilter: AB_GLASS_BLUR, WebkitBackdropFilter: AB_GLASS_BLUR,
               borderTop: AB_GLASS_RIM,

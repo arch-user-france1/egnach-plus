@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Screen, Body, HelpSheet } from '../components/index.js';
 import TopBar from '../components/TopBar.jsx';
@@ -30,6 +30,10 @@ export default function RegisterScreen() {
   const [submitted, setSubmitted] = useState(false);
   const [help, setHelp] = useState(false);
 
+  // Container-Ref, um beim Absenden direkt zum ersten fehlerhaften Feld zu
+  // scrollen (Felder sind über `data-field` markiert).
+  const formRef = useRef(null);
+
   const set = (k) => (e) => setForm(f => ({ ...f, [k]: e.target.value }));
 
   const errors = submitted ? {
@@ -41,16 +45,32 @@ export default function RegisterScreen() {
 
   function handleSubmit() {
     setSubmitted(true);
-    const hasErrors = !form.vorname || !form.nachname || !form.email || form.passwort !== form.passwort2;
-    if (!hasErrors && accepted) {
-      actions.setUser({
-        name: `${form.vorname} ${form.nachname}`,
-        initials: `${form.vorname[0]}${form.nachname[0]}`.toUpperCase(),
-        neighborhood: form.quartier || 'Egnach Dorf',
-        verified: false,
+    // Fehler je Feld in DOM-Reihenfolge bestimmen, um zum ersten zu scrollen.
+    const fieldErrors = {
+      vorname: !form.vorname,
+      nachname: !form.nachname,
+      email: !form.email || !/\S+@\S+\.\S+/.test(form.email),
+      passwort2: form.passwort !== form.passwort2,
+      accepted: !accepted,
+    };
+    const firstError = ['vorname', 'nachname', 'email', 'passwort2', 'accepted'].find(k => fieldErrors[k]);
+    if (firstError) {
+      // Nach dem Re-Render (Fehlertexte sind dann im DOM) zum Feld scrollen.
+      requestAnimationFrame(() => {
+        const el = formRef.current?.querySelector(`[data-field="${firstError}"]`);
+        if (!el) return;
+        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        el.querySelector('input, select')?.focus({ preventScroll: true });
       });
-      navigate('/verify');
+      return;
     }
+    actions.setUser({
+      name: `${form.vorname} ${form.nachname}`,
+      initials: `${form.vorname[0]}${form.nachname[0]}`.toUpperCase(),
+      neighborhood: form.quartier || 'Egnach Dorf',
+      verified: false,
+    });
+    navigate('/verify');
   }
 
   return (
@@ -65,12 +85,18 @@ export default function RegisterScreen() {
           </p>
         </div>
 
-        <div style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
+        <div ref={formRef} style={{ display: 'flex', flexDirection: 'column', gap: 14 }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
-            <Field label="Vorname" required value={form.vorname} onChange={set('vorname')} error={errors.vorname} />
-            <Field label="Nachname" required value={form.nachname} onChange={set('nachname')} error={errors.nachname} />
+            <div data-field="vorname">
+              <Field label="Vorname" required value={form.vorname} onChange={set('vorname')} error={errors.vorname} />
+            </div>
+            <div data-field="nachname">
+              <Field label="Nachname" required value={form.nachname} onChange={set('nachname')} error={errors.nachname} />
+            </div>
           </div>
-          <Field label="E-Mail-Adresse" required type="email" value={form.email} onChange={set('email')} hint="Wir senden dir einen Bestätigungslink." error={errors.email} />
+          <div data-field="email">
+            <Field label="E-Mail-Adresse" required type="email" value={form.email} onChange={set('email')} hint="Wir senden dir einen Bestätigungslink." error={errors.email} />
+          </div>
           <Field label="Telefonnummer" required value={form.telefon} onChange={set('telefon')} hint="Format: +41 79 123 45 67" placeholder="+41 79 ..." />
           <DatePicker label="Geburtsdatum" required value={form.geburtsdatum} onChange={set('geburtsdatum')} hint="TT.MM.JJJJ — du musst mind. 16 Jahre alt sein." placeholder="TT.MM.JJJJ" />
 
@@ -96,14 +122,21 @@ export default function RegisterScreen() {
           </div>
 
           <Field label="Passwort" required type="password" value={form.passwort} onChange={set('passwort')} hint="Mind. 8 Zeichen, eine Zahl und ein Sonderzeichen." leading={<Icon name="lock" size={16} color="var(--ink-3)" />} />
-          <Field label="Passwort bestätigen" required type="password" value={form.passwort2} onChange={set('passwort2')} error={errors.passwort2} leading={<Icon name="lock" size={16} color="var(--ink-3)" />} />
+          <div data-field="passwort2">
+            <Field label="Passwort bestätigen" required type="password" value={form.passwort2} onChange={set('passwort2')} error={errors.passwort2} leading={<Icon name="lock" size={16} color="var(--ink-3)" />} />
+          </div>
 
-          <label style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginTop: 4, cursor: 'pointer' }}>
+          <label data-field="accepted" style={{ display: 'flex', gap: 10, alignItems: 'flex-start', marginTop: 4, cursor: 'pointer' }}>
             <Checkbox on={accepted} onChange={setAccepted} />
             <span style={{ flex: 1, fontFamily: 'var(--font)', fontSize: 12, lineHeight: 1.5, color: 'var(--ink-2)' }}>
               Ich akzeptiere die <u>Nutzungsbedingungen</u>, die <u>Datenschutzerklärung</u> und die <u>Cookie Notice</u> der Gemeinde Egnach.
             </span>
           </label>
+          {submitted && !accepted && (
+            <div role="alert" style={{ display: 'flex', alignItems: 'center', gap: 6, marginTop: -4, fontFamily: 'var(--font)', fontSize: 12, fontWeight: 600, color: 'var(--danger)' }}>
+              <Icon name="info" size={13} color="var(--danger)" /> Bitte akzeptiere die Bedingungen, um fortzufahren.
+            </div>
+          )}
         </div>
       </Body>
 
