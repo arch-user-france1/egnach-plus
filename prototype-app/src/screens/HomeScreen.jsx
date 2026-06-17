@@ -50,7 +50,7 @@ export default function HomeScreen() {
           </div>
         </div>
         <IconButton name="bell" badge="3" label="Benachrichtigungen" />
-        <IconButton name="qr" label="QR-Scanner" onClick={() => navigate('/map')} />
+        <IconButton name="map" label="Karte" onClick={() => navigate('/map')} />
         <HelpButton onClick={() => { track('open_help', { screen: 'home', variant }); setHelp(true); }} />
       </div>
 
