@@ -116,8 +116,8 @@ export default function ChatScreen() {
 
   if (!thread) return <Navigate to="/chat" replace />;
 
-  const partnerInitials = thread.initials;
-  const partnerName = thread.name.split(' ')[0];
+  const partnerInitials = thread.initials || '';
+  const partnerName = (thread.name || '').split(' ')[0];
   const lang = thread.lang || 'DE';
 
   function handleSend() {
@@ -165,21 +165,37 @@ export default function ChatScreen() {
 
       {/* Messages */}
       <div style={{ flex: 1, padding: '8px 14px 14px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: 10, WebkitOverflowScrolling: 'touch' }}>
-        <div style={{ textAlign: 'center', margin: '4px 0' }}>
-          <span style={{ fontFamily: 'var(--font)', fontSize: 11, color: 'var(--ink-3)', background: 'var(--surface-2)', padding: '4px 12px', borderRadius: 999 }}>Heute · 09:30</span>
-        </div>
-        {allMessages.map(m => (
-          <Bubble key={m.id} {...m} translateOn={translateOn} partnerInitials={partnerInitials} partnerName={partnerName} onListingClick={(id) => navigate(`/marktplatz/${id}`)} />
-        ))}
-        {/* Typing indicator */}
-        <div style={{ display: 'flex', justifyContent: 'flex-start', gap: 8, alignItems: 'flex-end' }}>
-          <Avatar size={28} initials={partnerInitials} />
-          <div style={{ padding: '8px 14px', borderRadius: '4px 16px 16px 16px', background: 'var(--card)', border: '1px solid var(--line)', display: 'flex', gap: 4 }}>
-            {[0, 0.2, 0.4].map((d, i) => (
-              <span key={i} style={{ width: 6, height: 6, borderRadius: 3, background: 'var(--ink-3)', display: 'inline-block', animation: `egnach-typ 1.4s ${d}s infinite` }} />
-            ))}
+        {allMessages.length === 0 ? (
+          <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px 24px', gap: 12 }}>
+            <div style={{ width: 56, height: 56, borderRadius: 28, background: 'var(--surface-2)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+              <Icon name="chat" size={26} color="var(--ink-3)" stroke={1.5} />
+            </div>
+            <div style={{ fontFamily: 'var(--font)', fontSize: 14, fontWeight: 700, color: 'var(--ink)', textAlign: 'center' }}>
+              {thread.name ? `Schreibe an ${thread.name}` : 'Neue Unterhaltung'}
+            </div>
+            <div style={{ fontFamily: 'var(--font)', fontSize: 12, color: 'var(--ink-3)', textAlign: 'center', lineHeight: 1.5 }}>
+              Noch keine Nachrichten. Starte die Unterhaltung!
+            </div>
           </div>
-        </div>
+        ) : (
+          <>
+            <div style={{ textAlign: 'center', margin: '4px 0' }}>
+              <span style={{ fontFamily: 'var(--font)', fontSize: 11, color: 'var(--ink-3)', background: 'var(--surface-2)', padding: '4px 12px', borderRadius: 999 }}>Heute · 09:30</span>
+            </div>
+            {allMessages.map(m => (
+              <Bubble key={m.id} {...m} translateOn={translateOn} partnerInitials={partnerInitials} partnerName={partnerName} onListingClick={(id) => navigate(`/marktplatz/${id}`)} />
+            ))}
+            {/* Typing indicator — only shown when there are messages */}
+            <div style={{ display: 'flex', justifyContent: 'flex-start', gap: 8, alignItems: 'flex-end' }}>
+              <Avatar size={28} initials={partnerInitials} />
+              <div style={{ padding: '8px 14px', borderRadius: '4px 16px 16px 16px', background: 'var(--card)', border: '1px solid var(--line)', display: 'flex', gap: 4 }}>
+                {[0, 0.2, 0.4].map((d, i) => (
+                  <span key={i} style={{ width: 6, height: 6, borderRadius: 3, background: 'var(--ink-3)', display: 'inline-block', animation: `egnach-typ 1.4s ${d}s infinite` }} />
+                ))}
+              </div>
+            </div>
+          </>
+        )}
         <div ref={bottomRef} />
       </div>
 

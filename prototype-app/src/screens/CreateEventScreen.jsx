@@ -344,8 +344,6 @@ export default function CreateEventScreen() {
             </>}
           </motion.div>
         </AnimatePresence>
-        {/* Glass: Inhalt über der schwebenden Leiste freihalten. */}
-        {isGlass && <div style={{ height: 96 }} />}
       </Body>
 
       {!isGlass && (

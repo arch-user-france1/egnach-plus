@@ -80,6 +80,13 @@ function AnimatedRoutes() {
   // Exposure/Assignment loggen, sobald der Nutzer eine Variante erstmals sieht.
   useEffect(() => { trackExposureOnce(variant); }, [variant]);
 
+  // Globaler CSS-Anker für den Abstand unter der schwebenden Glass-Leiste.
+  // Nur setzen, wenn die Leiste auf der aktuellen Route auch wirklich erscheint.
+  useEffect(() => {
+    const showGlassNav = isGlass && !CHROMELESS.has(location.pathname) && !location.pathname.startsWith('/chat/');
+    document.documentElement.style.setProperty('--glass-nav-pb', showGlassNav ? '88px' : '0px');
+  }, [isGlass, location.pathname]);
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
       <div style={{ position: 'relative', flex: 1, overflow: 'hidden' }}>

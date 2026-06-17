@@ -18,7 +18,10 @@ export function Body({ children, padding = 0, background, style }) {
       flex: 1, minHeight: 0, overflowY: 'auto', overflowX: 'hidden',
       padding, background, WebkitOverflowScrolling: 'touch',
       ...style,
-    }}>{children}</div>
+    }}>
+      {children}
+      <div aria-hidden="true" style={{ height: 'var(--glass-nav-pb, 0px)', flexShrink: 0 }} />
+    </div>
   );
 }
 

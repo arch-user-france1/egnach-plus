@@ -64,7 +64,7 @@ export default function EditListingScreen() {
   ], isGlass && !!listing);
 
   if (!listing) {
-    navigate(-1);
+    navigate(fromMarket ? '/marktplatz' : '/profil', { replace: true });
     return null;
   }
 
@@ -97,7 +97,7 @@ export default function EditListingScreen() {
 
   function handleDelete() {
     actions.removeListing(id);
-    navigate(fromMarket ? '/marktplatz' : '/profil');
+    navigate(fromMarket ? '/marktplatz' : '/profil', { replace: true });
   }
 
   return (
@@ -191,8 +191,6 @@ export default function EditListingScreen() {
             Inserat löschen
           </button>
         </div>
-        {/* Glass: Inhalt über der schwebenden Leiste freihalten. */}
-        {isGlass && <div style={{ height: 96 }} />}
       </Body>
 
       {!isGlass && (
