@@ -171,7 +171,7 @@ export default function ListingDetailScreen() {
         </Card>
       </div>
 
-      <div style={{ height: 100 }} />
+      <div style={{ height: isGlass ? 96 : 100, flexShrink: 0 }} />
 
       {!isGlass && (
         <div style={{ position: 'sticky', bottom: 0, padding: '12px 16px 22px', background: 'var(--card)', borderTop: '1px solid var(--line)', display: 'flex', gap: 10, alignItems: 'center' }}>

@@ -18,7 +18,9 @@ export function Body({ children, padding = 0, background, style }) {
       flex: 1, minHeight: 0, overflowY: 'auto', overflowX: 'hidden',
       padding, background, WebkitOverflowScrolling: 'touch',
       ...style,
-    }}>{children}</div>
+    }}>
+      {children}
+    </div>
   );
 }
 

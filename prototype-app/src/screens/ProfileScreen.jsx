@@ -258,7 +258,6 @@ export default function ProfileScreen() {
         <div style={{ textAlign: 'center', padding: '0 16px 16px', fontFamily: 'var(--font)', fontSize: 10, color: 'var(--ink-3)' }}>
           Egnach Plus · v1.0.0 · Gemeinde Egnach
         </div>
-        {/* Glass: Inhalt über der schwebenden Navigation freihalten. */}
         {activeVariant === 'glass' && <div style={{ height: 96 }} />}
       </Body>
 

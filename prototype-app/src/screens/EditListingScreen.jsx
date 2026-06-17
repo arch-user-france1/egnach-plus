@@ -63,10 +63,7 @@ export default function EditListingScreen() {
     { key: 'save', label: 'Speichern', icon: 'check', tone: 'primary', onClick: () => handleSave() },
   ], isGlass && !!listing);
 
-  if (!listing) {
-    navigate(-1);
-    return null;
-  }
+  if (!listing) return null;
 
   const set = (k) => (e) => {
     setForm(f => ({ ...f, [k]: e.target.value }));
@@ -96,8 +93,8 @@ export default function EditListingScreen() {
   }
 
   function handleDelete() {
+    navigate(fromMarket ? '/marktplatz' : '/profil', { replace: true });
     actions.removeListing(id);
-    navigate(fromMarket ? '/marktplatz' : '/profil');
   }
 
   return (
@@ -191,7 +188,6 @@ export default function EditListingScreen() {
             Inserat löschen
           </button>
         </div>
-        {/* Glass: Inhalt über der schwebenden Leiste freihalten. */}
         {isGlass && <div style={{ height: 96 }} />}
       </Body>
 
