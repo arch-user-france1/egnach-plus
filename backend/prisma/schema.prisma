@@ -1,0 +1,171 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum ListingCat {
+  Leihen
+  Dienste
+  Tausch
+  Jobs
+}
+
+enum Tone {
+  sand
+  lake
+  slate
+  moss
+  rose
+}
+
+enum LayoutOverride {
+  system
+  classic
+  glass
+}
+
+enum RsvpStatus {
+  accepted
+  declined
+}
+
+model User {
+  id             String         @id @default(cuid())
+  email          String         @unique
+  passwordHash   String
+  name           String
+  initials       String
+  neighborhood   String
+  verified       Boolean        @default(false)
+  lang           String         @default("de")
+  textScale      Float          @default(1.0)
+  layoutOverride LayoutOverride @default(system)
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  listings       Listing[]
+  favorites      Favorite[]
+  events         Event[]
+  rsvps          EventRsvp[]
+  sentMessages   Message[]      @relation("SentMessages")
+  threadsAsA     ChatThread[]   @relation("ThreadUserA")
+  threadsAsB     ChatThread[]   @relation("ThreadUserB")
+  availabilities Availability[]
+}
+
+model Listing {
+  id           String     @id @default(cuid())
+  title        String
+  cat          ListingCat
+  neighborhood String
+  lat          Float?
+  lng          Float?
+  price        String
+  priceWeek    String?
+  rating       Float      @default(0)
+  reviews      Int        @default(0)
+  tone         Tone       @default(sand)
+  available    String
+  handover     String
+  deposit      String?
+  languages    String
+  description  String
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+
+  owner     User         @relation(fields: [ownerId], references: [id])
+  ownerId   String
+  favorites Favorite[]
+  threads   ChatThread[]
+}
+
+model Favorite {
+  userId    String
+  listingId String
+  user      User    @relation(fields: [userId], references: [id])
+  listing   Listing @relation(fields: [listingId], references: [id])
+
+  @@id([userId, listingId])
+}
+
+model Event {
+  id          String    @id @default(cuid())
+  title       String
+  date        String
+  dateShort   String
+  time        String
+  location    String
+  address     String
+  cats        String[]
+  tone        Tone      @default(lake)
+  free        Boolean   @default(true)
+  languages   String
+  description String
+  organizer   String
+  attendees   Int       @default(0)
+  month       String
+  day         Int
+  neighbors   Int       @default(0)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  creator   User        @relation(fields: [creatorId], references: [id])
+  creatorId String
+  rsvps     EventRsvp[]
+}
+
+model EventRsvp {
+  userId  String
+  eventId String
+  status  RsvpStatus
+  user    User       @relation(fields: [userId], references: [id])
+  event   Event      @relation(fields: [eventId], references: [id])
+
+  @@id([userId, eventId])
+}
+
+model ChatThread {
+  id        String   @id @default(cuid())
+  createdAt DateTime @default(now())
+
+  userAId   String
+  userBId   String
+  listingId String?
+
+  userA    User      @relation("ThreadUserA", fields: [userAId], references: [id])
+  userB    User      @relation("ThreadUserB", fields: [userBId], references: [id])
+  listing  Listing?  @relation(fields: [listingId], references: [id])
+  messages Message[]
+
+  @@unique([userAId, userBId])
+}
+
+model Message {
+  id             String   @id @default(cuid())
+  text           String
+  translation    String?
+  translatedFrom String?
+  translatedTo   String?
+  createdAt      DateTime @default(now())
+
+  threadId String
+  senderId String
+  thread   ChatThread @relation(fields: [threadId], references: [id])
+  sender   User       @relation("SentMessages", fields: [senderId], references: [id])
+}
+
+model Availability {
+  id        String   @id @default(cuid())
+  date      String
+  slots     Json
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  @@unique([userId, date])
+}

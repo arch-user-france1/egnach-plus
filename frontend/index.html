@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Egnach Plus</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Manrope:wght@400;500;600;700&family=DM+Sans:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600;700&family=Fraunces:wght@500;600;700&family=Space+Grotesk:wght@500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="" />
+    <style>
+      *, *::before, *::after { box-sizing: border-box; }
+      html, body {
+        margin: 0; padding: 0; height: 100%;
+        background: #E8E4DA;
+        font-family: 'Inter', -apple-system, system-ui, sans-serif;
+        -webkit-tap-highlight-color: transparent;
+        overscroll-behavior: none;
+      }
+      #root {
+        width: 100%;
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+      }
+      .phone-shell {
+        width: 100%;
+        max-width: 430px;
+        height: 100vh;
+        position: relative;
+        overflow: hidden;
+        background: var(--surface, #FBFAF7);
+        box-shadow: 0 0 0 1px rgba(0,0,0,0.06), 0 24px 64px rgba(0,0,0,0.18);
+      }
+      button { font-family: inherit; cursor: pointer; }
+      input, textarea, select { font-family: inherit; }
+      .leaflet-container {
+        background: #EFE9DD;
+        font-family: 'Inter', system-ui, sans-serif !important;
+      }
+      .leaflet-control-attribution {
+        font-family: 'Inter', system-ui, sans-serif !important;
+        font-size: 9px !important;
+      }
+      @keyframes egnach-scan {
+        0%   { top: 4px; }
+        100% { top: calc(100% - 6px); }
+      }
+      @keyframes egnach-pulse {
+        0%   { transform: scale(0.6); opacity: 0.6; }
+        70%  { transform: scale(1.8); opacity: 0; }
+        100% { transform: scale(1.8); opacity: 0; }
+      }
+      @keyframes egnach-typ {
+        0%, 60%, 100% { opacity: 0.3; }
+        30%            { opacity: 1; }
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+    <script type="module" src="/src/main.jsx"></script>
+  </body>
+</html>
